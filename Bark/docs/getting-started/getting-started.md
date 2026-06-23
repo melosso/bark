@@ -1,0 +1,79 @@
+---
+title: Getting Started
+description: Get Bark running locally in under a minute
+---
+
+# Getting Started
+
+In a nutshell, Bark takes a folder of Markdown and turns it into a searchable, navigable docs site: no build step, no static-site generator, no JavaScript framework to wire up. Just want to see it running? Keep reading, you're two commands away.
+
+Bark is a single ASP.NET Core process. Point it at a folder of Markdown, and it renders pages on the fly. Navigation, search index, table of contents, and breadcrumbs rebuild automatically the moment a file changes on disk. You edit, you save, you see it.
+
+## What you get
+
+- **Markdown rendering**: CommonMark + GitHub-flavored extras (tables, task lists, footnotes, alert blocks, emoji), plus VitePress-style custom containers, code groups, line highlighting, and math.
+- **Hot reload**: edit a `.md` file or `config.json`, see it live. No restart.
+- **Search**: built-in in-memory inverted index, exposed at `/api/search?q=`.
+- **Navigation, breadcrumbs, TOC, prev/next pagination**: generated automatically from your folder structure and headings.
+- **Theming**: CSS variable overrides and dark mode toggle, configured via `appsettings.json`.
+- **Production-minded defaults**: response compression, Kestrel limits, structured logging via Serilog, ETag-based caching, plus `sitemap.xml`/`robots.txt`/`llms.txt`.
+
+Bark stays narrow on purpose: render Markdown fast, reload instantly, stay out of your way.
+
+## Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+- That's it. Bark doesn't need IIS, Node, or a database to run locally.
+
+## Run it
+
+```bash
+cd Bark
+dotnet restore
+dotnet watch --project src/Bark
+```
+
+Open `http://localhost:5000`. That's the whole onboarding flow.
+
+`dotnet watch` gives you hot reload on the C# side too, but you mostly won't need it for content work. Bark already watches `docs/**/*.md` and `docs/config.json` with its own `FileSystemWatcher` and rebuilds in the background. Edits are debounced ~300ms so a flurry of editor saves doesn't trigger a rebuild storm, and the browser refreshes itself once the rebuild lands.
+
+For a plain run without the C# watcher:
+
+```bash
+dotnet run --project src/Bark
+```
+
+**TIP.** On an external or network-mounted drive, filesystem change notifications can occasionally fire without real content changes. Bark hashes the rebuilt content and only reloads the browser when something actually changed, so this doesn't show up as a problem in practice. It's why a rebuild log line doesn't always mean the page you're looking at changed.
+
+## Where docs live
+
+Markdown files go in `docs/` at the repo root by default (configurable, see [Site Config](../reference/site-config)). The folder tree becomes the navigation tree unless you override it in `config.json`. `index.md` in any folder becomes that folder's landing page.
+
+```
+docs/
+├── config.json                      ← optional, see Configuration
+├── index.md                         ← served at /
+├── getting-started/
+│   ├── getting-started.md           ← served at /getting-started/getting-started
+│   ├── configuration.md
+│   ├── routing.md
+│   └── deploy.md
+└── reference/
+    ├── site-config.md
+    ├── cli.md
+    ├── api-reference.md
+    └── sitemap-generation.md
+```
+
+Front matter (`title`, `description`) is optional. Bark falls back to the filename, or to a nav-configured title if you've set one in `config.json`, when it's missing:
+
+```markdown
+---
+title: Getting Started
+description: Get Bark running locally
+---
+
+# Getting Started
+...
+```
+

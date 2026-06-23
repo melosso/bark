@@ -1,0 +1,74 @@
+{
+  "brand": "Bark",
+  "favicon": "🌳",
+  "lastUpdated": true,
+  "footer": "Built with Bark · [AGPL-3.0](https://github.com/hawkinslabdev/bark/blob/main/LICENSE)",
+  "topNav": [
+    { "text": "Home", "link": "/" },
+    { "text": "Getting Started", "link": "/getting-started/getting-started" },
+    { "text": "Reference", "link": "/reference/site-config" },
+    {
+      "text": "More",
+      "items": [
+        { "text": "GitHub", "link": "https://github.com/hawkinslabdev/bark" },
+        { "text": "Releases", "link": "https://github.com/hawkinslabdev/bark/releases" }
+      ]
+    }
+  ],
+  "sidebar": {
+    "/getting-started/": [
+      {
+        "title": "Introduction",
+        "collapsed": false,
+        "items": [
+          { "title": "Getting Started", "path": "getting-started/getting-started" },
+          { "title": "Configuration", "path": "getting-started/configuration" },
+          { "title": "Routing", "path": "getting-started/routing" },
+          { "title": "Deploy", "path": "getting-started/deploy" }
+        ]
+      },
+      {
+        "title": "Writing",
+        "collapsed": false,
+        "items": [
+          { "title": "Markdown", "path": "getting-started/markdown" },
+          { "title": "Diagrams", "path": "getting-started/diagrams" }
+        ]
+      }
+    ],
+    "/reference/": [
+      {
+        "title": "Reference",
+        "items": [
+          { "title": "Site Config", "path": "reference/site-config" },
+          { "title": "Frontmatter Config", "path": "reference/frontmatter-config" },
+          { "title": "API Reference", "path": "reference/api-reference" },
+          { "title": "CLI", "path": "reference/cli" },
+          { "title": "Sitemap & Crawlers", "path": "reference/sitemap-generation" },
+          {
+            "title": "Default Theme",
+            "items": [
+              { "title": "Nav", "path": "reference/default-theme-nav" },
+              { "title": "Sidebar", "path": "reference/default-theme-sidebar" },
+              { "title": "Home Page", "path": "reference/default-theme-home-page" },
+              { "title": "Footer", "path": "reference/default-theme-footer" },
+              { "title": "Layout", "path": "reference/default-theme-layout" },
+              { "title": "Prev / Next Links", "path": "reference/default-theme-prev-next-links" },
+              { "title": "Edit Link", "path": "reference/default-theme-edit-link" },
+              { "title": "Last Updated Timestamp", "path": "reference/default-theme-last-updated" },
+              { "title": "Search", "path": "reference/default-theme-search" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "socialLinks": [
+    { "icon": "github", "url": "https://github.com/hawkinslabdev/bark", "title": "GitHub" },
+    { "icon": "mastodon", "url": "https://fosstodon.org/@example", "title": "Mastodon" }
+  ],
+  "editLink": {
+    "pattern": "https://github.com/hawkinslabdev/bark/edit/main/Bark/docs/:path",
+    "text": "Edit this page on GitHub"
+  }
+}
