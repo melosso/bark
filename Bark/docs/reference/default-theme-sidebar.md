@@ -66,4 +66,5 @@ Every entry in a sidebar array is either a link or a group, and groups nest to a
 
 A group containing the page you're currently on always renders expanded, no matter what `collapsed` says. Collapsing is implemented with native `<details>`/`<summary>`, so it works with JavaScript disabled and doesn't need any client-side state.
 
-**TIP.** Use static (no `collapsed` field) groups for reference material someone scans top to bottom, like this site's `/reference/` sidebar. Use collapsible groups for a guide with more sections than fit comfortably on screen at once.
+> [!NOTE] 
+> Use static (no `collapsed` field) groups for reference material someone scans top to bottom, like this site's `/reference/` sidebar. Use collapsible groups for a guide with more sections than fit comfortably on screen at once.

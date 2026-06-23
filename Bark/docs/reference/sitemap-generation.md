@@ -34,7 +34,8 @@ Sitemap: https://your-host/sitemap.xml
 
 Generated per-request, not a static file, so the `Sitemap:` line always points at whatever host actually served the request: `http://localhost:5000` in dev, your real domain in production, without you maintaining two versions.
 
-**TIP.** Behind a reverse proxy, this only resolves correctly if forwarded headers are wired up so ASP.NET Core sees the real scheme and host instead of the proxy's internal address. See [Deploy](../getting-started/deploy).
+> [!NOTE] 
+> Behind a reverse proxy, this only resolves correctly if forwarded headers are wired up so ASP.NET Core sees the real scheme and host instead of the proxy's internal address. See [Deploy](../getting-started/deploy).
 
 ## `llms.txt`
 

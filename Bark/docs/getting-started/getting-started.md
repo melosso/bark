@@ -20,30 +20,33 @@ Bark is a single ASP.NET Core process. Point it at a folder of Markdown, and it 
 
 Bark stays narrow on purpose: render Markdown fast, reload instantly, stay out of your way.
 
-## Prerequisites
-
-- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
-- That's it. Bark doesn't need IIS, Node, or a database to run locally.
-
 ## Run it
 
-```bash
-cd Bark
-dotnet restore
-dotnet watch --project src/Bark
+Docker is the fastest path. Create a `docker-compose.yml`:
+
+```yaml
+services:
+  bark:
+    image: ghcr.io/hawkinslabdev/bark:latest
+    container_name: bark
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docs:/app/docs
 ```
 
-Open `http://localhost:5000`. That's the whole onboarding flow.
-
-`dotnet watch` gives you hot reload on the C# side too, but you mostly won't need it for content work. Bark already watches `docs/**/*.md` and `docs/config.json` with its own `FileSystemWatcher` and rebuilds in the background. Edits are debounced ~300ms so a flurry of editor saves doesn't trigger a rebuild storm, and the browser refreshes itself once the rebuild lands.
-
-For a plain run without the C# watcher:
+Mount your own `docs/` folder (your `.md` files plus an optional `config.json`), then run:
 
 ```bash
-dotnet run --project src/Bark
+docker compose up -d
 ```
 
-**TIP.** On an external or network-mounted drive, filesystem change notifications can occasionally fire without real content changes. Bark hashes the rebuilt content and only reloads the browser when something actually changed, so this doesn't show up as a problem in practice. It's why a rebuild log line doesn't always mean the page you're looking at changed.
+Open `http://localhost:8080`. That's the whole onboarding flow.
+
+Not on Docker? See [Deploy](deploy) for the Windows/IIS and Linux release-zip paths, plus building Bark from source yourself if you'd rather not pull a container image.
+
+> [!NOTE] 
+> Hot reload works the same regardless of how you run Bark. It watches `docs/**/*.md` and `docs/config.json` with its own `FileSystemWatcher` and rebuilds in the background, debounced ~300ms so a flurry of editor saves doesn't trigger a rebuild storm. The browser refreshes itself once the rebuild lands. On an external or network-mounted drive, filesystem change notifications can occasionally fire without real content changes. Bark hashes the rebuilt content and only reloads the browser when something actually changed, so this doesn't show up as a problem in practice.
 
 ## Where docs live
 
