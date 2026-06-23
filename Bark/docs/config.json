@@ -55,7 +55,7 @@
               { "title": "Layout", "path": "reference/default-theme-layout" },
               { "title": "Prev / Next Links", "path": "reference/default-theme-prev-next-links" },
               { "title": "Edit Link", "path": "reference/default-theme-edit-link" },
-              { "title": "Last Updated Timestamp", "path": "reference/default-theme-last-updated" },
+              { "title": "Last Updated", "path": "reference/default-theme-last-updated" },
               { "title": "Search", "path": "reference/default-theme-search" }
             ]
           }
