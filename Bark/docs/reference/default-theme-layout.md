@@ -43,8 +43,8 @@ hero:
 Set `layout: home` and Bark drops the sidebar, breadcrumbs, and TOC entirely, replacing your content with a full-width hero section and features grid. See [Home Page](default-theme-home-page) for the full `hero`/`features` schema.
 
 > [!NOTE]  
-> Home pages never show "Edit this page", "Last updated", or pagination links, regardless of config. This is intentional, not a bug: a landing page isn't part of the linear reading order pagination assumes, and there's nothing to "edit" in the sense those links imply.
+> Home pages never show "Edit this page", "Last updated", or pagination links, regardless of config. This is intentional: a landing page isn't part of the linear reading order pagination assumes, and there's nothing to "edit" in the sense those links imply.
 
 ## What's not here
 
-Bark doesn't have vitepress's `aside` toggle (hiding the right-hand TOC per page), a dedicated "page" layout variant (full width without a hero), or a way to swap in a fully custom layout. Two layouts cover the cases a Markdown-first docs server needs. If you need something else, that's a real gap, not a hidden option.
+Bark doesn't have vitepress's `aside` toggle (hiding the right-hand TOC per page), a dedicated "page" layout variant (full width without a hero), or a way to swap in a fully custom layout. Two layouts cover the cases a Markdown-first docs server needs. If you need something else, that's a real gap.

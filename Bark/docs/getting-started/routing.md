@@ -31,7 +31,7 @@ This logic lives in one place, `PagePath.FromFile()`, so it's consistent everywh
 3. No match in the page cache → a 404 page, not an exception.
 
 > [!NOTE]  
-> There's no way to give a page a custom URL independent of its file path. If you want `/quickstart` instead of `/getting-started/getting-started`, rename the file. This is a deliberate constraint, not a missing feature: one source of truth for "where does this page live" keeps the mental model simple.
+> There's no way to give a page a custom URL independent of its file path. If you want `/quickstart` instead of `/getting-started/getting-started`, rename the file. This is a deliberate constraint: one source of truth for "where does this page live" keeps the mental model simple.
 
 ## Navigating between pages
 

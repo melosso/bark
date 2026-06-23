@@ -1,11 +1,11 @@
 ---
-title: Markdown Cheatsheet
+title: Markdown
 description: Every Markdown extension Bark supports, with live examples
 ---
 
-# Markdown Cheatsheet
+# Using Markdown
 
-Everything below renders live on this page. It's not a static screenshot. If something here looks broken, the renderer is broken, not the doc.
+All pages are primarily written in [Markdown](https://www.markdownguide.org/getting-started/). Everything below renders live on this page; it´s tested and verified.
 
 ## Syntax-highlighted code blocks
 

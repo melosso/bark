@@ -3,7 +3,7 @@ title: Diagrams
 description: Mermaid diagrams, rendered straight from a fenced code block
 ---
 
-# Diagrams
+# Using Diagrams
 
 To fence a Mermaid block, simply use the `mermaid` language identifier. Bark will automatically detect this and render it as a diagram rather than displaying it as a code listing.
 

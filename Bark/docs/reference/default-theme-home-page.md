@@ -58,6 +58,6 @@ An array of cards rendered in a responsive grid below the hero.
 | `link` | `string` | no | If set, the whole card becomes a link. |
 
 > [!NOTE]  
-> This is a deliberately simplified version of VitePress's home page schema. `hero.image`/`features[].icon` only take a plain string here, not the light/dark themeable-image object VitePress supports, and there's no `markdownStyles` toggle. If you need per-theme hero artwork, that's a gap, not a hidden option.
+> This is a deliberately simplified version of VitePress's home page schema. `hero.image`/`features[].icon` only take a plain string here, not the light/dark themeable-image object VitePress supports, and there's no `markdownStyles` toggle. If you need per-theme hero artwork, that's a real gap.
 
 Content written below the front matter (regular Markdown) still renders, directly beneath the features grid. Use it for a short paragraph or an extra call-to-action that doesn't fit the hero/features shape.
