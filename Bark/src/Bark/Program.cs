@@ -188,8 +188,7 @@ try
         var topNavHtml = BuildTopNavHtml(config?.TopNav, path);
         var mobileTopNavHtml = BuildMobileTopNavHtml(config?.TopNav, path);
 
-        var tocHtml = string.Join("", page.Headings.Select(h =>
-            $"<li class=\"toc-item\"><a href=\"#{LayoutProvider.HtmlEncode(h.Id)}\">{LayoutProvider.HtmlEncode(h.Text)}</a></li>"));
+        var tocHtml = BuildTocHtml(page.Headings);
 
         var crumbs = docs.GetBreadcrumbs(path);
         var breadcrumbHtml = BuildBreadcrumbHtml(crumbs, page.Title);
@@ -224,7 +223,7 @@ try
             : string.Empty;
 
         const string editLinkIcon = "<svg class=\"edit-link-icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"currentColor\" aria-hidden=\"true\">" +
-            "<path d=\"M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z\"/></svg>";
+            "<path d=\"M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z\"/></svg>";
 
         var editLinkHtml = !isHomePage && config?.EditLink is { Pattern: { Length: > 0 } pattern } editLink
             ? $"<a class=\"edit-link\" href=\"{LayoutProvider.HtmlEncode(pattern.Replace(":path", $"{page.Path}.md"))}\" " +
@@ -534,6 +533,64 @@ static string ToDisplayName(string name)
     return char.ToUpperInvariant(display[0]) + display[1..];
 }
 
+// vitepress's "on this page" outline excludes the page's own H1 (level 1); everything from the
+// shallowest remaining heading down is collapsed onto a 3-level scale (deeper headings flatten
+// onto level 3) so the TOC never grows a fourth visual indent regardless of how deep a page nests.
+static string BuildTocHtml(IReadOnlyList<HeadingInfo> headings)
+{
+    var items = headings.Where(h => h.Level >= 2).ToList();
+    if (items.Count == 0)
+        return string.Empty;
+
+    var minLevel = items.Min(h => h.Level);
+    var roots = BuildTocTree(items, minLevel);
+
+    var html = new StringBuilder();
+    foreach (var root in roots)
+        AppendTocNode(html, root);
+    return html.ToString();
+}
+
+static List<TocNode> BuildTocTree(IReadOnlyList<HeadingInfo> items, int minLevel)
+{
+    var roots = new List<TocNode>();
+    var stack = new List<(int Depth, TocNode Node)>();
+
+    foreach (var heading in items)
+    {
+        var depth = Math.Min(heading.Level - minLevel + 1, 3);
+        var node = new TocNode(heading);
+
+        while (stack.Count > 0 && stack[^1].Depth >= depth)
+            stack.RemoveAt(stack.Count - 1);
+
+        if (stack.Count == 0)
+            roots.Add(node);
+        else
+            stack[^1].Node.Children.Add(node);
+
+        stack.Add((depth, node));
+    }
+
+    return roots;
+}
+
+static void AppendTocNode(StringBuilder html, TocNode node)
+{
+    html.Append("<li class=\"toc-item\">");
+    html.Append($"<a href=\"#{LayoutProvider.HtmlEncode(node.Heading.Id)}\">{LayoutProvider.HtmlEncode(node.Heading.Text)}</a>");
+
+    if (node.Children.Count > 0)
+    {
+        html.Append("<ul class=\"toc-sublist\">");
+        foreach (var child in node.Children)
+            AppendTocNode(html, child);
+        html.Append("</ul>");
+    }
+
+    html.Append("</li>");
+}
+
 static string BuildBreadcrumbHtml(IReadOnlyList<BreadcrumbItem> crumbs, string currentTitle)
 {
     var html = new StringBuilder();
@@ -622,4 +679,9 @@ void LogApplicationBanner()
     Log.Information("");
     Log.Information("Bark - A simple documentation server built with ASP.NET Core");
     Log.Information("");
+}
+
+sealed record TocNode(HeadingInfo Heading)
+{
+    public List<TocNode> Children { get; } = [];
 }

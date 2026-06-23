@@ -57,9 +57,12 @@ public static class LayoutProvider
         var sidebarRightHtml = isHomePage ? "" : $@"
         <aside class=""sidebar-right"" aria-label=""Table of contents"">
             <div class=""toc-title"">On This Page</div>
-            <ul class=""toc-list"">
-                {tocHtml}
-            </ul>
+            <div class=""toc-list-wrapper"">
+                <div class=""toc-indicator"" aria-hidden=""true""></div>
+                <ul class=""toc-list"">
+                    {tocHtml}
+                </ul>
+            </div>
         </aside>";
         var contentClass = isHomePage ? "content vp-home-content" : "content";
         // Home pages never show "last updated" or prev/next pagination, regardless of what the
@@ -714,26 +717,43 @@ public static class LayoutProvider
             font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
             color: var(--text-muted); margin-bottom: 1rem; font-weight: 600;
         }}
+        /* The sliding accent bar (.toc-indicator) is positioned absolutely within this wrapper
+           and translated to the active item's offset by JS, so it needs to be the bar's
+           containing block regardless of how deep .toc-list/.toc-sublist nesting goes. */
+        .toc-list-wrapper {{
+            position: relative;
+        }}
+        .toc-indicator {{
+            position: absolute; left: 0; top: 0; width: 2px; border-radius: 2px;
+            background-color: var(--accent); opacity: 0; height: 0;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, height 0.2s ease;
+            will-change: transform;
+        }}
+        .toc-indicator.visible {{ opacity: 1; }}
         .toc-list {{
-            list-style: none; font-size: 0.9rem;
+            list-style: none; font-size: 0.875rem; padding-left: 0.9rem;
+        }}
+        .toc-sublist {{
+            list-style: none; padding-left: 0.9rem;
         }}
         .toc-item {{
             margin-bottom: 0.1rem;
         }}
-        /* Same row treatment as the left sidebar's .sidebar-link: tint-on-active, not a
-           left-border indicator, for visual consistency between the two sidebars. */
+        /* Levels differentiate through indentation (above, via .toc-sublist) and font weight/size,
+           not color, since the active accent bar is the one color cue that should stand out. */
+        .toc-list > .toc-item > a {{ font-weight: 500; }}
+        .toc-list > .toc-item > .toc-sublist > .toc-item > a {{ font-weight: 400; }}
+        .toc-list > .toc-item > .toc-sublist > .toc-item > .toc-sublist > .toc-item > a {{
+            font-weight: 400; font-size: 0.8rem;
+        }}
         .toc-item a {{
-            display: block; font-size: 0.875rem; color: var(--text-muted); line-height: 1.4;
-            text-decoration: none; padding: 0.45rem 0.8rem; margin-left: -0.8rem;
-            border-radius: 6px; transition: all 0.15s ease;
+            display: block; color: var(--text-muted); line-height: 1.5;
+            text-decoration: none; padding: 0.3rem 0.8rem;
+            transition: color 0.15s ease;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }}
-        .toc-item a:hover {{
-            color: var(--text-color); background-color: var(--code-bg);
-        }}
-        .toc-item.active a {{
-            color: var(--accent); background-color: var(--accent-light); font-weight: 500;
-        }}
+        .toc-item a:hover {{ color: var(--text-color); }}
+        .toc-item.active > a {{ color: var(--accent); }}
         .social-links {{
             display: flex; align-items: center; gap: 0.25rem;
         }}
@@ -870,8 +890,10 @@ public static class LayoutProvider
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {{
-            var headings = document.querySelectorAll('.content h1, .content h2, .content h3');
+            var headings = document.querySelectorAll('.content h1, .content h2, .content h3, .content h4');
             var tocItems = document.querySelectorAll('.toc-item');
+            var tocIndicator = document.querySelector('.toc-indicator');
+            var tocListWrapper = document.querySelector('.toc-list-wrapper');
             var scrollIndicator = document.getElementById('scroll-indicator');
             var searchInput = document.getElementById('search-input');
             var searchResults = document.getElementById('search-results');
@@ -959,30 +981,65 @@ public static class LayoutProvider
 
             window.addEventListener('scroll', updateScrollProgress);
 
+            // Moves the sliding accent bar to the active item's position. transform/height
+            // both transition via CSS, so this only needs to set the target values.
+            function updateTocIndicator() {{
+                if (!tocIndicator || !tocListWrapper) return;
+                var activeLink = tocListWrapper.querySelector('.toc-item.active > a');
+                if (!activeLink) {{
+                    tocIndicator.classList.remove('visible');
+                    return;
+                }}
+                var wrapperTop = tocListWrapper.getBoundingClientRect().top;
+                var linkRect = activeLink.getBoundingClientRect();
+                tocIndicator.style.transform = 'translateY(' + (linkRect.top - wrapperTop) + 'px)';
+                tocIndicator.style.height = linkRect.height + 'px';
+                tocIndicator.classList.add('visible');
+            }}
+
+            // The same toc-item markup is rendered twice (the tablet inline <details> dropdown
+            // and the desktop right sidebar), so activation is keyed by heading id, not by a
+            // single DOM node, and applies to every copy that matches.
+            function setActiveTocId(id) {{
+                tocItems.forEach(function(item) {{
+                    var link = item.querySelector('a');
+                    var matches = link && link.getAttribute('href') === '#' + id;
+                    item.classList.toggle('active', !!matches);
+                }});
+                updateTocIndicator();
+            }}
+
             var observer = new IntersectionObserver(function(entries) {{
                 entries.forEach(function(entry) {{
                     if (entry.isIntersecting) {{
-                        var id = entry.target.getAttribute('id');
-                        tocItems.forEach(function(item) {{
-                            var link = item.querySelector('a');
-                            if (link && link.getAttribute('href') === '#' + id) {{
-                                item.classList.add('active');
-                            }} else {{
-                                item.classList.remove('active');
-                            }}
-                        }});
+                        setActiveTocId(entry.target.getAttribute('id'));
                     }}
                 }});
             }}, {{ root: null, rootMargin: '-5% 0px -75% 0px', threshold: 0 }});
 
             headings.forEach(function(h) {{ observer.observe(h); }});
 
+            // IntersectionObserver's rootMargin only watches the top ~20% of the viewport, so
+            // once you're scrolled to the very bottom of the page, the last heading can sit
+            // above that zone (nothing left to scroll it down into view) and never re-fires an
+            // intersection event. Without this, the second-to-last item stays stuck active
+            // forever once you reach the bottom.
+            function checkScrolledToBottom() {{
+                var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+                if (atBottom && headings.length > 0) {{
+                    setActiveTocId(headings[headings.length - 1].getAttribute('id'));
+                }}
+            }}
+
+            window.addEventListener('scroll', checkScrolledToBottom, {{ passive: true }});
+            window.addEventListener('resize', updateTocIndicator);
+            checkScrolledToBottom();
+
             tocItems.forEach(function(item) {{
                 var link = item.querySelector('a');
                 if (link) {{
                     link.addEventListener('click', function() {{
-                        tocItems.forEach(function(i) {{ i.classList.remove('active'); }});
-                        item.classList.add('active');
+                        setActiveTocId(link.getAttribute('href').slice(1));
                     }});
                 }}
             }});

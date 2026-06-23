@@ -60,7 +60,7 @@ public sealed partial class MarkdownService
                     continue;
 
                 var id = heading.GetAttributes().Id ?? Slugify(headingText);
-                headings.Add(new HeadingInfo(headingText, id));
+                headings.Add(new HeadingInfo(headingText, id, heading.Level));
             }
         }
 
