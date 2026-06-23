@@ -24,8 +24,10 @@ public static class LayoutProvider
         string? mobileTopNavHtml = null,
         bool isHomePage = false,
         string? lastUpdatedHtml = null,
-        string? editLinkHtml = null)
+        string? editLinkHtml = null,
+        bool showScrollIndicator = true)
     {
+        var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon);
         var descriptionHtml = !string.IsNullOrWhiteSpace(description)
             ? $"<meta name=\"description\" content=\"{HtmlEncode(description)}\">"
@@ -144,7 +146,7 @@ public static class LayoutProvider
         }}
         #scroll-indicator {{
             position: fixed; top: 0; left: 0; height: 3px;
-            background-color: var(--accent); width: 0%; z-index: 1000;
+            background-color: var(--accent); width: 0%; z-index: 1101;
             transition: width 0.15s ease;
         }}
         :focus-visible {{
@@ -168,7 +170,10 @@ public static class LayoutProvider
             }}
         }}
         :root {{ --topbar-height: 57px; }}
-        /* z-index scale: scroll-indicator 1000 < sidebar-overlay 1001 < topbar 1002 < mobile drawer 1003 < skip-link 1100 */
+        /* z-index scale: sidebar-overlay 1001 < topbar 1002 < mobile drawer 1003 < skip-link 1100
+           < scroll-indicator 1101. The indicator sits above everything, including the topbar
+           it's pinned alongside at top:0 -- it was previously below the topbar (1000 < 1002)
+           and invisible behind its opaque background the entire time. */
         .icon-btn {{
             display: inline-flex; align-items: center; justify-content: center;
             width: 36px; height: 36px; border-radius: 6px; border: none;
@@ -212,7 +217,8 @@ public static class LayoutProvider
         .top-nav-item.has-dropdown:hover .top-nav-dropdown-menu,
         .top-nav-item.has-dropdown:focus-within .top-nav-dropdown-menu {{ display: block; }}
         .top-nav-dropdown-link {{
-            display: block; padding: 0.45rem 0.6rem; border-radius: 6px;
+            display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+            padding: 0.45rem 0.6rem; border-radius: 6px;
             font-size: 0.875rem; color: var(--text-color); text-decoration: none;
         }}
         .top-nav-dropdown-link:hover {{ background-color: var(--code-bg); color: var(--accent); }}
@@ -423,6 +429,32 @@ public static class LayoutProvider
         }}
         .content h2, .content h3, .content h4, .content h5, .content h6 {{
             position: relative;
+        }}
+        /* Jumping to a heading or footnote via URL hash (TOC links, footnote refs/back-refs)
+           should visibly show where you landed, not just scroll there silently. */
+        .content h1:target, .content h2:target, .content h3:target,
+        .content h4:target, .content h5:target, .content h6:target {{
+            animation: bark-target-flash 2s ease-out;
+        }}
+        .content a.footnote-ref:target,
+        .content a.footnote-back-ref:target {{
+            background-color: var(--accent-light); outline: 2px solid var(--accent);
+            border-radius: 4px; padding: 0 0.2em; scroll-margin-top: 5rem;
+        }}
+        .content .footnotes li:target {{
+            background-color: var(--accent-light); outline: 2px solid var(--accent);
+            border-radius: 6px; padding: 0.25rem 0.6rem; margin-left: -0.6rem;
+            scroll-margin-top: 5rem;
+        }}
+        @keyframes bark-target-flash {{
+            0%, 40% {{ background-color: var(--accent-light); }}
+            100% {{ background-color: transparent; }}
+        }}
+        @media (prefers-reduced-motion: reduce) {{
+            .content h1:target, .content h2:target, .content h3:target,
+            .content h4:target, .content h5:target, .content h6:target {{
+                animation: none; background-color: var(--accent-light);
+            }}
         }}
         .header-anchor {{
             position: absolute; left: -1.2rem; top: 0; bottom: 0;
@@ -805,7 +837,7 @@ public static class LayoutProvider
 </head>
 <body>
     <a href=""#main-content"" class=""skip-link"">Skip to content</a>
-    <div id=""scroll-indicator""></div>
+    {scrollIndicatorHtml}
     <header class=""topbar"">
         <div class=""topbar-left"">
             <button type=""button"" class=""menu-toggle icon-btn"" id=""menu-toggle""
@@ -918,6 +950,7 @@ public static class LayoutProvider
             sidebarLeft.addEventListener('touchend', function() {{ touchStartX = null; }});
 
             function updateScrollProgress() {{
+                if (!scrollIndicator) return;
                 var winScroll = document.documentElement.scrollTop || document.body.scrollTop;
                 var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
                 var scrolled = height > 0 ? (winScroll / height) * 100 : 0;

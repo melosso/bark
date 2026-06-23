@@ -15,4 +15,10 @@ public sealed record ThemeOptions
     public string? CustomCssUrl { get; init; }
     public string? BrandText { get; init; }
     public bool DarkMode { get; init; } = true;
+
+    /// <summary>
+    /// Thin progress bar pinned to the top of the viewport, filling as you scroll down the
+    /// page. On by default.
+    /// </summary>
+    public bool ShowScrollIndicator { get; init; } = true;
 }

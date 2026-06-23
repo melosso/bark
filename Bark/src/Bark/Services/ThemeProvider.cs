@@ -44,6 +44,8 @@ public static class ThemeProvider
 
     public static bool UseDarkMode(ThemeOptions? theme) => theme?.DarkMode ?? true;
 
+    public static bool ShowScrollIndicator(ThemeOptions? theme) => theme?.ShowScrollIndicator ?? true;
+
     private static void AddVar(List<string> vars, string name, string? value)
     {
         if (value is { Length: > 0 })
