@@ -1,0 +1,23 @@
+{
+  "brand": "Bark",
+  "footer": "Built with Bark · [AGPL-3.0](https://github.com/example/bark/blob/main/LICENSE)",
+  "nav": [
+    {
+      "section": "Getting Started",
+      "items": [
+        { "title": "Installation", "path": "getting-started/installation" },
+        { "title": "Configuration", "path": "getting-started/configuration" }
+      ]
+    },
+    {
+      "section": "API",
+      "items": [
+        { "title": "Reference", "path": "api/reference" }
+      ]
+    }
+  ],
+  "socialLinks": [
+    { "icon": "github", "url": "https://github.com/example/bark", "title": "GitHub" },
+    { "icon": "mastodon", "url": "https://fosstodon.org/@example", "title": "Mastodon (EU fediverse)" }
+  ]
+}
