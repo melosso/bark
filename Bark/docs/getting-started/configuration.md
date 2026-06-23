@@ -80,8 +80,8 @@ You get three levels of control over navigation, and you can mix them:
     {
       "text": "More",
       "items": [
-        { "text": "GitHub", "link": "https://github.com/hawkinslabdev/bark" },
-        { "text": "Releases", "link": "https://github.com/hawkinslabdev/bark/releases" }
+        { "text": "GitHub", "link": "https://github.com/melosso/bark" },
+        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" }
       ]
     }
   ],
@@ -110,7 +110,7 @@ You get three levels of control over navigation, and you can mix them:
     ]
   },
   "socialLinks": [
-    { "icon": "github", "url": "https://github.com/hawkinslabdev/bark", "title": "GitHub" }
+    { "icon": "github", "url": "https://github.com/melosso/bark", "title": "GitHub" }
   ]
 }
 ```

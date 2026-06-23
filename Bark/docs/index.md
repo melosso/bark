@@ -12,7 +12,7 @@ hero:
       link: /getting-started/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/hawkinslabdev/bark
+      link: https://github.com/melosso/bark
 features:
   - icon: 📝
     title: Content-first design

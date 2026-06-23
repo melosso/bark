@@ -10,7 +10,7 @@ Set `editLink` in `docs/config.json` and Bark adds an "Edit this page" link near
 ```json
 {
   "editLink": {
-    "pattern": "https://github.com/hawkinslabdev/bark/edit/main/docs/:path",
+    "pattern": "https://github.com/melosso/bark/edit/main/docs/:path",
     "text": "Edit this page on GitHub"
   }
 }

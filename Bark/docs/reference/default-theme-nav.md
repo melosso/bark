@@ -16,8 +16,8 @@ The header nav bar comes from `topNav` in `docs/config.json`. Skip it entirely a
     {
       "text": "More",
       "items": [
-        { "text": "GitHub", "link": "https://github.com/hawkinslabdev/bark" },
-        { "text": "Releases", "link": "https://github.com/hawkinslabdev/bark/releases" }
+        { "text": "GitHub", "link": "https://github.com/melosso/bark" },
+        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" }
       ]
     }
   ]

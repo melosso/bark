@@ -90,7 +90,7 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
   "favicon": "🌳",
   "lastUpdated": true,
   "editLink": {
-    "pattern": "https://github.com/hawkinslabdev/bark/edit/main/docs/:path",
+    "pattern": "https://github.com/melosso/bark/edit/main/docs/:path",
     "text": "Edit this page on GitHub"
   },
   "topNav": [
@@ -100,8 +100,8 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
     {
       "text": "More",
       "items": [
-        { "text": "GitHub", "link": "https://github.com/hawkinslabdev/bark" },
-        { "text": "Releases", "link": "https://github.com/hawkinslabdev/bark/releases" }
+        { "text": "GitHub", "link": "https://github.com/melosso/bark" },
+        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" }
       ]
     }
   ],
@@ -134,7 +134,7 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
     ]
   },
   "socialLinks": [
-    { "icon": "github", "url": "https://github.com/hawkinslabdev/bark", "title": "GitHub" },
+    { "icon": "github", "url": "https://github.com/melosso/bark", "title": "GitHub" },
     { "icon": "mastodon", "url": "https://fosstodon.org/@example", "title": "Mastodon" }
   ]
 }

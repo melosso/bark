@@ -27,7 +27,7 @@ Docker is the fastest path. Create a `docker-compose.yml`:
 ```yaml
 services:
   bark:
-    image: ghcr.io/hawkinslabdev/bark:latest
+    image: ghcr.io/melosso/bark:latest
     container_name: bark
     ports:
       - "8080:8080"

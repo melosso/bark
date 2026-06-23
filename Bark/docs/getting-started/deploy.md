@@ -14,7 +14,7 @@ Prebuilt images are published to GHCR on every tagged release.
 ```yaml
 services:
   bark:
-    image: ghcr.io/hawkinslabdev/bark:latest
+    image: ghcr.io/melosso/bark:latest
     container_name: bark
     ports:
       - "8080:8080"
@@ -32,7 +32,7 @@ Browse to `http://localhost:8080`.
 
 ## Option B: Windows / IIS
 
-1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/hawkinslabdev/bark/releases).
+1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases).
 2. Extract it to your site folder (for example `C:\inetpub\bark`).
 3. In IIS, create a site (or app) pointing at that folder, with the **No Managed Code** .NET CLR version. Bark hosts itself via the ASP.NET Core Module, it doesn't need the CLR to load anything.
 4. The zip already includes a `web.config` wired for in-process hosting. No manual edits needed.
@@ -44,7 +44,7 @@ Browse to `http://localhost:8080`.
 A self-contained Linux x64 build (`*-Linux_x64.zip`) ships alongside every release if you'd rather run the binary directly without Docker.
 
 > [!WARNING]
-> This installation method is currently undocumented. Track [#1](https://github.com/hawkinslabdev/bark/issues/1) for the write-up. Docker is the supported path on Linux today.
+> This installation method is currently undocumented. Track [#1](https://github.com/melosso/bark/issues/1) for the write-up. Docker is the supported path on Linux today.
 
 ## Option D: Build from source
 

@@ -7,7 +7,7 @@ First off, thanks for taking the time to contribute! Please submit a PR with you
 Requires the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0).
 
 ```bash
-git clone https://github.com/hawkinslabdev/bark.git
+git clone https://github.com/melosso/bark.git
 cd bark/Bark
 dotnet restore
 dotnet watch --project src/Bark

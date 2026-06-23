@@ -9,7 +9,7 @@ Set `footer` in `docs/config.json` and Bark renders it at the bottom of every pa
 
 ```json
 {
-  "footer": "Built with Bark · [AGPL-3.0](https://github.com/hawkinslabdev/bark/blob/main/LICENSE)"
+  "footer": "Built with Bark · [AGPL-3.0](https://github.com/melosso/bark/blob/main/LICENSE)"
 }
 ```
 
@@ -17,7 +17,7 @@ Set `footer` in `docs/config.json` and Bark renders it at the bottom of every pa
 
 ```json
 {
-  "footer": "Copyright 2026. Questions? [Open an issue](https://github.com/hawkinslabdev/bark/issues)."
+  "footer": "Copyright 2026. Questions? [Open an issue](https://github.com/melosso/bark/issues)."
 }
 ```
 
