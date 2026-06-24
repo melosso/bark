@@ -8,7 +8,7 @@ Bark is a lightweight [Markdown](https://www.markdownguide.org/getting-started/)
 
 It renders pages on the fly, watches your files for changes, and rebuilds navigation, search index, and table of contents automatically. Written as an alternative for users locked in the Microsoft ecosystem.
 
-![Screenshot of Bark](.github/images/example.webp)
+![Screenshot of Bark](.github/images/preview.webp)
 
 ---
 
