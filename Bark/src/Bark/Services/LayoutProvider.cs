@@ -1376,7 +1376,7 @@ public static class LayoutProvider
                                 var terms = query.split(/\s+/).filter(Boolean);
                                 var html = '';
                                 data.forEach(function(r, i) {{
-                                    html += '<a href=""{basePath}/' + r.path + '"" class=""search-result-item"" role=""option"" id=""search-result-' + i + '"" aria-selected=""false"" tabindex=""-1"">' +
+                                    html += '<a href=""{basePath}/' + r.path + '/"" class=""search-result-item"" role=""option"" id=""search-result-' + i + '"" aria-selected=""false"" tabindex=""-1"">' +
                                         '<div class=""search-result-title"">' + highlightMatches(r.title, terms) + '</div>' +
                                         (r.excerpt ? '<div class=""search-result-excerpt"">' + highlightMatches(r.excerpt, terms) + '</div>' : '') +
                                         '</a>';

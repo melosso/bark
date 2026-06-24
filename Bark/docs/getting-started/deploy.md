@@ -68,7 +68,7 @@ If you're actively developing Bark's own source rather than just running it, `do
 
 ## Option E: Static export (GitHub Pages, etc.)
 
-Bark can crawl its own rendered routes and dump plain HTML/CSS/JS to a folder — no server needed at serve time:
+Bark crawls its own rendered routes and dumps plain HTML, CSS, and JS to a folder. No server runs at serve time.
 
 ```bash
 dotnet publish src/Bark -c Release -o ./publish
@@ -76,16 +76,19 @@ cd publish && ./Bark --export ../site --base-url https://you.github.io --base-pa
 ```
 
 > [!WARNING]
-> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location — running it from elsewhere finds an empty/missing `docs` folder and exports a near-empty site.
+> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location. Running it from anywhere else finds an empty or missing `docs` folder and exports a near-empty site.
 
 - `--export <dir>`: writes every page as `<dir>/index.html` or `<dir>/<path>/index.html`, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and a copy of `wwwroot`.
-- `--base-url <origin>`: the real public origin, used to rewrite the absolute URLs inside `robots.txt`/`llms.txt`.
-- `--base-path </prefix>`: only needed if the site won't be served from domain root (e.g. a GitHub *project* page like `you.github.io/your-repo/` — *user/org* pages at `you.github.io/` don't need this). Prefixes every nav/breadcrumb/pagination link, theme asset URL, and the search/hot-reload API calls so they resolve correctly under the subpath. Can also be set permanently via `Docs:BasePath` in `appsettings.json` for normal reverse-proxy subpath hosting.
+- `--base-url <origin>`: the real public origin. Rewrites the absolute URLs inside `robots.txt` and `llms.txt`.
+- `--base-path </prefix>`: needed when the site won't be served from the domain root. A GitHub *project* page (`you.github.io/your-repo/`) needs this; a *user/org* page (`you.github.io/`) doesn't. Prefixes every nav, breadcrumb, and pagination link, every theme asset URL, and the search/hot-reload API calls so they resolve under the subpath. Set `Docs:BasePath` in `appsettings.json` instead for normal reverse-proxy subpath hosting. See [Site Config](../reference/site-config).
+
+> [!IMPORTANT]
+> Every page is written as `<path>/index.html`, and every link Bark generates ends in a trailing slash to match. GitHub Pages has no fallback for a slash-less directory request: `/foo` 404s, only `/foo/` serves `foo/index.html`. If you hand-write internal links in your Markdown content, add the trailing slash yourself, Bark doesn't rewrite content you wrote.
 
 > [!NOTE]
-> The exported site has no backend: `/api/search` and `/api/build-version` don't exist anymore, so the search box and the live-reload banner silently do nothing. Everything else — nav, breadcrumbs, pagination, theming, dark mode — works identically to the live server.
+> The exported site has no backend. `/api/search` and `/api/build-version` don't exist anymore, so the search box and the live-reload banner silently do nothing. Everything else (nav, breadcrumbs, pagination, theming, dark mode) works identically to the live server.
 
-A working GitHub Actions example lives in `.github/workflows/bark-deployment.yml`. It still needs **Settings → Pages → Source → GitHub Actions** set once per repo before the first deploy will succeed.
+A working GitHub Actions example lives in `.github/workflows/bark-deployment.yml`. It still needs **Settings → Pages → Source → GitHub Actions** set once per repo before the first deploy succeeds.
 
 ## What's already hardened for you
 

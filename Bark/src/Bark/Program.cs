@@ -150,7 +150,7 @@ try
         sb.AppendLine();
         foreach (var page in pages.OrderBy(p => p.Path))
         {
-            var url = page.Path == "index" ? $"{baseUrl}{basePath}" : $"{baseUrl}{basePath}/{page.Path}";
+            var url = page.Path == "index" ? $"{baseUrl}{basePath}/" : $"{baseUrl}{basePath}/{page.Path}/";
             var line = $"- [{page.Title}]({url})";
             if (!string.IsNullOrWhiteSpace(page.Description))
                 line += $": {page.Description}";
@@ -385,12 +385,14 @@ static string NormalizeBasePath(string? raw)
 }
 
 // Joins basePath + path for use in an href attribute. Empty path means "site root".
+// Trailing slash matters: GitHub Pages (and most static hosts) serve "foo/index.html" only
+// for a request to "/foo/", not "/foo" -- there's no slash-less directory fallback.
 static string Href(string basePath, string path)
 {
     var trimmed = path.Trim('/');
     return trimmed.Length == 0
         ? (basePath.Length == 0 ? "/" : $"{basePath}/")
-        : $"{basePath}/{LayoutProvider.HtmlEncode(trimmed)}";
+        : $"{basePath}/{LayoutProvider.HtmlEncode(trimmed)}/";
 }
 
 static string BuildNavigationHtml(NavigationNode node, string currentPath, BarkConfig? config, string basePath)

@@ -16,6 +16,7 @@ Host-level. Set per deployment, requires a restart to change.
 | `RootPath` | `string` | `docs` | Path to the Markdown files directory, relative to the app's working directory. |
 | `DefaultPage` | `string` | `index` | Page served at `/`. |
 | `EnableHotReload` | `bool` | `true` | Watch `*.md` and `config.json` for changes and rebuild in the background. Disable in production if you publish content as part of your deploy and don't want a `FileSystemWatcher` running. |
+| `BasePath` | `string?` | `null` | Prefix every internal link, theme asset URL, and API call with this path segment. Use it when Bark isn't served from the domain root, for example a GitHub Pages project page at `you.github.io/your-repo/` or a reverse proxy mounting Bark under `/docs`. A CLI `--base-path` flag overrides this at runtime, which is how [static export](../getting-started/deploy#option-e-static-export-github-pages-etc) sets it without touching config. |
 
 ## Theming
 
