@@ -4,9 +4,9 @@
 [![Last commit](https://img.shields.io/github/last-commit/melosso/bark)](https://github.com/melosso/bark/commits/main)
 [![Docker](https://img.shields.io/badge/ghcr.io-melosso%2Fbark-blue?logo=docker)](https://github.com/melosso/bark/pkgs/container/bark)
 
-Bark is a lightweight [Markdown](https://www.markdownguide.org/getting-started/) documentation server built on .NET 10. Drop `.md` files in a folder, get a searchable, navigable documentation site.
+Meet Bark: your new favorite way to serve documentation. If you have a folder full of [Markdown](https://www.markdownguide.org/getting-started/) files, you have a beautiful, searchable documentation site ready to go.
 
-It renders pages on the fly, watches your files for changes, and rebuilds navigation, search index, and table of contents automatically. Written as an alternative for users locked in the Microsoft ecosystem.
+Built on the modern .NET stack, Bark is designed for those who want a powerful, self-hosted solution without being tethered to the traditional Microsoft ecosystem.
 
 ![Screenshot of Bark](.github/images/preview.webp)
 
