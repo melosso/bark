@@ -81,6 +81,7 @@ try
     if (basePath.Length > 0)
         app.UsePathBase(basePath);
 
+    app.Use(SecurityHeaders.Apply);
     app.UseResponseCompression();
     app.UseStaticFiles();
     app.UseRouting();

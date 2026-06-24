@@ -107,6 +107,20 @@ public sealed class LayoutProviderTests
     }
 
     [Fact]
+    public void GetLayout_HtmlEncodesDescription()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            description: "desc <script>alert('xss')</script>");
+
+        Assert.Contains("desc &lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;", html);
+        Assert.DoesNotContain("<script>alert('xss')</script>", html);
+    }
+
+    [Fact]
     public void Get404Layout_Contains404()
     {
         var html = LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode);
