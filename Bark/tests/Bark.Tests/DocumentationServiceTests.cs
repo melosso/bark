@@ -38,7 +38,7 @@ public sealed class DocumentationServiceTests : IDisposable
     private async Task CreateTestFiles()
     {
         await File.WriteAllTextAsync(Path.Combine(_tempDir, "index.md"),
-            "---\ntitle: Home\ndescription: Welcome page\n---\n\n# Home Page\n\nWelcome to the docs.\n");
+            "---\ntitle: Home\ndescription: Welcome page\n---\n\n# homepage\n\nWelcome to the docs.\n");
         await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
             "---\ntitle: Installation\n---\n\n# Installation Guide\n\nHow to install.\n");
         await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "configuration.md"),

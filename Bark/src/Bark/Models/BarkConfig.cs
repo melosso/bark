@@ -42,7 +42,7 @@ public class NavEntry
 
     /// <summary>
     /// Collapse behavior for a group (ignored on leaf entries):
-    /// <c>null</c>/omitted -- not collapsible, always expanded, no toggle caret.
+    /// <c>null</c>/omitted -- not collapsible, always expanded
     /// <c>false</c> -- collapsible, expanded by default.
     /// <c>true</c> -- collapsible, collapsed by default.
     /// A group containing the current page always renders expanded regardless of this setting.
