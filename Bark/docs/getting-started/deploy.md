@@ -66,6 +66,24 @@ You need the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10
 
 If you're actively developing Bark's own source rather than just running it, `dotnet watch --project src/Bark` from a clone gives you C#-side hot reload too.
 
+## Option E: Static export (GitHub Pages, etc.)
+
+Bark can crawl its own rendered routes and dump plain HTML/CSS/JS to a folder — no server needed at serve time:
+
+```bash
+dotnet publish src/Bark -c Release -o ./publish
+./publish/Bark --export ./site --base-url https://you.github.io --base-path /your-repo
+```
+
+- `--export <dir>`: writes every page as `<dir>/index.html` or `<dir>/<path>/index.html`, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and a copy of `wwwroot`.
+- `--base-url <origin>`: the real public origin, used to rewrite the absolute URLs inside `robots.txt`/`llms.txt`.
+- `--base-path </prefix>`: only needed if the site won't be served from domain root (e.g. a GitHub *project* page like `you.github.io/your-repo/` — *user/org* pages at `you.github.io/` don't need this). Prefixes every nav/breadcrumb/pagination link, theme asset URL, and the search/hot-reload API calls so they resolve correctly under the subpath. Can also be set permanently via `Docs:BasePath` in `appsettings.json` for normal reverse-proxy subpath hosting.
+
+> [!NOTE]
+> The exported site has no backend: `/api/search` and `/api/build-version` don't exist anymore, so the search box and the live-reload banner silently do nothing. Everything else — nav, breadcrumbs, pagination, theming, dark mode — works identically to the live server.
+
+A working GitHub Actions example lives in `.github/workflows/bark-deployment.yml`. It still needs **Settings → Pages → Source → GitHub Actions** set once per repo before the first deploy will succeed.
+
 ## What's already hardened for you
 
 Production-minded defaults are baked into `Program.cs`, not bolted on with middleware you have to remember to add. These apply no matter which option above you picked, since they're compiled into the binary every option runs:

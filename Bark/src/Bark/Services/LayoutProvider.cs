@@ -25,10 +25,12 @@ public static class LayoutProvider
         bool isHomePage = false,
         string? lastUpdatedHtml = null,
         string? editLinkHtml = null,
-        bool showScrollIndicator = true)
+        bool showScrollIndicator = true,
+        string basePath = "")
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
-        var faviconHtml = BuildFaviconLink(favicon);
+        var faviconHtml = BuildFaviconLink(favicon, basePath);
+        var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
         var descriptionHtml = !string.IsNullOrWhiteSpace(description)
             ? $"<meta name=\"description\" content=\"{HtmlEncode(description)}\">"
             : "";
@@ -980,7 +982,7 @@ public static class LayoutProvider
                     <path d=""M3 6h18M3 12h18M3 18h18"" stroke-linecap=""round""/>
                 </svg>
             </button>
-            <div class=""brand""><a href=""/"">{brandText ?? "Bark"}</a></div>
+            <div class=""brand""><a href=""{homeHref}"">{brandText ?? "Bark"}</a></div>
             <button type=""button"" class=""search-trigger"" id=""search-trigger""
                     aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""Search documentation"">
                 <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.3-4.3""/></svg>
@@ -1045,7 +1047,7 @@ public static class LayoutProvider
             if ({(enableLiveReload ? "true" : "false")}) {{
                 var currentBuildVersion = {buildVersion};
                 setInterval(function() {{
-                    fetch('/api/build-version')
+                    fetch('{basePath}/api/build-version')
                         .then(function(r) {{ return r.json(); }})
                         .then(function(data) {{
                             if (data.version !== currentBuildVersion) {{
@@ -1363,7 +1365,7 @@ public static class LayoutProvider
                 searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">Searching&hellip;</div>';
                 var requestId = searchRequestId;
                 searchTimeout = setTimeout(function() {{
-                    fetch('/api/search?q=' + encodeURIComponent(query))
+                    fetch('{basePath}/api/search?q=' + encodeURIComponent(query))
                         .then(function(r) {{ return r.json(); }})
                         .then(function(data) {{
                             if (requestId !== searchRequestId) return; // a newer keystroke superseded this request
@@ -1374,7 +1376,7 @@ public static class LayoutProvider
                                 var terms = query.split(/\s+/).filter(Boolean);
                                 var html = '';
                                 data.forEach(function(r, i) {{
-                                    html += '<a href=""/' + r.path + '"" class=""search-result-item"" role=""option"" id=""search-result-' + i + '"" aria-selected=""false"" tabindex=""-1"">' +
+                                    html += '<a href=""{basePath}/' + r.path + '"" class=""search-result-item"" role=""option"" id=""search-result-' + i + '"" aria-selected=""false"" tabindex=""-1"">' +
                                         '<div class=""search-result-title"">' + highlightMatches(r.title, terms) + '</div>' +
                                         (r.excerpt ? '<div class=""search-result-excerpt"">' + highlightMatches(r.excerpt, terms) + '</div>' : '') +
                                         '</a>';
@@ -1510,8 +1512,9 @@ public static class LayoutProvider
 </html>";
     }
 
-    public static string Get404Layout(Func<string?, string> htmlEncode)
+    public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "")
     {
+        var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
         return $@"
 <!DOCTYPE html>
 <html lang=""en"">
@@ -1573,7 +1576,7 @@ public static class LayoutProvider
     <div class=""not-found"">
         <h1>404</h1>
         <p>The page you're looking for doesn't exist.</p>
-        <a href=""/"">Return home</a>
+        <a href=""{homeHref}"">Return home</a>
     </div>
 </body>
 </html>";
@@ -1582,17 +1585,21 @@ public static class LayoutProvider
     public static string HtmlEncode(string? value) =>
         value != null ? System.Net.WebUtility.HtmlEncode(value) : string.Empty;
 
-    private static string BuildFaviconLink(string? favicon)
+    private static string BuildFaviconLink(string? favicon, string basePath = "")
     {
         if (string.IsNullOrWhiteSpace(favicon))
             return string.Empty;
 
+        var isRootRelative = favicon.StartsWith('/');
         var isUrl = favicon.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
             || favicon.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-            || favicon.StartsWith('/');
+            || isRootRelative;
 
         if (isUrl)
-            return $"<link rel=\"icon\" href=\"{HtmlEncode(favicon)}\">";
+        {
+            var href = isRootRelative ? $"{basePath}{favicon}" : favicon;
+            return $"<link rel=\"icon\" href=\"{HtmlEncode(href)}\">";
+        }
 
         var svg = $"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>{favicon}</text></svg>";
         var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(svg));

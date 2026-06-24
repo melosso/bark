@@ -37,7 +37,11 @@ jobs:
 
     - name: Build Bark documentation site
       run: |
-        dotnet publish Bark/src/Bark/Bark.csproj -c Release -o ${{ github.workspace }}/site
+        dotnet publish Bark/src/Bark/Bark.csproj -c Release -o ${{ github.workspace }}/publish
+
+    - name: Generate static site
+      run: |
+        ${{ github.workspace }}/publish/Bark --export ${{ github.workspace }}/site --base-url https://melosso.github.io --base-path /bark
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3

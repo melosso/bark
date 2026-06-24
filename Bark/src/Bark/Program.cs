@@ -13,6 +13,19 @@ using Bark.Services.MarkdownExtensions;
 
 Directory.CreateDirectory("log");
 
+string? exportDir = null;
+string? exportBaseUrl = null;
+string? basePathArg = null;
+for (var i = 0; i < args.Length; i++)
+{
+    switch (args[i])
+    {
+        case "--export" when i + 1 < args.Length: exportDir = args[++i]; break;
+        case "--base-url" when i + 1 < args.Length: exportBaseUrl = args[++i]; break;
+        case "--base-path" when i + 1 < args.Length: basePathArg = args[++i]; break;
+    }
+}
+
 try
 {
     var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +38,8 @@ try
 
     var docsOptions = builder.Configuration.GetSection("Docs").Get<DocsOptions>() ?? new DocsOptions();
     builder.Services.AddSingleton(docsOptions);
+
+    var basePath = NormalizeBasePath(basePathArg ?? docsOptions.BasePath);
 
     // appsettings.json's Docs:Themes wins if present; theme.json is the file-only alternative.
     var themeOptions = builder.Configuration.GetSection("Docs:Themes").Get<ThemeOptions>()
@@ -85,6 +100,9 @@ try
     // Must finish before DocumentationService's StartAsync renders pages.
     await app.Services.GetRequiredService<ISyntaxHighlighter>().InitializeAsync(CancellationToken.None);
 
+    if (basePath.Length > 0)
+        app.UsePathBase(basePath);
+
     app.UseResponseCompression();
     app.UseStaticFiles();
 
@@ -95,8 +113,8 @@ try
     // Drop files at wwwroot/theme/custom.{css,js} and they're picked up at startup, no config edit
     // needed. Unlike docs/bark.json, a newly-added file here needs a restart.
     var themeDir = Path.Combine(app.Environment.WebRootPath, "theme");
-    var autoCustomCssUrl = File.Exists(Path.Combine(themeDir, "custom.css")) ? "/theme/custom.css" : null;
-    var autoCustomJsUrl = File.Exists(Path.Combine(themeDir, "custom.js")) ? "/theme/custom.js" : null;
+    var autoCustomCssUrl = File.Exists(Path.Combine(themeDir, "custom.css")) ? $"{basePath}/theme/custom.css" : null;
+    var autoCustomJsUrl = File.Exists(Path.Combine(themeDir, "custom.js")) ? $"{basePath}/theme/custom.js" : null;
 
     app.MapGet("/api/build-version", (HttpContext context, DocumentationService docs) =>
     {
@@ -118,7 +136,7 @@ try
     app.MapGet("/robots.txt", (HttpContext context) =>
     {
         var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
-        var body = $"User-agent: *\nAllow: /\nSitemap: {baseUrl}/sitemap.xml\n";
+        var body = $"User-agent: *\nAllow: /\nSitemap: {baseUrl}{basePath}/sitemap.xml\n";
         return Results.Text(body, "text/plain", Encoding.UTF8);
     });
 
@@ -132,7 +150,7 @@ try
         sb.AppendLine();
         foreach (var page in pages.OrderBy(p => p.Path))
         {
-            var url = page.Path == "index" ? baseUrl : $"{baseUrl}/{page.Path}";
+            var url = page.Path == "index" ? $"{baseUrl}{basePath}" : $"{baseUrl}{basePath}/{page.Path}";
             var line = $"- [{page.Title}]({url})";
             if (!string.IsNullOrWhiteSpace(page.Description))
                 line += $": {page.Description}";
@@ -148,14 +166,15 @@ try
         var sb = new StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
-        sb.AppendLine("  <url><loc>/</loc><priority>1.0</priority></url>");
+        sb.AppendLine($"  <url><loc>{Href(basePath, "")}</loc><priority>1.0</priority></url>");
 
         foreach (var page in pages.OrderBy(p => p.Path))
         {
             if (page.Path == "index") continue;
             var lastMod = page.LastModified?.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-            sb.AppendLine($"  <url><loc>/{LayoutProvider.HtmlEncode(page.Path)}</loc><lastmod>{lastMod}</lastmod><priority>0.8</priority></url>");
+            sb.AppendLine($"  <url><loc>{Href(basePath, page.Path)}</loc><lastmod>{lastMod}</lastmod><priority>0.8</priority></url>");
         }
+
 
         sb.AppendLine("</urlset>");
         return Results.Content(sb.ToString(), "application/xml", Encoding.UTF8);
@@ -171,13 +190,13 @@ try
 
         var page = await docs.GetPageAsync(path);
         if (page == null && isRootRequest)
-            page = await BuildSafeRootPage(docs);
+            page = await BuildSafeRootPage(docs, basePath);
 
         if (page == null)
         {
             context.Response.StatusCode = 404;
             context.Response.ContentType = "text/html; charset=utf-8";
-            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode));
+            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath));
             return;
         }
 
@@ -196,14 +215,14 @@ try
 
         var nav = await docs.GetNavigationAsync();
         var config = docs.Config;
-        var navHtml = BuildNavigationHtml(nav, path, config);
-        var topNavHtml = BuildTopNavHtml(config?.TopNav, path);
-        var mobileTopNavHtml = BuildMobileTopNavHtml(config?.TopNav, path);
+        var navHtml = BuildNavigationHtml(nav, path, config, basePath);
+        var topNavHtml = BuildTopNavHtml(config?.TopNav, path, basePath);
+        var mobileTopNavHtml = BuildMobileTopNavHtml(config?.TopNav, path, basePath);
 
         var tocHtml = BuildTocHtml(page.Headings);
 
         var crumbs = docs.GetBreadcrumbs(path);
-        var breadcrumbHtml = BuildBreadcrumbHtml(crumbs, page.Title);
+        var breadcrumbHtml = BuildBreadcrumbHtml(crumbs, page.Title, basePath);
 
         // Making sure home pages (layout: home) never get prev/next pagination!!
         var isHomePage = page.Layout == "home";
@@ -217,7 +236,7 @@ try
             string? prevTitle = prevPath != null ? (await docs.GetPageAsync(prevPath))?.Title : null;
             string? nextTitle = nextPath != null ? (await docs.GetPageAsync(nextPath))?.Title : null;
 
-            paginationHtml = BuildPaginationHtml(prevTitle, prevPath, nextTitle, nextPath);
+            paginationHtml = BuildPaginationHtml(prevTitle, prevPath, nextTitle, nextPath, basePath);
         }
 
         var themeCss = ThemeProvider.BuildThemeCss(themeOptions);
@@ -264,12 +283,20 @@ try
             description: page.Description,
             isHomePage: isHomePage,
             lastUpdatedHtml: lastUpdatedHtml,
-            editLinkHtml: editLinkHtml
+            editLinkHtml: editLinkHtml,
+            basePath: basePath
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";
         await context.Response.WriteAsync(fullHtml);
     });
+
+    if (exportDir != null)
+    {
+        await StaticSiteExporter.RunAsync(app, exportDir, exportBaseUrl, CancellationToken.None);
+        Log.Information("Static export written to {Dir}", exportDir);
+        return;
+    }
 
     var urls = app.Urls.Count > 0
         ? app.Urls.ToArray()
@@ -325,12 +352,12 @@ finally
     Log.CloseAndFlush();
 }
 
-static async Task<DocumentationPage> BuildSafeRootPage(DocumentationService docs)
+static async Task<DocumentationPage> BuildSafeRootPage(DocumentationService docs, string basePath)
 {
     var pages = await docs.GetAllPagesAsync();
     var linksHtml = pages.Count > 0
         ? "<ul>" + string.Join("", pages.OrderBy(p => p.Path)
-            .Select(p => $"<li><a href=\"/{LayoutProvider.HtmlEncode(p.Path)}\">{LayoutProvider.HtmlEncode(p.Title)}</a></li>")) + "</ul>"
+            .Select(p => $"<li><a href=\"{Href(basePath, p.Path)}\">{LayoutProvider.HtmlEncode(p.Title)}</a></li>")) + "</ul>"
         : "<p>No Markdown files found yet. Drop one into your docs folder to get started.</p>";
 
     var html = $"""
@@ -349,17 +376,33 @@ static async Task<DocumentationPage> BuildSafeRootPage(DocumentationService docs
     );
 }
 
-static string BuildNavigationHtml(NavigationNode node, string currentPath, BarkConfig? config = null)
+static string NormalizeBasePath(string? raw)
+{
+    if (string.IsNullOrWhiteSpace(raw)) return "";
+    var trimmed = "/" + raw.Trim().Trim('/');
+    return trimmed == "/" ? "" : trimmed;
+}
+
+// Joins basePath + path for use in an href attribute. Empty path means "site root".
+static string Href(string basePath, string path)
+{
+    var trimmed = path.Trim('/');
+    return trimmed.Length == 0
+        ? (basePath.Length == 0 ? "/" : $"{basePath}/")
+        : $"{basePath}/{LayoutProvider.HtmlEncode(trimmed)}";
+}
+
+static string BuildNavigationHtml(NavigationNode node, string currentPath, BarkConfig? config, string basePath)
 {
     if (config?.Sidebar is { Count: > 0 } sidebars)
     {
         var matchedSections = SidebarResolver.Resolve(sidebars, currentPath);
         if (matchedSections is not null)
-            return BuildNavFromConfig(matchedSections, currentPath);
+            return BuildNavFromConfig(matchedSections, currentPath, basePath);
     }
 
     if (config?.Nav is { Count: > 0 } sections)
-        return BuildNavFromConfig(sections, currentPath);
+        return BuildNavFromConfig(sections, currentPath, basePath);
 
     if (node.Children.Count == 0) return string.Empty;
 
@@ -378,7 +421,7 @@ static string BuildNavigationHtml(NavigationNode node, string currentPath, BarkC
             {
                 var isActive = sub.Path == currentPath;
                 html.AppendLine($"<li class=\"nav-item{(isActive ? " active" : "")}\">");
-                html.AppendLine($"<a href=\"/{LayoutProvider.HtmlEncode(sub.Path)}\">{LayoutProvider.HtmlEncode(sub.Title)}</a>");
+                html.AppendLine($"<a href=\"{Href(basePath, sub.Path ?? "")}\">{LayoutProvider.HtmlEncode(sub.Title)}</a>");
                 html.AppendLine("</li>");
             }
             html.AppendLine("</ul>");
@@ -390,12 +433,12 @@ static string BuildNavigationHtml(NavigationNode node, string currentPath, BarkC
     return html.ToString();
 }
 
-static string BuildNavFromConfig(List<NavEntry> entries, string currentPath)
+static string BuildNavFromConfig(List<NavEntry> entries, string currentPath, string basePath)
 {
     var html = new StringBuilder();
     html.AppendLine("<div class=\"sidebar-tree\">");
     foreach (var entry in entries)
-        AppendSidebarEntry(html, entry, currentPath, level: 0);
+        AppendSidebarEntry(html, entry, currentPath, level: 0, basePath);
     html.AppendLine("</div>");
     return html.ToString();
 }
@@ -414,13 +457,12 @@ static bool ContainsActiveDescendant(NavEntry entry, string currentPath)
     return entry.Items?.Any(child => ContainsActiveDescendant(child, currentPath)) ?? false;
 }
 
-static void AppendSidebarEntry(StringBuilder html, NavEntry entry, string currentPath, int level)
+static void AppendSidebarEntry(StringBuilder html, NavEntry entry, string currentPath, int level, string basePath)
 {
     if (entry.Items is not { Count: > 0 } children)
     {
-        var normalizedPath = (entry.Path ?? string.Empty).Trim('/');
         var isActive = SidebarPathMatches(entry.Path ?? string.Empty, currentPath);
-        var href = normalizedPath.Length == 0 ? "/" : $"/{LayoutProvider.HtmlEncode(normalizedPath)}";
+        var href = Href(basePath, entry.Path ?? string.Empty);
         html.AppendLine(
             $"<div class=\"sidebar-link level-{level}{(isActive ? " is-active" : "")}\">" +
             $"<a href=\"{href}\">{LayoutProvider.HtmlEncode(entry.Title)}</a></div>");
@@ -448,12 +490,12 @@ static void AppendSidebarEntry(StringBuilder html, NavEntry entry, string curren
 
     html.AppendLine("<div class=\"sidebar-group-items\">");
     foreach (var child in children)
-        AppendSidebarEntry(html, child, currentPath, level + 1);
+        AppendSidebarEntry(html, child, currentPath, level + 1, basePath);
     html.AppendLine("</div>");
     html.AppendLine(isCollapsible ? "</details>" : "</div>");
 }
 
-static string BuildTopNavHtml(List<TopNavItem>? topNav, string currentPath)
+static string BuildTopNavHtml(List<TopNavItem>? topNav, string currentPath, string basePath)
 {
     if (topNav is null || topNav.Count == 0)
         return string.Empty;
@@ -461,12 +503,12 @@ static string BuildTopNavHtml(List<TopNavItem>? topNav, string currentPath)
     var html = new StringBuilder();
     html.AppendLine("<nav class=\"top-nav\" aria-label=\"Main navigation\">");
     foreach (var item in topNav)
-        AppendTopNavItem(html, item, currentPath, isMobile: false);
+        AppendTopNavItem(html, item, currentPath, isMobile: false, basePath);
     html.AppendLine("</nav>");
     return html.ToString();
 }
 
-static string BuildMobileTopNavHtml(List<TopNavItem>? topNav, string currentPath)
+static string BuildMobileTopNavHtml(List<TopNavItem>? topNav, string currentPath, string basePath)
 {
     if (topNav is null || topNav.Count == 0)
         return string.Empty;
@@ -474,12 +516,12 @@ static string BuildMobileTopNavHtml(List<TopNavItem>? topNav, string currentPath
     var html = new StringBuilder();
     html.AppendLine("<nav class=\"mobile-top-nav\" aria-label=\"Main navigation\">");
     foreach (var item in topNav)
-        AppendTopNavItem(html, item, currentPath, isMobile: true);
+        AppendTopNavItem(html, item, currentPath, isMobile: true, basePath);
     html.AppendLine("</nav>");
     return html.ToString();
 }
 
-static void AppendTopNavItem(StringBuilder html, TopNavItem item, string currentPath, bool isMobile)
+static void AppendTopNavItem(StringBuilder html, TopNavItem item, string currentPath, bool isMobile, string basePath)
 {
     if (item.Items is { Count: > 0 } children)
     {
@@ -488,7 +530,7 @@ static void AppendTopNavItem(StringBuilder html, TopNavItem item, string current
             html.AppendLine("<details class=\"mobile-top-nav-group\">");
             html.AppendLine($"<summary>{LayoutProvider.HtmlEncode(item.Text)}</summary>");
             foreach (var child in children)
-                AppendTopNavLink(html, child, currentPath, "mobile-top-nav-link");
+                AppendTopNavLink(html, child, currentPath, "mobile-top-nav-link", basePath);
             html.AppendLine("</details>");
         }
         else
@@ -498,24 +540,24 @@ static void AppendTopNavItem(StringBuilder html, TopNavItem item, string current
                 "<svg class=\"top-nav-chevron\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></button>");
             html.AppendLine("<div class=\"top-nav-dropdown-menu\">");
             foreach (var child in children)
-                AppendTopNavLink(html, child, currentPath, "top-nav-dropdown-link");
+                AppendTopNavLink(html, child, currentPath, "top-nav-dropdown-link", basePath);
             html.AppendLine("</div>");
             html.AppendLine("</div>");
         }
         return;
     }
 
-    AppendTopNavLink(html, item, currentPath, isMobile ? "mobile-top-nav-link" : "top-nav-link", wrapInItemDiv: !isMobile);
+    AppendTopNavLink(html, item, currentPath, isMobile ? "mobile-top-nav-link" : "top-nav-link", basePath, wrapInItemDiv: !isMobile);
 }
 
-static void AppendTopNavLink(StringBuilder html, TopNavItem item, string currentPath, string cssClass, bool wrapInItemDiv = false)
+static void AppendTopNavLink(StringBuilder html, TopNavItem item, string currentPath, string cssClass, string basePath, bool wrapInItemDiv = false)
 {
     var link = item.Link ?? "#";
     var isExternal = link.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                       link.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
-    var normalizedLink = isExternal ? link : "/" + link.Trim('/');
+    var normalizedLink = isExternal ? link : Href(basePath, link);
     var isActive = !isExternal &&
-        normalizedLink.Trim('/').Equals(currentPath.Trim('/'), StringComparison.OrdinalIgnoreCase);
+        link.Trim('/').Equals(currentPath.Trim('/'), StringComparison.OrdinalIgnoreCase);
     var activeClass = isActive ? " active" : "";
     var relAttr = isExternal ? " target=\"_blank\" rel=\"noopener noreferrer\"" : "";
 
@@ -598,27 +640,27 @@ static void AppendTocNode(StringBuilder html, TocNode node)
     html.Append("</li>");
 }
 
-static string BuildBreadcrumbHtml(IReadOnlyList<BreadcrumbItem> crumbs, string currentTitle)
+static string BuildBreadcrumbHtml(IReadOnlyList<BreadcrumbItem> crumbs, string currentTitle, string basePath)
 {
     var html = new StringBuilder();
     for (var i = 0; i < crumbs.Count - 1; i++)
     {
         var crumb = crumbs[i];
-        html.Append($"<a href=\"{LayoutProvider.HtmlEncode(crumb.Path)}\">{LayoutProvider.HtmlEncode(crumb.Title)}</a>");
+        html.Append($"<a href=\"{Href(basePath, crumb.Path ?? "")}\">{LayoutProvider.HtmlEncode(crumb.Title)}</a>");
         html.Append("<span class=\"separator\">/</span>");
     }
     html.Append($"<span class=\"current\">{LayoutProvider.HtmlEncode(currentTitle)}</span>");
     return html.ToString();
 }
 
-static string BuildPaginationHtml(string? prevTitle, string? prevPath, string? nextTitle, string? nextPath)
+static string BuildPaginationHtml(string? prevTitle, string? prevPath, string? nextTitle, string? nextPath, string basePath)
 {
     var html = new StringBuilder();
     html.AppendLine("<nav class=\"pagination\">");
 
     if (prevPath != null)
     {
-        var prevUrl = prevPath == "index" ? "/" : $"/{LayoutProvider.HtmlEncode(prevPath)}";
+        var prevUrl = prevPath == "index" ? Href(basePath, "") : Href(basePath, prevPath);
         html.AppendLine($"<a href=\"{prevUrl}\" class=\"pagination-link prev\">");
         html.AppendLine("<span class=\"label\">Previous</span>");
         html.AppendLine($"<span class=\"title\">{LayoutProvider.HtmlEncode(prevTitle)}</span>");
@@ -631,7 +673,7 @@ static string BuildPaginationHtml(string? prevTitle, string? prevPath, string? n
 
     if (nextPath != null)
     {
-        var nextUrl = nextPath == "index" ? "/" : $"/{LayoutProvider.HtmlEncode(nextPath)}";
+        var nextUrl = nextPath == "index" ? Href(basePath, "") : Href(basePath, nextPath);
         html.AppendLine($"<a href=\"{nextUrl}\" class=\"pagination-link next\">");
         html.AppendLine("<span class=\"label\">Next</span>");
         html.AppendLine($"<span class=\"title\">{LayoutProvider.HtmlEncode(nextTitle)}</span>");
