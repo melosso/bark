@@ -408,7 +408,7 @@ const x = 1;
         // Theme omitted -> defaults to "brand".
         Assert.Contains("href=\"https://github.com/example/bark\"", result.Html);
         Assert.Contains("class=\"vp-feature-title\">Hot reload</h2>", result.Html);
-        Assert.Contains("<a class=\"vp-feature\" href=\"/search\">", result.Html);
+        Assert.Contains("<a class=\"vp-feature\" href=\"/search/\">", result.Html);
         Assert.Contains("Extra body content below the front matter.", result.Html);
     }
 

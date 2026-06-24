@@ -37,6 +37,11 @@ try
     builder.Host.UseSerilog();
 
     var docsOptions = builder.Configuration.GetSection("Docs").Get<DocsOptions>() ?? new DocsOptions();
+    if (exportDir != null)
+        // No server survives the export, so there's nothing for the hot-reload poll baked into
+        // the exported HTML to talk to. Disable it instead of baking in a dead endpoint call.
+        docsOptions = docsOptions with { EnableHotReload = false };
+
     builder.Services.AddSingleton(docsOptions);
 
     var basePath = NormalizeBasePath(basePathArg ?? docsOptions.BasePath);
@@ -48,7 +53,7 @@ try
     builder.Services.AddSingleton(themeOptions);
 
     builder.Services.AddSingleton<ISyntaxHighlighter, TextMateSyntaxHighlighter>();
-    builder.Services.AddSingleton<MarkdownService>();
+    builder.Services.AddSingleton(sp => new MarkdownService(sp.GetRequiredService<ISyntaxHighlighter>(), basePath));
     builder.Services.AddSingleton<DocumentationService>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<DocumentationService>());
 
@@ -229,7 +234,7 @@ try
         var paginationHtml = string.Empty;
         if (!isHomePage)
         {
-            var orderedPaths = FlattenNavigation(nav).Where(p => p != null && p != "index").ToList();
+            var orderedPaths = GetOrderedPaths(nav, config, path).Where(p => p != null && p != "index").ToList();
             var currentIndex = orderedPaths.IndexOf(path);
             string? prevPath = currentIndex > 0 ? orderedPaths[currentIndex - 1] : null;
             string? nextPath = currentIndex < orderedPaths.Count - 1 ? orderedPaths[currentIndex + 1] : null;
@@ -700,6 +705,36 @@ static List<string?> FlattenNavigation(NavigationNode node)
             list.Add(child.Path);
         if (child.Children.Count > 0)
             list.AddRange(FlattenNavigation(child));
+    }
+    return list;
+}
+
+// Prev/next must walk pages in the same order as whatever sidebar is actually showing for this
+// page, not always the auto-generated folder tree -- same precedence as BuildNavigationHtml.
+static List<string?> GetOrderedPaths(NavigationNode node, BarkConfig? config, string currentPath)
+{
+    if (config?.Sidebar is { Count: > 0 } sidebars)
+    {
+        var matchedSections = SidebarResolver.Resolve(sidebars, currentPath);
+        if (matchedSections is not null)
+            return FlattenNavEntries(matchedSections);
+    }
+
+    if (config?.Nav is { Count: > 0 } sections)
+        return FlattenNavEntries(sections);
+
+    return FlattenNavigation(node);
+}
+
+static List<string?> FlattenNavEntries(List<NavEntry> entries)
+{
+    var list = new List<string?>();
+    foreach (var entry in entries)
+    {
+        if (entry.Path != null)
+            list.Add(entry.Path.Trim('/'));
+        if (entry.Items is { Count: > 0 } children)
+            list.AddRange(FlattenNavEntries(children));
     }
     return list;
 }

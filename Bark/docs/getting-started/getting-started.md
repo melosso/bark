@@ -37,15 +37,11 @@ Map your `docs/` folder (containing your Markdown files and optional `config.jso
 
 ```bash
 docker compose up -d
-
 ```
 
 Your site will be available at `http://localhost:8080`.
 
 Not using Docker? See [Deploy](./deploy) for different configurations (e.g. IIS on Windows Server).
-
-> [!NOTE]
-> Hot reload works consistently regardless of your setup. Bark uses `FileSystemWatcher` to monitor files and rebuilds in the background. It includes a 300ms debounce to handle rapid saves and hashes content to ensure the browser only refreshes when a file change actually modifies the output.
 
 ## File Structure
 
@@ -64,10 +60,9 @@ docs/
     ├── site-config.md
     ├── api-reference.md
     └── sitemap-generation.md
-
 ```
 
-Front matter is optional. If missing, Bark uses the filename or the navigation title defined in `config.json`:
+Front matter, which is the block of metadata at the very top of your Markdown file, is optional. If missing, Bark uses the filename or the navigation title defined in `config.json`:
 
 ```markdown
 ---

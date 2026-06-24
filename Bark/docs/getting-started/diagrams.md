@@ -95,8 +95,10 @@ pie title Search ranking weight
 
 No live diagram editor, no export-to-PNG button, no Mermaid config object in `config.json`. Bark calls `mermaid.initialize({ startOnLoad: false, theme: ... })` and picks `theme` automatically from whatever light/dark mode is active, then renders on page load. If you need custom theming per diagram, that's a Mermaid frontmatter directive inside the diagram source itself (`%%{init: {...}}%%`)!
 
-> [!NOTE] 
-> Diagrams on this site render client-side after the initial page load. Consequently, they are not visible in the raw HTML source or to automated tools that only scrape text, including many search engine crawlers and text-based indexing files like `sitemap.xml` or `llms.txt`. If a diagram is essential to the reader's understanding of the content, please ensure that the core information is also provided in the surrounding text.
+::: note
+Diagrams on this site render client-side after the initial page load. Consequently, they are not visible in the raw HTML source or to automated tools that only scrape text, including many search engine crawlers and text-based indexing files like `sitemap.xml` or `llms.txt`. If a diagram is essential to the reader's understanding of the content, please ensure that the core information is also provided in the surrounding text.
+:::
 
-> [!TIP]
-> Mermaid bakes its colors into the rendered SVG, it doesn't follow CSS variables the way the rest of the page does. Toggling dark mode on a page with diagrams triggers a full reload so they redraw with the right theme.
+::: note
+Mermaid bakes its colors into the rendered SVG, it doesn't follow CSS variables the way the rest of the page does. Toggling dark mode on a page with diagrams triggers a full reload so they redraw with the right theme.
+:::

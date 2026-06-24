@@ -17,9 +17,11 @@ public sealed partial class MarkdownService
 {
     private readonly MarkdownPipeline _pipeline;
     private readonly IDeserializer _yamlDeserializer;
+    private readonly string _basePath;
 
-    public MarkdownService(ISyntaxHighlighter? syntaxHighlighter = null)
+    public MarkdownService(ISyntaxHighlighter? syntaxHighlighter = null, string basePath = "")
     {
+        _basePath = basePath;
         _pipeline = new MarkdownPipelineBuilder()
             .UseYamlFrontMatter()
             .UseAutoIdentifiers()
@@ -67,7 +69,7 @@ public sealed partial class MarkdownService
         var html = AddHeadingAnchors(Markdown.ToHtml(markdown, _pipeline));
 
         if (frontMatter?.Layout == "home")
-            html = RenderHomePage(frontMatter) + html;
+            html = RenderHomePage(frontMatter, _basePath) + html;
 
         return new MarkdownParseResult(
             html,
@@ -78,7 +80,7 @@ public sealed partial class MarkdownService
             frontMatter?.LastUpdated ?? true);
     }
 
-    private static string RenderHomePage(FrontMatter frontMatter)
+    private static string RenderHomePage(FrontMatter frontMatter, string basePath)
     {
         var sb = new StringBuilder();
         sb.Append("<div class=\"vp-home\">");
@@ -92,7 +94,7 @@ public sealed partial class MarkdownService
                 var isUrl = hero.Image.Contains('/') || hero.Image.StartsWith("http", StringComparison.OrdinalIgnoreCase);
                 sb.Append("<div class=\"vp-hero-image\">")
                     .Append(isUrl
-                        ? $"<img src=\"{WebUtility.HtmlEncode(hero.Image)}\" alt=\"\">"
+                        ? $"<img src=\"{WebUtility.HtmlEncode(PrefixInternalAsset(hero.Image, basePath))}\" alt=\"\">"
                         : WebUtility.HtmlEncode(hero.Image))
                     .Append("</div>");
             }
@@ -111,7 +113,7 @@ public sealed partial class MarkdownService
                 {
                     var theme = action.Theme == "alt" ? "alt" : "brand";
                     sb.Append("<a class=\"vp-hero-action ").Append(theme).Append("\" href=\"")
-                        .Append(WebUtility.HtmlEncode(action.Link ?? "#")).Append("\">")
+                        .Append(WebUtility.HtmlEncode(PrefixInternalLink(action.Link ?? "#", basePath))).Append("\">")
                         .Append(WebUtility.HtmlEncode(action.Text ?? string.Empty)).Append("</a>");
                 }
                 sb.Append("</div>");
@@ -127,7 +129,7 @@ public sealed partial class MarkdownService
             {
                 var hasLink = !string.IsNullOrWhiteSpace(feature.Link);
                 sb.Append(hasLink
-                    ? $"<a class=\"vp-feature\" href=\"{WebUtility.HtmlEncode(feature.Link)}\">"
+                    ? $"<a class=\"vp-feature\" href=\"{WebUtility.HtmlEncode(PrefixInternalLink(feature.Link!, basePath))}\">"
                     : "<div class=\"vp-feature\">");
 
                 if (!string.IsNullOrWhiteSpace(feature.Icon))
@@ -202,6 +204,24 @@ public sealed partial class MarkdownService
 
     public string ToHtml(string markdown) =>
         Markdown.ToHtml(markdown, _pipeline);
+
+    // // Frontmatter hero/feature links use root-relative paths and require the same basePath treatment as Bark-generated chrome links...
+    private static string PrefixInternalLink(string path, string basePath)
+    {
+        if (!path.StartsWith('/') || path.StartsWith("//"))
+            return path;
+
+        var trimmed = path.Trim('/');
+        return trimmed.Length == 0 ? $"{basePath}/" : $"{basePath}/{trimmed}/";
+    }
+
+    private static string PrefixInternalAsset(string path, string basePath)
+    {
+        if (!path.StartsWith('/') || path.StartsWith("//"))
+            return path;
+
+        return $"{basePath}{path}";
+    }
 
     public static string Slugify(string text)
     {

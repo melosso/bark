@@ -1055,7 +1055,7 @@ public static class LayoutProvider
                             }}
                         }})
                         ['catch'](function() {{}});
-                }}, 2000);
+                }}, 5000);
             }}
 
             if (themeToggle) {{

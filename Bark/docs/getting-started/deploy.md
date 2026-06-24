@@ -44,7 +44,7 @@ Browse to `http://localhost:8080`.
 A self-contained Linux x64 build (`*-Linux_x64.zip`) ships alongside every release if you'd rather run the binary directly without Docker.
 
 > [!WARNING]
-> This installation method is currently undocumented. Track [#1](https://github.com/melosso/bark/issues/1) for the write-up. Docker is the supported path on Linux today.
+> This installation method is currently undocumented. Please keep an eye on [#1](https://github.com/melosso/bark/issues/1) for the status of the issue. Docker is the supported path on Linux as of right now.
 
 ## Option D: Build from source
 
@@ -68,44 +68,50 @@ If you're actively developing Bark's own source rather than just running it, `do
 
 ## Option E: Static export (GitHub Pages, etc.)
 
-Bark crawls its own rendered routes and dumps plain HTML, CSS, and JS to a folder. No server runs at serve time.
+<details>
+<summary><strong>Advanced</strong>: skip the server entirely and export plain HTML/CSS/JS, for GitHub Pages or any static host.</summary>
+
+This option requires cloning the repository; thus compiling Bark yourselves.
 
 ```bash
 dotnet publish src/Bark -c Release -o ./publish
-cd publish && ./Bark --export ../site --base-url https://you.github.io --base-path /your-repo
+cd publish && ./Bark --export ./output --base-url https://you.github.io --base-path /your-repo
 ```
 
 > [!WARNING]
-> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location. Running it from anywhere else finds an empty or missing `docs` folder and exports a near-empty site.
+> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location.
 
-- `--export <dir>`: writes every page as `<dir>/index.html` or `<dir>/<path>/index.html`, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and a copy of `wwwroot`.
-- `--base-url <origin>`: the real public origin. Rewrites the absolute URLs inside `robots.txt` and `llms.txt`.
-- `--base-path </prefix>`: needed when the site won't be served from the domain root. A GitHub *project* page (`you.github.io/your-repo/`) needs this; a *user/org* page (`you.github.io/`) doesn't. Prefixes every nav, breadcrumb, and pagination link, every theme asset URL, and the search/hot-reload API calls so they resolve under the subpath. Set `Docs:BasePath` in `appsettings.json` instead for normal reverse-proxy subpath hosting. See [Site Config](../reference/site-config).
-
-> [!IMPORTANT]
-> Every page is written as `<path>/index.html`, and every link Bark generates ends in a trailing slash to match. GitHub Pages has no fallback for a slash-less directory request: `/foo` 404s, only `/foo/` serves `foo/index.html`. If you hand-write internal links in your Markdown content, add the trailing slash yourself, Bark doesn't rewrite content you wrote.
+- `--export <dir>`: writes every page, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and `wwwroot`.
+- `--base-url <origin>`: the real public origin. Rewrites the absolute URLs in `robots.txt` and `llms.txt`.
+- `--base-path </prefix>`: needed when you're not at the domain root, like a GitHub project page (`you.github.io/your-repo/`). Set `Docs:BasePath` in `appsettings.json` instead for reverse-proxy subpath hosting. See [Site Config](../reference/site-config).
 
 > [!NOTE]
-> The exported site has no backend. `/api/search` and `/api/build-version` don't exist anymore, so the search box and the live-reload banner silently do nothing. Everything else (nav, breadcrumbs, pagination, theming, dark mode) works identically to the live server.
+> `--export` disables hot reload, so there's no `/api/build-version` polling. Search still renders but fails gracefully without a backend.
+
+</details>
+
+<br>
 
 A working GitHub Actions example lives in `.github/workflows/bark-deployment.yml`. It still needs **Settings → Pages → Source → GitHub Actions** set once per repo before the first deploy succeeds.
 
-## What's already hardened for you
+## Production-ready
 
-Production-minded defaults are baked into `Program.cs`, not bolted on with middleware you have to remember to add. These apply no matter which option above you picked, since they're compiled into the binary every option runs:
+Bark is configured for production stability out of the box. The following optimizations are pre-configured and active by default:
 
-- **Response compression**: Brotli and Gzip, fastest level, enabled for HTTPS too.
-- **Kestrel limits**: request body size, header size, max connections, HTTP/2 stream/frame tuning, keep-alive ping settings.
-- **Structured logging**: Serilog to console, configured entirely through `appsettings.json`, no code changes needed to adjust log levels per environment.
-- **ETag-based caching**: every page response carries a SHA-256 ETag. Clients sending a matching `If-None-Match` get a `304` instead of the full page.
-- **Fail-fast port binding**: if a configured port is already in use, Bark logs a clear error and exits instead of letting Kestrel throw an opaque exception mid-startup.
+* **Automatic Compression**: All web traffic uses Brotli or Gzip compression (including secure HTTPS traffic) to significantly reduce page load times and save bandwidth.
+* **Built-in DoS Protection**: Safety limits are pre-configured to protect the server from resource exhaustion. This includes strict limits on request body sizes, header sizes, maximum simultaneous connections, and keep-alive timeouts.
+* **Production Logging**: Logs are routed directly to the console. You can easily adjust how detailed these logs are for different environment if necessary.
+* **Smart Caching (ETags)**: Every page includes a unique fingerprint (SHA-256 ETag). If a user's browser already has the current version of a page then the server responds with "304 Not Modified" status, saving resources.
 
-> [!NOTE]  
-> None of this requires configuration to get the benefit. It's the difference between "production-minded defaults" and "production-ready out of the box." You still own your deployment topology, but you're not starting from a bare `WebApplication.CreateBuilder()` either.
+::: note
+**What does this mean for you?** Performance and security optimizations are enabled automatically. You only need to configure your external infrastructure, such as your domain, firewall, and SSL certificates.
+:::
 
-## Reverse proxy
+## Reverse Proxy Setup
 
-Bark doesn't terminate TLS itself in most real deployments. That's a job for whatever sits in front of it. A minimal Nginx config in front of the Docker container (port 8080):
+Bark is designed to sit behind a dedicated web server or load balancer that handles SSL/TLS certificates and external traffic encryption.
+
+If you are using Docker, Bark listens internally on port 8080. Below is a minimal Nginx configuration to safely route external traffic to your Bark container:
 
 ```nginx
 server {

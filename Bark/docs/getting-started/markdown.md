@@ -132,7 +132,11 @@ Use these for quick highlights within your prose. These can be spawned with the 
 
 ## Custom containers
 
-These are blocks starting and ending with ```:::``` follwed by either `tip`, `warning`, `danger` or `details`. Can be combined with `Click to expand` for expanding blocks.
+These are blocks starting and ending with ```:::``` follewed by either `note`, `tip`, `warning`, `danger` or `details`. Can be combined with `Click to expand` for expanding blocks.
+
+::: note
+This is a note container.
+:::
 
 ::: tip
 This is a tip container.
