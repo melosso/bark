@@ -1,0 +1,11 @@
+.env
+.*/
+!/.github/
+*.md
+!README.md
+!CONTRIBUTING.md
+!CHANGELOG.md
+!Bark/.config/
+!Bark/**/*.md
+*.db
+*.db*

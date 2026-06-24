@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Your Team</Authors>
+    <Company>Your Company</Company>
+    <Copyright>Copyright © 2020-$([System.DateTime]::Now.Year) Your Company</Copyright>
+    <Product>Bark</Product>
+    <PackageProjectUrl>https://github.com/yourorg/bark</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yourorg/bark</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

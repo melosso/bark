@@ -1,0 +1,60 @@
+using Bark.Models;
+
+namespace Bark.Services;
+
+public static class ThemeProvider
+{
+    public static string BuildThemeCss(ThemeOptions? theme)
+    {
+        if (theme is null)
+            return string.Empty;
+
+        var vars = new List<string>();
+
+        AddVar(vars, "--primary-color", theme.PrimaryColor);
+        AddVar(vars, "--bg-color", theme.BgColor);
+        AddVar(vars, "--sidebar-bg", theme.SidebarBg);
+        AddVar(vars, "--text-color", theme.TextColor);
+        AddVar(vars, "--text-muted", theme.TextMuted);
+        AddVar(vars, "--border", theme.BorderColor);
+        AddVar(vars, "--code-bg", theme.CodeBg);
+        AddVar(vars, "--accent-light", theme.AccentLight);
+        AddVar(vars, "--font-sans", theme.FontSans);
+        AddVar(vars, "--font-mono", theme.FontMono);
+
+        if (vars.Count == 0)
+            return string.Empty;
+
+        return "<style>\n:root {\n" + string.Join("\n", vars) + "\n}\n</style>";
+    }
+
+    public static string BuildCustomCssLink(ThemeOptions? theme, string? autoDetectedCssUrl = null)
+    {
+        var url = theme?.CustomCssUrl is { Length: > 0 } configured ? configured : autoDetectedCssUrl;
+        return url is { Length: > 0 }
+            ? $"<link rel=\"stylesheet\" href=\"{url}\">"
+            : string.Empty;
+    }
+
+    public static string BuildCustomJsScript(string? autoDetectedJsUrl) =>
+        autoDetectedJsUrl is { Length: > 0 }
+            ? $"<script defer src=\"{autoDetectedJsUrl}\"></script>"
+            : string.Empty;
+
+    public static string GetBrandText(ThemeOptions? theme)
+    {
+        if (theme?.BrandText is { Length: > 0 } brand)
+            return System.Net.WebUtility.HtmlEncode(brand);
+        return "Bark";
+    }
+
+    public static bool UseDarkMode(ThemeOptions? theme) => theme?.DarkMode ?? true;
+
+    public static bool ShowScrollIndicator(ThemeOptions? theme) => theme?.ShowScrollIndicator ?? true;
+
+    private static void AddVar(List<string> vars, string name, string? value)
+    {
+        if (value is { Length: > 0 })
+            vars.Add($"    {name}: {value};");
+    }
+}
