@@ -23,9 +23,7 @@ Set `editLink` in `docs/config.json` and Bark adds an "Edit this page" link near
 
 `:path` resolves to the page's lowercased URL path plus `.md` (`getting-started/configuration` becomes `getting-started/configuration.md`). That matches Bark's own docs, since Bark lowercases every file path it serves.
 
-> [!IMPORTANT]  
-> If your actual filenames use mixed case (`Configuration.md` instead of `configuration.md`), the generated edit link will be wrong, since Bark only knows the URL path, not the original on-disk filename casing. Keep your `docs/` filenames lowercase and this isn't a problem.
+> [!CAUTION]  
+> If your filenames have capital letters (like `Configuration.md`), the edit links may break. To avoid this, always use lowercase (like `configuration.md`) for files in your `docs/` folder.
 
-Skip `editLink` entirely and Bark renders nothing. There's no default GitHub URL guessed from your git remote, the way some tools attempt.
-
-Home pages never show an edit link. See [Layout](default-theme-layout).
+Removing `editLink` entirely and the server will not render this segment.

@@ -18,15 +18,25 @@ public static class TocHtmlRenderer
     {
         var items = headings.Where(h => h.Level >= 2).ToList();
         if (items.Count == 0)
-            return string.Empty;
+        {
+            // No subheadings -- fall back to a single entry linking to the page's own H1 (if any)
+            // so the TOC sidebar isn't just an empty "On This Page" box.
+            var titleHeading = headings.FirstOrDefault(h => h.Level == 1);
+            if (titleHeading is null)
+                return string.Empty;
+
+            var html = new StringBuilder();
+            AppendTocNode(html, new TocNode(titleHeading));
+            return html.ToString();
+        }
 
         var minLevel = items.Min(h => h.Level);
         var roots = BuildTocTree(items, minLevel);
 
-        var html = new StringBuilder();
+        var tocHtml = new StringBuilder();
         foreach (var root in roots)
-            AppendTocNode(html, root);
-        return html.ToString();
+            AppendTocNode(tocHtml, root);
+        return tocHtml.ToString();
     }
 
     public static List<TocNode> BuildTocTree(IReadOnlyList<HeadingInfo> items, int minLevel)

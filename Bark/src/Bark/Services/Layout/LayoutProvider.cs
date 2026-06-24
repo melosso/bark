@@ -51,7 +51,12 @@ public static partial class LayoutProvider
                     {tocHtml}
                 </ul>
             </details>";
-        var sidebarRightHtml = isHomePage ? "" : $@"
+        var sidebarRightHtml = isHomePage ? "" : string.IsNullOrWhiteSpace(tocHtml)
+            ? $@"
+        <aside class=""sidebar-right"" aria-label=""Page info"">
+            <div class=""toc-title"">{HtmlEncode(title)}</div>
+        </aside>"
+            : $@"
         <aside class=""sidebar-right"" aria-label=""Table of contents"">
             <div class=""toc-title"">On This Page</div>
             <div class=""toc-list-wrapper"">
