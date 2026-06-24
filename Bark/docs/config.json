@@ -55,9 +55,9 @@
           {
             "title": "Default Theme",
             "items": [
-              { "title": "Nav", "path": "reference/default-theme-nav" },
+              { "title": "Navigation", "path": "reference/default-theme-nav" },
               { "title": "Sidebar", "path": "reference/default-theme-sidebar" },
-              { "title": "Home Page", "path": "reference/default-theme-home-page" },
+              { "title": "homepage", "path": "reference/default-theme-home-page" },
               { "title": "Footer", "path": "reference/default-theme-footer" },
               { "title": "Layout", "path": "reference/default-theme-layout" },
               { "title": "Prev / Next Links", "path": "reference/default-theme-prev-next-links" },

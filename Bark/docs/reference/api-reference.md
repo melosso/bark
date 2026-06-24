@@ -5,7 +5,7 @@ description: HTTP routes Bark exposes
 
 # API Reference
 
-Bark is a minimal-API app with a deliberately small surface area: six routes, no GraphQL, no versioned `/v1/` prefix, no OpenAPI spec generator bolted on. A docs server doesn't need an API platform. It needs to serve Markdown fast and stay legible enough that you can read the whole route table in thirty seconds.
+Bark is a minimal-API application with a small surface area. A documentation server serves Markdown and stays legible enough that you can read the whole route table in less than a minute.
 
 ## `GET /{path}`
 
@@ -67,6 +67,6 @@ The `Sitemap:` line is built from the actual request host, so it's correct behin
 
 ## `GET /llms.txt`
 
-A plain-text index of every page (title, URL, and description) formatted for LLM crawlers and agentic tools that prefer a flat, low-noise summary over crawling rendered HTML. Same idea as `sitemap.xml`, aimed at a different kind of reader.
+A plain-text index of every page (title, URL, and description) formatted for LLM crawlers and agentic tools that prefer a flat, low-noise summary over crawling rendered HTML. This functions like `sitemap.xml`, aimed at a different kind of reader.
 
-See [Sitemap & Crawlers](sitemap-generation) for how these three endpoints fit together.
+See [Sitemap & Crawlers](../sitemap-generation) for how these three endpoints fit together.

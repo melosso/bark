@@ -20,7 +20,7 @@ description: appsettings.json options, docs/config.json, and theming
 |---|---|---|---|
 | `title` | `string` | filename or nav-configured title | Page title. Shows in the browser tab, breadcrumbs, and pagination links. |
 | `description` | `string` | none | Meta description. Also shows under the title in search results and `llms.txt`. |
-| `layout` | `string` | none | Set to `home` to render a hero and features grid instead of standard docs chrome. See [Home Page](default-theme-home-page). |
+| `layout` | `string` | none | Set to `home` to render a hero and features grid instead of standard docs chrome. See [homepage](default-theme-home-page). |
 | `hero` | `object` | none | Hero content. Only used when `layout: home`. |
 | `features` | `array` | none | Feature cards. Only used when `layout: home`. |
 | `lastUpdated` | `bool` | none | Set to `false` to hide the "Last updated" stamp on this page, overriding the site-wide setting. See [Last Updated Timestamp](default-theme-last-updated). |

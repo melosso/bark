@@ -9,9 +9,9 @@ Bark renders a "previous page" and "next page" link at the bottom of every doc-l
 
 ## How the order is determined
 
-Bark flattens your sidebar (or auto-generated nav tree, if you haven't configured one) into a single ordered list of pages, then looks up the current page's position in that list. Whatever comes immediately before becomes "prev." Whatever comes immediately after becomes "next." First page gets no "prev." Last page gets no "next."
+Without configuration, Bark flattens your sidebar (or auto-generated navigation tree, if you haven't configured one) into a single ordered list of pages; then looks up the current page's position in that list. Whatever comes immediately before becomes "prev." Whatever comes immediately after becomes "next."
 
-This means reordering your `sidebar`/`nav` entries in `config.json` directly reorders pagination, no separate configuration needed.
+This means reordering your `sidebar`/`nav` entries in `config.json` directly reorders pagination. In any case, we highly suggest configuring `config.json` before deploying your site.
 
 ## Link text
 

@@ -1,9 +1,9 @@
 ---
-title: Nav
+title: Navigation
 description: The header navigation bar, configured via topNav in config.json
 ---
 
-# Nav
+# Navigation
 
 The header nav bar comes from `topNav` in `docs/config.json`. Skip it entirely and Bark renders the topbar without one, just the brand and search box.
 

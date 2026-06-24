@@ -1,9 +1,9 @@
 ---
-title: Home Page
+title: homepage
 description: layout:home frontmatter, hero and features
 ---
 
-# Home Page
+# homepage
 
 Set `layout: home` in a page's front matter to swap the normal docs chrome (sidebar, table of contents, breadcrumbs) for a hero section and a features grid. That's exactly what `index.md` on this site uses.
 

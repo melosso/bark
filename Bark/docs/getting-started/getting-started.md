@@ -41,7 +41,7 @@ docker compose up -d
 
 Your site will be available at `http://localhost:8080`.
 
-Not using Docker? See [Deploy](./deploy) for different configurations (e.g. IIS on Windows Server).
+Not using Docker? See [Deploy](../deploy) for different configurations (e.g. IIS on Windows Server).
 
 ## File Structure
 

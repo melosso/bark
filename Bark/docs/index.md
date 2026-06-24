@@ -5,7 +5,7 @@ layout: home
 hero:
   name: Bark
   text: Markdown in, docs site out.
-  tagline: Just place your .md files in a folder to instantly host a documentation site without any complex build processes.
+  tagline: Just place your .md files in a folder to instantly host a documentation site with ease.
   actions:
     - theme: brand
       text: Get Started
