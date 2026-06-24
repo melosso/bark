@@ -346,6 +346,7 @@ catch (Exception ex)
 {
     Log.Fatal("");
     Log.Fatal(ex, "Application failed to start.");
+    Environment.ExitCode = 1;
 }
 finally
 {

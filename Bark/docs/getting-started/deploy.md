@@ -72,8 +72,11 @@ Bark can crawl its own rendered routes and dump plain HTML/CSS/JS to a folder â€
 
 ```bash
 dotnet publish src/Bark -c Release -o ./publish
-./publish/Bark --export ./site --base-url https://you.github.io --base-path /your-repo
+cd publish && ./Bark --export ../site --base-url https://you.github.io --base-path /your-repo
 ```
+
+> [!WARNING]
+> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location â€” running it from elsewhere finds an empty/missing `docs` folder and exports a near-empty site.
 
 - `--export <dir>`: writes every page as `<dir>/index.html` or `<dir>/<path>/index.html`, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and a copy of `wwwroot`.
 - `--base-url <origin>`: the real public origin, used to rewrite the absolute URLs inside `robots.txt`/`llms.txt`.
