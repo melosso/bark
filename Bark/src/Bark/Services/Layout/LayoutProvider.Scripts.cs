@@ -190,7 +190,6 @@ public static partial class LayoutProvider
             var searchActiveIndex = -1;
             var searchLastFocused = null;
             var searchRequestId = 0;
-            var searchHintHtml = '<div class=""search-result-empty"" role=""status"">Type to search documentation.</div>';
 
             if (searchTriggerKbd && /Mac|iPhone|iPad/.test(navigator.platform || '')) {{
                 searchTriggerKbd.textContent = '⌘K';
@@ -244,7 +243,7 @@ public static partial class LayoutProvider
                 document.documentElement.style.overflow = 'hidden';
                 searchModalInput.value = '';
                 searchModalInput.focus();
-                searchModalResults.innerHTML = searchHintHtml;
+                searchModalResults.innerHTML = '';
                 searchModalInput.setAttribute('aria-expanded', 'false');
                 searchModalInput.removeAttribute('aria-activedescendant');
                 searchModalStatus.textContent = '';
@@ -331,7 +330,7 @@ public static partial class LayoutProvider
                 searchActiveIndex = -1;
                 searchRequestId += 1;
                 if (query.length < 2) {{
-                    searchModalResults.innerHTML = searchHintHtml;
+                    searchModalResults.innerHTML = '';
                     searchModalInput.setAttribute('aria-expanded', 'false');
                     searchModalStatus.textContent = '';
                     return;

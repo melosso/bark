@@ -171,7 +171,8 @@ public static partial class LayoutProvider
         .search-trigger:hover {{ border-color: var(--accent); color: var(--text-color); }}
         .search-trigger svg {{ width: 16px; height: 16px; flex-shrink: 0; }}
         .search-trigger-kbd {{
-            font-family: var(--font-mono); font-size: 0.7rem;
+            font-family: var(--font-sans); font-size: 0.7rem;
+            font-weight: 400; letter-spacing: 0.02em;
             border: 1px solid var(--border); border-radius: 4px;
             padding: 0.1rem 0.35rem; background-color: var(--bg-color); color: var(--text-muted);
             pointer-events: none;
@@ -217,22 +218,26 @@ public static partial class LayoutProvider
             border-radius: 3px; padding: 0 0.15em; font-weight: 600;
         }}
         .search-result-empty {{ color: var(--text-muted); font-size: 0.85rem; padding: 1rem; text-align: center; }}
-        .search-modal-footer {{
-            display: flex; gap: 1.25rem; padding: 0.6rem 1.25rem;
+        .DocSearch-Commands {{
+            display: flex; gap: 1.25rem; padding: 0.6rem 1.25rem; margin: 0; list-style: none;
             border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);
             flex-shrink: 0;
         }}
-        .search-modal-footer kbd {{
+        .DocSearch-Commands li {{ display: flex; align-items: center; gap: 0.4rem; }}
+        .DocSearch-Commands-Key {{
+            display: inline-flex; align-items: center; justify-content: center;
             font-family: var(--font-mono); border: 1px solid var(--border); border-radius: 4px;
-            padding: 0.1rem 0.3rem; background-color: var(--code-bg); margin-right: 0.25rem;
+            padding: 0.1rem 0.3rem; background-color: var(--code-bg); min-width: 1.4rem; height: 1.4rem;
         }}
+        .DocSearch-Commands-Key svg {{ width: 14px; height: 14px; }}
+        .DocSearch-Escape-Key {{ font-size: 0.7rem; line-height: 1; }}
         @media (max-width: 768px) {{
             .search-trigger-label, .search-trigger-kbd {{ display: none; }}
             .search-trigger {{ min-width: 44px; min-height: 44px; justify-content: center; padding: 0; margin-left: 0.5rem; }}
             .search-modal-close {{ width: 44px; height: 44px; }}
             .search-overlay {{ padding: 0; }}
             .search-modal {{ max-width: 100%; max-height: 100%; height: 100%; height: 100dvh; border-radius: 0; }}
-            .search-modal-footer {{ flex-wrap: wrap; row-gap: 0.4rem; }}
+            .DocSearch-Commands {{ flex-wrap: wrap; row-gap: 0.4rem; }}
         }}
         .nav-group {{
             margin-bottom: 2.25rem;
@@ -545,17 +550,22 @@ public static partial class LayoutProvider
         }}
         /* Custom containers: ::: tip / warning / danger / info / details */
         .content .custom-block {{
-            margin: 1.25rem 0; padding: 0.1rem 1.25rem;
-            border-left: 4px solid var(--border);
-            border-radius: 4px; background-color: var(--accent-light);
+            margin: 1rem 0; padding: 1rem; border-radius: 8px;
+            line-height: 1.5; font-size: 0.9rem; color: var(--text-muted);
+            background-color: var(--accent-light);
         }}
-        .content .custom-block.tip {{ border-left-color: var(--alert-tip); background-color: color-mix(in srgb, var(--alert-tip) 10%, var(--bg-color)); }}
-        .content .custom-block.info {{ border-left-color: var(--alert-note); background-color: color-mix(in srgb, var(--alert-note) 10%, var(--bg-color)); }}
-        .content .custom-block.warning {{ border-left-color: var(--alert-warning); background-color: color-mix(in srgb, var(--alert-warning) 10%, var(--bg-color)); }}
-        .content .custom-block.danger {{ border-left-color: var(--alert-caution); background-color: color-mix(in srgb, var(--alert-caution) 10%, var(--bg-color)); }}
-        .content .custom-block-title {{ font-weight: 700; margin: 0.8rem 0; }}
-        .content details.custom-block {{ border-left-color: var(--text-muted); }}
-        .content details.custom-block summary {{ font-weight: 700; cursor: pointer; margin: 0.8rem 0; }}
+        .content .custom-block p {{ margin: 0; }}
+        .content .custom-block.tip {{ color: var(--alert-tip); background-color: color-mix(in srgb, var(--alert-tip) 10%, var(--bg-color)); }}
+        .content .custom-block.info {{ color: var(--alert-note); background-color: color-mix(in srgb, var(--alert-note) 10%, var(--bg-color)); }}
+        .content .custom-block.warning {{ color: var(--alert-warning); background-color: color-mix(in srgb, var(--alert-warning) 10%, var(--bg-color)); }}
+        .content .custom-block.danger {{ color: var(--alert-caution); background-color: color-mix(in srgb, var(--alert-caution) 10%, var(--bg-color)); }}
+        .content .custom-block-title {{ font-weight: 700; margin: 0 0 0.5rem; }}
+        .content .custom-block a {{
+            color: inherit; font-weight: 600; text-decoration: underline;
+            text-decoration-color: currentColor; text-underline-offset: 2px;
+        }}
+        .content .custom-block a:hover {{ opacity: 0.75; }}
+        .content details.custom-block summary {{ font-weight: 700; cursor: pointer; margin: 0 0 0.5rem; }}
         /* code-group tabs */
         .content .vp-code-group {{ margin: 1.5rem 0; }}
         .content .vp-code-group .tabs {{

@@ -169,11 +169,21 @@ public static partial class LayoutProvider
             </div>
             <div class=""search-modal-results"" id=""search-modal-results"" role=""listbox"" aria-label=""Search results""></div>
             <div class=""sr-only"" id=""search-modal-status"" role=""status"" aria-live=""polite""></div>
-            <div class=""search-modal-footer"" aria-hidden=""true"">
-                <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
-                <span><kbd>Enter</kbd> Select</span>
-                <span><kbd>Esc</kbd> Close</span>
-            </div>
+            <ul class=""DocSearch-Commands"" aria-hidden=""true"">
+                <li>
+                    <kbd class=""DocSearch-Commands-Key""><svg width=""20"" height=""20"" aria-label=""Arrow down"" viewBox=""0 0 24 24"" role=""img""><g fill=""none"" stroke=""currentColor"" stroke-linecap=""round"" stroke-linejoin=""round"" stroke-width=""1.4""><path d=""M12 5v14""></path><path d=""m19 12-7 7-7-7""></path></g></svg></kbd>
+                    <kbd class=""DocSearch-Commands-Key""><svg width=""20"" height=""20"" aria-label=""Arrow up"" viewBox=""0 0 24 24"" role=""img""><g fill=""none"" stroke=""currentColor"" stroke-linecap=""round"" stroke-linejoin=""round"" stroke-width=""1.4""><path d=""m5 12 7-7 7 7""></path><path d=""M12 19V5""></path></g></svg></kbd>
+                    <span class=""DocSearch-Label"">Navigate</span>
+                </li>
+                <li>
+                    <kbd class=""DocSearch-Commands-Key""><svg width=""20"" height=""20"" aria-label=""Enter key"" viewBox=""0 0 24 24"" role=""img""><g fill=""none"" stroke=""currentColor"" stroke-linecap=""round"" stroke-linejoin=""round"" stroke-width=""1.4""><polyline points=""9 10 4 15 9 20""></polyline><path d=""M20 4v7a4 4 0 0 1-4 4H4""></path></g></svg></kbd>
+                    <span class=""DocSearch-Label"">Select</span>
+                </li>
+                <li>
+                    <kbd class=""DocSearch-Commands-Key""><span class=""DocSearch-Escape-Key"">ESC</span></kbd>
+                    <span aria-label=""Escape key"" class=""DocSearch-Label"">Close</span>
+                </li>
+            </ul>
         </div>
     </div>
     <div class=""sidebar-overlay"" id=""sidebar-overlay""></div>
