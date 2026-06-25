@@ -115,7 +115,7 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
         {
             if (child is FencedCodeBlock fence)
             {
-                _codeBlockRenderer.WriteFenced(renderer, fence, forceActive: isFirst);
+                _codeBlockRenderer.WriteFenced(renderer, fence, forceActive: isFirst, isCodeGroupChild: true);
                 isFirst = false;
             }
             else
