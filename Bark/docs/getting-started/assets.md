@@ -31,12 +31,13 @@ Bark serves pages at directory-style URLs. `getting-started/assets.md` renders a
 
 If you're running Bark behind `--base-path` (or `Docs:BasePath` in config), root-relative links in **front matter** fields like `hero.image` or feature links get the base path prefixed automatically.
 
-> [!NOTE]
-> That auto-prefixing only applies to structured front matter fields, not to regular Markdown body content. An `![](...)` image inside the body of a page is rendered by Markdig as-is. If you're running behind a base path, write the base path into the image URL yourself: `![Logo](/docs/images/logo.png)` instead of `/images/logo.png`.
+::: note
+That auto-prefixing only applies to structured front matter fields, not to regular Markdown body content. An `![](...)` image inside the body of a page is rendered by Markdig as-is. If you're running behind a base path, write the base path into the image URL yourself: `![Logo](/docs/images/logo.png)` instead of `/images/logo.png`.
+:::
 
 ## External assets
 
-Full URLs work without any rewriting:
+Ofcourse Bark supports assets from external sources, for example:
 
 ```markdown
 ![Diagram hosted elsewhere](https://cdn.example.com/diagram.png)

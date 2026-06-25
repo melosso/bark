@@ -5,7 +5,7 @@ public sealed record CodeGroupIconOptions
 {
     public bool Enabled { get; init; } = true;
 
-    public string BaseUrl { get; init; } = "https://cdn.jsdelivr.net/npm/simple-icons@13/icons";
+    public string BaseUrl { get; init; } = "/icons";
 
     public string Format { get; init; } = "svg";
 

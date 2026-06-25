@@ -104,4 +104,20 @@ public sealed class SecurityRegressionTests : IDisposable
         Assert.Equal("strict-origin-when-cross-origin", context.Response.Headers["Referrer-Policy"]);
         Assert.Contains("default-src 'self'", context.Response.Headers["Content-Security-Policy"].ToString());
     }
+
+    [Fact]
+    public async Task SecurityHeaders_ImgSrc_StaysSelfOnly_CodeGroupIconsAreVendoredLocally()
+    {
+        // Code-group icons ship under wwwroot/icons by default (CodeGroupIconOptions.BaseUrl = "/icons"),
+        // so img-src must not trust a CDN. Widening this again means BaseUrl got pointed at a CDN
+        // by default again - which is the exact thing this test exists to catch.
+        var context = new DefaultHttpContext();
+        await SecurityHeaders.Apply(context, () => Task.CompletedTask);
+
+        var csp = context.Response.Headers["Content-Security-Policy"].ToString();
+        var imgSrc = csp.Split(';').Single(d => d.Trim().StartsWith("img-src"));
+
+        Assert.Contains("'self'", imgSrc);
+        Assert.DoesNotContain("jsdelivr", imgSrc);
+    }
 }

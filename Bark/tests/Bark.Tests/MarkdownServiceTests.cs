@@ -62,6 +62,7 @@ public sealed class MarkdownServiceTests
         var (html, _, _, _) = _service.Parse(md);
 
         Assert.Contains("class=\"language-json has-title\"", html);
+        Assert.Contains("data-filename=\"./appsettings.json\"", html);
         Assert.Contains("<div class=\"code-title\">./appsettings.json</div>", html);
     }
 

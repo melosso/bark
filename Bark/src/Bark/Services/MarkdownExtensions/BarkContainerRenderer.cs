@@ -21,11 +21,13 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
 
     private readonly BarkCodeBlockRenderer _codeBlockRenderer;
     private readonly CodeGroupIconOptions _icons;
+    private readonly string _basePath;
 
-    public BarkContainerRenderer(BarkCodeBlockRenderer codeBlockRenderer, CodeGroupIconOptions? icons = null)
+    public BarkContainerRenderer(BarkCodeBlockRenderer codeBlockRenderer, CodeGroupIconOptions? icons = null, string basePath = "")
     {
         _codeBlockRenderer = codeBlockRenderer;
         _icons = icons ?? new CodeGroupIconOptions();
+        _basePath = basePath;
     }
 
     protected override void Write(HtmlRenderer renderer, CustomContainer obj)
@@ -134,9 +136,13 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
             ? mapped
             : SlugRegex().Replace(title.ToLowerInvariant(), "-").Trim('-');
 
-        var src = System.Net.WebUtility.HtmlEncode($"{_icons.BaseUrl}/{slug}.{_icons.Format}");
+        var baseUrl = IsRootRelative(_icons.BaseUrl) ? $"{_basePath}{_icons.BaseUrl}" : _icons.BaseUrl;
+        var src = System.Net.WebUtility.HtmlEncode($"{baseUrl}/{slug}.{_icons.Format}");
         return $"<img src=\"{src}\" class=\"tab-icon\" alt=\"\" aria-hidden=\"true\" loading=\"lazy\" onerror=\"this.remove()\">";
     }
+
+    private static bool IsRootRelative(string url) =>
+        url.StartsWith('/') && !url.StartsWith("//");
 
     [GeneratedRegex(@"[^a-z0-9]+")]
     private static partial Regex SlugRegex();

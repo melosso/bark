@@ -418,7 +418,8 @@ public static partial class LayoutProvider
                     var url = URL.createObjectURL(blob);
                     var a = document.createElement('a');
                     a.href = url;
-                    a.download = 'code.txt';
+                    var langBlock = pre.closest('[class^=""language-""]');
+                    a.download = (langBlock && langBlock.dataset.filename) || 'code.txt';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);

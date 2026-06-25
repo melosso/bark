@@ -113,6 +113,9 @@ This example:
 
 ````md
 ::: code-group
+```sh [dotnet]
+dotnet restore
+```
 ```sh [npm]
 npm install
 ```
@@ -125,6 +128,9 @@ pnpm install
 Renders as:
 
 ::: code-group
+```sh [dotnet]
+dotnet restore
+```
 ```sh [npm]
 npm install
 ```

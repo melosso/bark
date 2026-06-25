@@ -39,7 +39,7 @@ public sealed partial class MarkdownService
             .UseGridTables()
             .UseAutoLinks()
             .UseAlertBlocks()
-            .UseBarkMarkdownExtensions(syntaxHighlighter, mathRenderer, codeGroupIcons)
+            .UseBarkMarkdownExtensions(syntaxHighlighter, mathRenderer, codeGroupIcons, basePath)
             .Build();
 
         _yamlDeserializer = new DeserializerBuilder()

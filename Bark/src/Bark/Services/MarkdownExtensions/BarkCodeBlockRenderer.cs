@@ -66,7 +66,10 @@ public sealed class BarkCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) 
                 .ToList();
         }
 
-        renderer.Write("<div class=\"").Write(string.Join(' ', outerClasses)).Write("\">");
+        renderer.Write("<div class=\"").Write(string.Join(' ', outerClasses)).Write("\"");
+        if (showTitleBar)
+            renderer.Write(" data-filename=\"").WriteEscape(meta.Title!).Write('"');
+        renderer.Write('>');
         if (showTitleBar)
             renderer.Write("<div class=\"code-title\">").WriteEscape(meta.Title!).Write("</div>");
         renderer.Write("<button title=\"Copy code\" class=\"copy\"></button>");
