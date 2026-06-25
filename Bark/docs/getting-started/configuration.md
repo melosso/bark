@@ -33,7 +33,6 @@ That split means a content editor never needs deploy access just to fix a typo i
 ```
 
 ::: tip
-
 `BasePath` matters most for [static export](deploy#option-e-static-export-github-pages-etc), where a `--base-path` CLI flag usually replaces this setting entirely. Set it in `appsettings.json` instead when you're running the live server behind a reverse proxy that mounts Bark under a subpath.
 :::
 

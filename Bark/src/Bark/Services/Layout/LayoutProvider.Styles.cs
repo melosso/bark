@@ -554,7 +554,7 @@ public static partial class LayoutProvider
             line-height: 1.5; font-size: 0.9rem; color: var(--text-muted);
             background-color: var(--accent-light);
         }}
-        .content .custom-block p {{ margin: 0; }}
+        .content .custom-block p:not(.custom-block-title) {{ margin: 0; }}
         .content .custom-block.tip {{ color: var(--alert-tip); background-color: color-mix(in srgb, var(--alert-tip) 10%, var(--bg-color)); }}
         .content .custom-block.info {{ color: var(--alert-note); background-color: color-mix(in srgb, var(--alert-note) 10%, var(--bg-color)); }}
         .content .custom-block.warning {{ color: var(--alert-warning); background-color: color-mix(in srgb, var(--alert-warning) 10%, var(--bg-color)); }}
