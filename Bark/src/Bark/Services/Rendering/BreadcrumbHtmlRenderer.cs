@@ -11,7 +11,9 @@ public static class BreadcrumbHtmlRenderer
         for (var i = 0; i < crumbs.Count - 1; i++)
         {
             var crumb = crumbs[i];
-            html.Append($"<a href=\"{UrlPaths.Href(basePath, crumb.Path ?? "")}\">{LayoutProvider.HtmlEncode(crumb.Title)}</a>");
+            html.Append(crumb.Path is { } path
+                ? $"<a href=\"{UrlPaths.Href(basePath, path)}\">{LayoutProvider.HtmlEncode(crumb.Title)}</a>"
+                : $"<span class=\"crumb-text\">{LayoutProvider.HtmlEncode(crumb.Title)}</span>");
             html.Append("<span class=\"separator\">/</span>");
         }
         html.Append($"<span class=\"current\">{LayoutProvider.HtmlEncode(currentTitle)}</span>");
