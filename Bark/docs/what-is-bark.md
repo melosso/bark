@@ -9,7 +9,7 @@ Bark is a documentation server written on .NET. You write your content in Markdo
 
 <div class="tip custom-block">
 
-Just want to try it out? Skip to the [Quickstart](../ow ugetting-started/getting-started).
+Just want to try it out? Skip to the [Quickstart](../getting-started/getting-started).
 
 </div>
 
