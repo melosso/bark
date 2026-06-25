@@ -168,6 +168,7 @@ public static partial class LayoutProvider
             font-family: inherit; font-size: 0.85rem; cursor: pointer;
             transition: border-color 0.15s ease, color 0.15s ease;
         }}
+        .search-trigger-mobile {{ display: none; }}
         .search-trigger:hover {{ border-color: var(--accent); color: var(--text-color); }}
         .search-trigger svg {{ width: 16px; height: 16px; flex-shrink: 0; }}
         .search-trigger-kbd {{
@@ -232,8 +233,8 @@ public static partial class LayoutProvider
         .DocSearch-Commands-Key svg {{ width: 14px; height: 14px; }}
         .DocSearch-Escape-Key {{ font-size: 0.7rem; line-height: 1; }}
         @media (max-width: 768px) {{
-            .search-trigger-label, .search-trigger-kbd {{ display: none; }}
-            .search-trigger {{ min-width: 44px; min-height: 44px; justify-content: center; padding: 0; margin-left: 0.5rem; }}
+            .search-trigger {{ display: none; }}
+            .search-trigger-mobile {{ display: inline-flex; }}
             .search-modal-close {{ width: 44px; height: 44px; }}
             .search-overlay {{ padding: 0; }}
             .search-modal {{ max-width: 100%; max-height: 100%; height: 100%; height: 100dvh; border-radius: 0; }}

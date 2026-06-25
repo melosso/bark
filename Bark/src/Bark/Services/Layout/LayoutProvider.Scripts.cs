@@ -264,6 +264,10 @@ public static partial class LayoutProvider
             if (searchTrigger) {{
                 searchTrigger.addEventListener('click', openSearchModal);
             }}
+            var searchTriggerMobile = document.getElementById('search-trigger-mobile');
+            if (searchTriggerMobile) {{
+                searchTriggerMobile.addEventListener('click', openSearchModal);
+            }}
             searchModalClose.addEventListener('click', closeSearchModal);
             searchOverlay.addEventListener('mousedown', function(e) {{
                 if (e.target === searchOverlay) closeSearchModal();
