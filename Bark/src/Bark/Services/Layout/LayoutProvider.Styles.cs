@@ -385,6 +385,7 @@ public static partial class LayoutProvider
         }}
         .breadcrumb a:hover {{ color: var(--accent); }}
         .breadcrumb .separator {{ color: var(--text-muted); }}
+        .breadcrumb .crumb-text {{ color: var(--text-muted); }}
         .breadcrumb .current {{ color: var(--text-color); font-weight: 500; }}
         .content h1 {{
             font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em;

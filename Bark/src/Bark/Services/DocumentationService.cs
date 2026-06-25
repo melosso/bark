@@ -342,7 +342,7 @@ public sealed class DocumentationService : IHostedService, IDisposable
                 var title = segment.Replace('-', ' ').Replace('_', ' ');
                 if (title.Length > 0)
                     title = char.ToUpperInvariant(title[0]) + title[1..];
-                crumbs.Add(new BreadcrumbItem(title, $"/{accumulated}"));
+                crumbs.Add(new BreadcrumbItem(title, null));
             }
         }
 

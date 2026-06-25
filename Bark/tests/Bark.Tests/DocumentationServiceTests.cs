@@ -117,6 +117,17 @@ public sealed class DocumentationServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task GetBreadcrumbs_SegmentWithoutPage_HasNullPath()
+    {
+        await CreateTestFiles();
+        await _service.StartAsync(CancellationToken.None);
+
+        var crumbs = _service.GetBreadcrumbs("getting-started/installation");
+        Assert.Null(crumbs[1].Path); // "getting-started" has no index page
+        Assert.Equal("/getting-started/installation", crumbs[2].Path);
+    }
+
+    [Fact]
     public async Task GetBreadcrumbs_RootPath_ReturnsOnlyHome()
     {
         await CreateTestFiles();
