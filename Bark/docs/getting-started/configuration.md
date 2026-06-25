@@ -12,7 +12,9 @@ Bark splits configuration into two files:
 
 That split means a content editor never needs deploy access just to fix a typo in the brand name. This page walks through what you'll touch first. For the full field-by-field list, see [Site Config](/reference/site-config).
 
-## `appsettings.json`: `Docs` section
+## `appsettings.json`
+
+Related to the `Docs` section:
 
 | Setting | Default | Description |
 |---|---|---|
@@ -38,7 +40,7 @@ That split means a content editor never needs deploy access just to fix a typo i
 
 Want to change colors, fonts, or ship your own CSS/JS? That's a separate concern from the settings above, covered in [Extending Themes](extending-themes).
 
-## `docs/config.json`: navigation
+## `docs/config.json`
 
 You get three levels of control over navigation, and you can mix them:
 
