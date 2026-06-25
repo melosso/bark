@@ -89,7 +89,9 @@ const c = a + b;
 
 ## Code groups
 
-```md
+This example:
+
+````md
 ::: code-group
 ```sh [npm]
 npm install
@@ -98,7 +100,7 @@ npm install
 pnpm install
 ```
 :::
-```
+````
 
 Renders as:
 
@@ -110,6 +112,8 @@ npm install
 pnpm install
 ```
 :::
+
+Use `[label]` for the tab title. If the label matches a name on [Simple Icons](https://simpleicons.org/), its icon will display automatically.
 
 ## Alerts
 

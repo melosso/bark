@@ -574,9 +574,11 @@ public static partial class LayoutProvider
         }}
         .content .vp-code-group .tabs input {{ display: none; }}
         .content .vp-code-group .tabs label {{
+            display: inline-flex; align-items: center; gap: 0.35rem;
             padding: 0.5rem 0.9rem; font-size: 0.85rem; color: var(--text-muted);
             cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
         }}
+        .content .vp-code-group .tabs .tab-icon {{ width: 14px; height: 14px; flex-shrink: 0; }}
         .content .vp-code-group .blocks > div[class^=""language-""] {{ display: none; margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }}
         .content .vp-code-group .blocks > div[class^=""language-""].active {{ display: block; }}
         .content .vp-code-group .tabs label.active-tab {{ color: var(--text-color); border-bottom-color: var(--accent); }}
