@@ -780,6 +780,9 @@ public static partial class LayoutProvider
         .social-links {{
             display: flex; align-items: center; gap: 0.25rem;
         }}
+        .sidebar-social-links {{
+            display: none;
+        }}
         .content-footer {{
             margin-top: 3rem; padding-top: 1.5rem;
             border-top: 1px solid var(--border);
@@ -871,6 +874,12 @@ public static partial class LayoutProvider
             }}
             .search-result-title {{ font-size: 0.95rem; }}
             .search-result-excerpt {{ font-size: 0.8rem; }}
+            .topbar-right .social-links {{ display: none; }}
+            .sidebar-social-links {{
+                display: flex; flex-wrap: wrap; gap: 0.25rem;
+                padding: 1.25rem 0 0.25rem;
+                border-top: 1px solid var(--border);
+            }}
         }}
     </style>
 ";

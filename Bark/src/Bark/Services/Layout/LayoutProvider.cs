@@ -36,10 +36,14 @@ public static partial class LayoutProvider
             : "";
 
         var layoutClass = isHomePage ? "layout bark-home-layout" : "layout";
+        var mobileSocialHtml = !string.IsNullOrWhiteSpace(socialLinksHtml)
+            ? $@"<div class=""sidebar-social-links"">{socialLinksHtml}</div>"
+            : "";
         var sidebarLeftHtml = $@"
         <aside class=""sidebar-left"" id=""sidebar-left"" aria-label=""Documentation navigation"">
             {mobileTopNavHtml}
             {navigationHtml}
+            {mobileSocialHtml}
         </aside>";
         var breadcrumbAndTocHtml = isHomePage ? "" : $@"
             <nav class=""breadcrumb"" aria-label=""Breadcrumb"">
