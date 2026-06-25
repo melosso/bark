@@ -5,7 +5,7 @@ description: HTTP routes Bark exposes
 
 # API Reference
 
-Every HTTP route Bark exposes. The whole surface area fits on one page, read it in a minute.
+This document defines the HTTP routes Bark exposes. The surface area exposed is tiny.
 
 ## `GET /{path}`
 

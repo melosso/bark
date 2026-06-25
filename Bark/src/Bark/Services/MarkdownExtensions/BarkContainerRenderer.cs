@@ -82,7 +82,7 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
     private void WriteCodeGroup(HtmlRenderer renderer, CustomContainer obj)
     {
         renderer.EnsureLine();
-        renderer.Write("<div class=\"vp-code-group\"><div class=\"tabs\">");
+        renderer.Write("<div class=\"bark-code-group\"><div class=\"tabs\">");
 
         var groupId = obj.Line;
         var tabIndex = 0;

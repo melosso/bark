@@ -430,7 +430,7 @@ public static partial class LayoutProvider
             }});
 
             // code-group tab switching
-            var codeGroups = document.querySelectorAll('.vp-code-group');
+            var codeGroups = document.querySelectorAll('.bark-code-group');
             codeGroups.forEach(function(group) {{
                 var inputs = group.querySelectorAll('.tabs input');
                 var labels = group.querySelectorAll('.tabs label');

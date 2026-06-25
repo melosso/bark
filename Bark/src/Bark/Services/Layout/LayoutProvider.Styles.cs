@@ -320,49 +320,49 @@ public static partial class LayoutProvider
             max-width: 800px; justify-self: center; width: 100%;
             min-width: 0;
         }}
-        .vp-home-layout {{ grid-template-columns: 1fr; }}
-        .vp-home-layout .main-container {{ max-width: 100%; padding: 0; }}
-        .vp-home-content {{ max-width: 960px; margin: 0 auto; padding: 0 2rem; }}
-        .vp-hero {{ text-align: center; padding: 4.5rem 1.5rem 3.5rem; }}
-        .vp-hero-image {{ font-size: 4rem; margin-bottom: 1.5rem; line-height: 1; }}
-        .vp-hero-image img {{ max-width: 200px; max-height: 200px; }}
-        .vp-hero-name {{
+        .bark-home-layout {{ grid-template-columns: 1fr; }}
+        .bark-home-layout .main-container {{ max-width: 100%; padding: 0; }}
+        .bark-home-content {{ max-width: 960px; margin: 0 auto; padding: 0 2rem; }}
+        .bark-hero {{ text-align: center; padding: 4.5rem 1.5rem 3.5rem; }}
+        .bark-hero-image {{ font-size: 4rem; margin-bottom: 1.5rem; line-height: 1; }}
+        .bark-hero-image img {{ max-width: 200px; max-height: 200px; }}
+        .bark-hero-name {{
             font-size: 2.75rem; font-weight: 700; letter-spacing: -0.02em;
             color: var(--accent); margin-bottom: 0.5rem;
         }}
-        .vp-hero-text {{
+        .bark-hero-text {{
             font-size: 2rem; font-weight: 600; color: var(--text-color);
             letter-spacing: -0.02em; margin-bottom: 1rem;
         }}
-        .vp-hero-tagline {{
+        .bark-hero-tagline {{
             font-size: 1.15rem; color: var(--text-muted); max-width: 540px;
             margin: 0 auto 2rem;
         }}
-        .vp-hero-actions {{ display: flex; justify-content: center; gap: 0.9rem; flex-wrap: wrap; }}
-        .vp-hero-action {{
+        .bark-hero-actions {{ display: flex; justify-content: center; gap: 0.9rem; flex-wrap: wrap; }}
+        .bark-hero-action {{
             display: inline-flex; align-items: center; padding: 0.65rem 1.4rem;
             border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
             transition: opacity 0.15s ease, background-color 0.15s ease;
         }}
-        .vp-hero-action.brand {{ background-color: var(--accent); color: var(--bg-color); }}
-        .vp-hero-action.brand:hover {{ opacity: 0.85; }}
-        .vp-hero-action.alt {{
+        .bark-hero-action.brand {{ background-color: var(--accent); color: var(--bg-color); }}
+        .bark-hero-action.brand:hover {{ opacity: 0.85; }}
+        .bark-hero-action.alt {{
             border: 1px solid var(--border); color: var(--text-color); background: transparent;
         }}
-        .vp-hero-action.alt:hover {{ background-color: var(--accent-light); }}
-        .vp-features {{
+        .bark-hero-action.alt:hover {{ background-color: var(--accent-light); }}
+        .bark-features {{
             display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.25rem; padding: 1rem 1.5rem 4rem;
         }}
-        .vp-feature {{
+        .bark-feature {{
             display: block; padding: 1.5rem; border: 1px solid var(--border);
             border-radius: 10px; background-color: var(--sidebar-bg);
             text-decoration: none; color: inherit; transition: border-color 0.15s ease;
         }}
-        a.vp-feature:hover {{ border-color: var(--accent); }}
-        .vp-feature-icon {{ font-size: 1.75rem; margin-bottom: 0.75rem; }}
-        .vp-feature-title {{ font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; }}
-        .vp-feature-details {{ font-size: 0.875rem; color: var(--text-muted); line-height: 1.5; }}
+        a.bark-feature:hover {{ border-color: var(--accent); }}
+        .bark-feature-icon {{ font-size: 1.75rem; margin-bottom: 0.75rem; }}
+        .bark-feature-title {{ font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; }}
+        .bark-feature-details {{ font-size: 0.875rem; color: var(--text-muted); line-height: 1.5; }}
         .page-meta {{
             display: flex; justify-content: space-between; align-items: center; gap: 1rem;
             margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border);
@@ -568,20 +568,20 @@ public static partial class LayoutProvider
         .content .custom-block a:hover {{ opacity: 0.75; }}
         .content details.custom-block summary {{ font-weight: 700; cursor: pointer; margin: 0 0 0.5rem; }}
         /* code-group tabs */
-        .content .vp-code-group {{ margin: 1.5rem 0; }}
-        .content .vp-code-group .tabs {{
+        .content .bark-code-group {{ margin: 1.5rem 0; }}
+        .content .bark-code-group .tabs {{
             display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border);
         }}
-        .content .vp-code-group .tabs input {{ display: none; }}
-        .content .vp-code-group .tabs label {{
+        .content .bark-code-group .tabs input {{ display: none; }}
+        .content .bark-code-group .tabs label {{
             display: inline-flex; align-items: center; gap: 0.35rem;
             padding: 0.5rem 0.9rem; font-size: 0.85rem; color: var(--text-muted);
             cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
         }}
-        .content .vp-code-group .tabs .tab-icon {{ width: 14px; height: 14px; flex-shrink: 0; }}
-        .content .vp-code-group .blocks > div[class^=""language-""] {{ display: none; margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }}
-        .content .vp-code-group .blocks > div[class^=""language-""].active {{ display: block; }}
-        .content .vp-code-group .tabs label.active-tab {{ color: var(--text-color); border-bottom-color: var(--accent); }}
+        .content .bark-code-group .tabs .tab-icon {{ width: 14px; height: 14px; flex-shrink: 0; }}
+        .content .bark-code-group .blocks > div[class^=""language-""] {{ display: none; margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }}
+        .content .bark-code-group .blocks > div[class^=""language-""].active {{ display: block; }}
+        .content .bark-code-group .tabs label.active-tab {{ color: var(--text-color); border-bottom-color: var(--accent); }}
         .table-wrapper {{
             overflow-x: auto; -webkit-overflow-scrolling: touch;
             margin: 1.5rem 0; border-radius: 6px;

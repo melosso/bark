@@ -87,16 +87,16 @@ public sealed partial class MarkdownService
     private static string RenderHomePage(FrontMatter frontMatter, string basePath)
     {
         var sb = new StringBuilder();
-        sb.Append("<div class=\"vp-home\">");
+        sb.Append("<div class=\"bark-home\">");
 
         if (frontMatter.Hero is { } hero)
         {
-            sb.Append("<div class=\"vp-hero\">");
+            sb.Append("<div class=\"bark-hero\">");
 
             if (!string.IsNullOrWhiteSpace(hero.Image))
             {
                 var isUrl = hero.Image.Contains('/') || hero.Image.StartsWith("http", StringComparison.OrdinalIgnoreCase);
-                sb.Append("<div class=\"vp-hero-image\">")
+                sb.Append("<div class=\"bark-hero-image\">")
                     .Append(isUrl
                         ? $"<img src=\"{WebUtility.HtmlEncode(PrefixInternalAsset(hero.Image, basePath))}\" alt=\"\">"
                         : WebUtility.HtmlEncode(hero.Image))
@@ -104,19 +104,19 @@ public sealed partial class MarkdownService
             }
 
             if (!string.IsNullOrWhiteSpace(hero.Name))
-                sb.Append("<h1 class=\"vp-hero-name\">").Append(WebUtility.HtmlEncode(hero.Name)).Append("</h1>");
+                sb.Append("<h1 class=\"bark-hero-name\">").Append(WebUtility.HtmlEncode(hero.Name)).Append("</h1>");
             if (!string.IsNullOrWhiteSpace(hero.Text))
-                sb.Append("<p class=\"vp-hero-text\">").Append(WebUtility.HtmlEncode(hero.Text)).Append("</p>");
+                sb.Append("<p class=\"bark-hero-text\">").Append(WebUtility.HtmlEncode(hero.Text)).Append("</p>");
             if (!string.IsNullOrWhiteSpace(hero.Tagline))
-                sb.Append("<p class=\"vp-hero-tagline\">").Append(WebUtility.HtmlEncode(hero.Tagline)).Append("</p>");
+                sb.Append("<p class=\"bark-hero-tagline\">").Append(WebUtility.HtmlEncode(hero.Tagline)).Append("</p>");
 
             if (hero.Actions is { Count: > 0 } actions)
             {
-                sb.Append("<div class=\"vp-hero-actions\">");
+                sb.Append("<div class=\"bark-hero-actions\">");
                 foreach (var action in actions)
                 {
                     var theme = action.Theme == "alt" ? "alt" : "brand";
-                    sb.Append("<a class=\"vp-hero-action ").Append(theme).Append("\" href=\"")
+                    sb.Append("<a class=\"bark-hero-action ").Append(theme).Append("\" href=\"")
                         .Append(WebUtility.HtmlEncode(PrefixInternalLink(action.Link ?? "#", basePath))).Append("\">")
                         .Append(WebUtility.HtmlEncode(action.Text ?? string.Empty)).Append("</a>");
                 }
@@ -128,20 +128,20 @@ public sealed partial class MarkdownService
 
         if (frontMatter.Features is { Count: > 0 } features)
         {
-            sb.Append("<div class=\"vp-features\">");
+            sb.Append("<div class=\"bark-features\">");
             foreach (var feature in features)
             {
                 var hasLink = !string.IsNullOrWhiteSpace(feature.Link);
                 sb.Append(hasLink
-                    ? $"<a class=\"vp-feature\" href=\"{WebUtility.HtmlEncode(PrefixInternalLink(feature.Link!, basePath))}\">"
-                    : "<div class=\"vp-feature\">");
+                    ? $"<a class=\"bark-feature\" href=\"{WebUtility.HtmlEncode(PrefixInternalLink(feature.Link!, basePath))}\">"
+                    : "<div class=\"bark-feature\">");
 
                 if (!string.IsNullOrWhiteSpace(feature.Icon))
-                    sb.Append("<div class=\"vp-feature-icon\">").Append(WebUtility.HtmlEncode(feature.Icon)).Append("</div>");
+                    sb.Append("<div class=\"bark-feature-icon\">").Append(WebUtility.HtmlEncode(feature.Icon)).Append("</div>");
                 if (!string.IsNullOrWhiteSpace(feature.Title))
-                    sb.Append("<h2 class=\"vp-feature-title\">").Append(WebUtility.HtmlEncode(feature.Title)).Append("</h2>");
+                    sb.Append("<h2 class=\"bark-feature-title\">").Append(WebUtility.HtmlEncode(feature.Title)).Append("</h2>");
                 if (!string.IsNullOrWhiteSpace(feature.Details))
-                    sb.Append("<p class=\"vp-feature-details\">").Append(WebUtility.HtmlEncode(feature.Details)).Append("</p>");
+                    sb.Append("<p class=\"bark-feature-details\">").Append(WebUtility.HtmlEncode(feature.Details)).Append("</p>");
 
                 sb.Append(hasLink ? "</a>" : "</div>");
             }

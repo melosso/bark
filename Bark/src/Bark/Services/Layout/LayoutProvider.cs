@@ -35,7 +35,7 @@ public static partial class LayoutProvider
             ? $"<meta name=\"description\" content=\"{HtmlEncode(description)}\">"
             : "";
 
-        var layoutClass = isHomePage ? "layout vp-home-layout" : "layout";
+        var layoutClass = isHomePage ? "layout bark-home-layout" : "layout";
         var sidebarLeftHtml = isHomePage ? "" : $@"
         <aside class=""sidebar-left"" id=""sidebar-left"" aria-label=""Documentation navigation"">
             {mobileTopNavHtml}
@@ -66,7 +66,7 @@ public static partial class LayoutProvider
                 </ul>
             </div>
         </aside>";
-        var contentClass = isHomePage ? "content vp-home-content" : "content";
+        var contentClass = isHomePage ? "content bark-home-content" : "content";
         // Home pages never show "last updated" or prev/next pagination, regardless of caller input.
         var paginationBlock = isHomePage ? "" : paginationHtml;
         var lastUpdatedBlock = isHomePage ? "" : lastUpdatedHtml;

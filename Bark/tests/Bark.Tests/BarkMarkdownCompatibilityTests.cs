@@ -59,7 +59,7 @@ export default {}
 """;
         var (html, _, _, _) = _service.Parse(md);
 
-        Assert.Contains("vp-code-group", html);
+        Assert.Contains("bark-code-group", html);
         Assert.Contains("data-title=\"config.js\"", html);
         Assert.Contains("data-title=\"config.ts\"", html);
         Assert.Contains("language-js active", html);
@@ -401,14 +401,14 @@ const x = 1;
         var result = _service.Parse(md);
 
         Assert.Equal("home", result.Layout);
-        Assert.Contains("<div class=\"vp-home\">", result.Html);
-        Assert.Contains("<h1 class=\"vp-hero-name\">Bark</h1>", result.Html);
+        Assert.Contains("<div class=\"bark-home\">", result.Html);
+        Assert.Contains("<h1 class=\"bark-hero-name\">Bark</h1>", result.Html);
         Assert.Contains("Markdown in, docs site out.", result.Html);
-        Assert.Contains("class=\"vp-hero-action brand\"", result.Html);
+        Assert.Contains("class=\"bark-hero-action brand\"", result.Html);
         // Theme omitted -> defaults to "brand".
         Assert.Contains("href=\"https://github.com/example/bark\"", result.Html);
-        Assert.Contains("class=\"vp-feature-title\">Hot reload</h2>", result.Html);
-        Assert.Contains("<a class=\"vp-feature\" href=\"/search/\">", result.Html);
+        Assert.Contains("class=\"bark-feature-title\">Hot reload</h2>", result.Html);
+        Assert.Contains("<a class=\"bark-feature\" href=\"/search/\">", result.Html);
         Assert.Contains("Extra body content below the front matter.", result.Html);
     }
 
@@ -418,7 +418,7 @@ const x = 1;
         var result = _service.Parse("# Just a normal page\n");
 
         Assert.Null(result.Layout);
-        Assert.DoesNotContain("vp-home", result.Html);
+        Assert.DoesNotContain("bark-home", result.Html);
     }
 
     [Fact]
