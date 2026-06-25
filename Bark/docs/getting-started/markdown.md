@@ -113,14 +113,14 @@ This example:
 
 ````md
 ::: code-group
-```sh [dotnet]
-dotnet restore
-```
 ```sh [npm]
 npm install
 ```
 ```sh [pnpm]
 pnpm install
+```
+```sh [c# icon:sharp]
+dotnet restore
 ```
 :::
 ````
@@ -128,18 +128,18 @@ pnpm install
 Renders as:
 
 ::: code-group
-```sh [dotnet]
-dotnet restore
-```
 ```sh [npm]
 npm install
 ```
 ```sh [pnpm]
 pnpm install
 ```
+```sh [c# icon:sharp]
+dotnet restore
+```
 :::
 
-Use `[label]` for the tab title. If the label matches a name on [Simple Icons](https://simpleicons.org/), its icon will display automatically.
+Use `[label]` for the tab title. If the label matches a name on [Simple Icons](https://simpleicons.org/), its icon will display automatically. You can a specific icon with `[label icon:slug]`, e.g. `[csharp icon:dotnet]`.
 
 ## Alerts
 

@@ -6,6 +6,7 @@ namespace Bark.Services.MarkdownExtensions;
 public sealed record CodeBlockMeta(
     string Lang,
     string? Title,
+    string? IconSlug,
     bool? LineNumbers,
     int? LineNumbersStart,
     IReadOnlySet<int> HighlightedLines,
@@ -14,6 +15,7 @@ public sealed record CodeBlockMeta(
     private static readonly Regex LangRegex = new(@"^[a-zA-Z0-9_-]+", RegexOptions.Compiled);
     private static readonly Regex TitleRegex = new(@"\[(.*)\]", RegexOptions.Compiled);
     private static readonly Regex TitleStripRegex = new(@"\[.*\]", RegexOptions.Compiled);
+    private static readonly Regex IconRegex = new(@"\s+icon:(\S+)$", RegexOptions.Compiled);
 
     private static readonly Regex LineNumbersOnRegex = new(@":line-numbers\b", RegexOptions.Compiled);
     private static readonly Regex LineNumbersOffRegex = new(@":no-line-numbers\b", RegexOptions.Compiled);
@@ -28,10 +30,17 @@ public sealed record CodeBlockMeta(
         var combined = CombineInfoString(info, arguments);
 
         string? title = null;
+        string? iconSlug = null;
         var titleMatch = TitleRegex.Match(combined);
         if (titleMatch.Success)
         {
             title = titleMatch.Groups[1].Value;
+            var iconMatch = IconRegex.Match(title);
+            if (iconMatch.Success)
+            {
+                iconSlug = iconMatch.Groups[1].Value;
+                title = IconRegex.Replace(title, string.Empty);
+            }
             combined = TitleStripRegex.Replace(combined, string.Empty);
         }
 
@@ -53,7 +62,7 @@ public sealed record CodeBlockMeta(
         var wordHighlights = ParseWordHighlights(combined);
         var lang = ExtractLang(combined);
 
-        return new CodeBlockMeta(lang, title, lineNumbers, lineNumbersStart, highlighted, wordHighlights);
+        return new CodeBlockMeta(lang, title, iconSlug, lineNumbers, lineNumbersStart, highlighted, wordHighlights);
     }
 
     private static string CombineInfoString(string? info, string? arguments)

@@ -103,7 +103,7 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
             renderer.Write("><label data-title=\"").WriteEscape(title).Write("\" for=\"").Write(tabId).Write("\">");
 
             if (_icons.Enabled)
-                renderer.Write(BuildIconTag(title));
+                renderer.Write(BuildIconTag(title, meta.IconSlug));
 
             renderer.WriteEscape(title).Write("</label>");
 
@@ -130,11 +130,12 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
         renderer.EnsureLine();
     }
 
-    private string BuildIconTag(string title)
+    private string BuildIconTag(string title, string? iconSlug)
     {
-        var slug = _icons.Overrides is { } overrides && overrides.TryGetValue(title, out var mapped)
-            ? mapped
-            : SlugRegex().Replace(title.ToLowerInvariant(), "-").Trim('-');
+        var slug = iconSlug
+            ?? (_icons.Overrides is { } overrides && overrides.TryGetValue(title, out var mapped)
+                ? mapped
+                : SlugRegex().Replace(title.ToLowerInvariant(), "-").Trim('-'));
 
         var baseUrl = IsRootRelative(_icons.BaseUrl) ? $"{_basePath}{_icons.BaseUrl}" : _icons.BaseUrl;
         var src = System.Net.WebUtility.HtmlEncode($"{baseUrl}/{slug}.{_icons.Format}");

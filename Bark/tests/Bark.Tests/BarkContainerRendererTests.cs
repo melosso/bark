@@ -39,4 +39,20 @@ public sealed class BarkContainerRendererTests
 
         Assert.Contains($"{options.BaseUrl}/nodedotjs.{options.Format}", html);
     }
+
+    [Fact]
+    public void CodeGroup_InlineIconDirective_WinsOverSlugifiedTitleAndGlobalOverride()
+    {
+        var options = new CodeGroupIconOptions
+        {
+            Overrides = new Dictionary<string, string> { ["csharp"] = "sharp" }
+        };
+        var service = new MarkdownService(codeGroupIcons: options);
+        var md = "::: code-group\n```sh [csharp icon:dotnet]\ndotnet run\n```\n:::\n";
+        var (html, _, _, _) = service.Parse(md);
+
+        Assert.Contains($"{options.BaseUrl}/dotnet.{options.Format}", html);
+        Assert.DoesNotContain($"{options.BaseUrl}/sharp.{options.Format}", html);
+        Assert.Contains("data-title=\"csharp\"", html);
+    }
 }
