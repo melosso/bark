@@ -36,10 +36,14 @@ public static partial class LayoutProvider
             : "";
 
         var layoutClass = isHomePage ? "layout bark-home-layout" : "layout";
+        var mobileSocialHtml = !string.IsNullOrWhiteSpace(socialLinksHtml)
+            ? $@"<div class=""sidebar-social-links"">{socialLinksHtml}</div>"
+            : "";
         var sidebarLeftHtml = $@"
         <aside class=""sidebar-left"" id=""sidebar-left"" aria-label=""Documentation navigation"">
             {mobileTopNavHtml}
             {navigationHtml}
+            {mobileSocialHtml}
         </aside>";
         var breadcrumbAndTocHtml = isHomePage ? "" : $@"
             <nav class=""breadcrumb"" aria-label=""Breadcrumb"">
@@ -148,6 +152,10 @@ public static partial class LayoutProvider
         </div>
         {topNavHtml}
         <div class=""topbar-right"">
+            <button type=""button"" class=""search-trigger-mobile icon-btn"" id=""search-trigger-mobile""
+                    aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""Search documentation"">
+                <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.3-4.3""/></svg>
+            </button>
             {socialLinksHtml}
             {themeToggleHtml}
         </div>
