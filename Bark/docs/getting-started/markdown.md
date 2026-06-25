@@ -89,7 +89,7 @@ const c = a + b;
 
 ## Code groups
 
-```md
+````md
 ::: code-group
 ```sh [npm]
 npm install
@@ -98,7 +98,7 @@ npm install
 pnpm install
 ```
 :::
-```
+````
 
 Renders as:
 

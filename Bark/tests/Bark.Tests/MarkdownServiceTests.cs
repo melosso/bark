@@ -41,6 +41,17 @@ public sealed class MarkdownServiceTests
     }
 
     [Fact]
+    public void Parse_FourBacktickFence_ToleratesNestedTripleBacktickFences()
+    {
+        // CommonMark closes a fence on any same/longer same-char line, so nested ``` needs a longer outer fence.
+        var md = "````md\n```sh\necho hi\n```\n````\n\nAfter";
+        var (html, _, _, _) = _service.Parse(md);
+        Assert.Contains("```sh", html);
+        Assert.Contains("After", html);
+        Assert.DoesNotContain("<p>```", html);
+    }
+
+    [Fact]
     public void Parse_ExtractsHeadings()
     {
         var md = """
