@@ -19,7 +19,7 @@ public sealed partial class MarkdownService
     private readonly IDeserializer _yamlDeserializer;
     private readonly string _basePath;
 
-    public MarkdownService(ISyntaxHighlighter? syntaxHighlighter = null, string basePath = "")
+    public MarkdownService(ISyntaxHighlighter? syntaxHighlighter = null, string basePath = "", MathRenderer? mathRenderer = null)
     {
         _basePath = basePath;
         _pipeline = new MarkdownPipelineBuilder()
@@ -35,7 +35,7 @@ public sealed partial class MarkdownService
             .UseGridTables()
             .UseAutoLinks()
             .UseAlertBlocks()
-            .UseBarkMarkdownExtensions(syntaxHighlighter)
+            .UseBarkMarkdownExtensions(syntaxHighlighter, mathRenderer)
             .Build();
 
         _yamlDeserializer = new DeserializerBuilder()

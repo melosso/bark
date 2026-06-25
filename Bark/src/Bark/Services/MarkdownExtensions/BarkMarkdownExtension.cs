@@ -1,12 +1,13 @@
 using Markdig;
 using Markdig.Extensions.CustomContainers;
+using Markdig.Extensions.Mathematics;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
 
 namespace Bark.Services.MarkdownExtensions;
 
-/// <summary>Replaces Markdig's default HTML renderers for code blocks and custom containers with Bark's.</summary>
-public sealed class BarkMarkdownExtension(ISyntaxHighlighter syntaxHighlighter) : IMarkdownExtension
+/// <summary>Replaces Markdig's default HTML renderers for code blocks, custom containers, and math</summary>
+public sealed class BarkMarkdownExtension(ISyntaxHighlighter syntaxHighlighter, MathRenderer mathRenderer) : IMarkdownExtension
 {
     // Custom-containers/math are enabled via UseCustomContainers()/UseMathematics() in
     // UseBarkMarkdownExtensions() instead, since adding extensions from inside another
@@ -24,24 +25,45 @@ public sealed class BarkMarkdownExtension(ISyntaxHighlighter syntaxHighlighter) 
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<CodeBlockRenderer>(codeBlockRenderer);
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlCustomContainerRenderer>(
             new BarkContainerRenderer(codeBlockRenderer));
+
+        htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathInlineRenderer>(new BarkMathInlineRenderer(mathRenderer));
+        htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathBlockRenderer>(new BarkMathBlockRenderer(mathRenderer));
+    }
+}
+
+/// <summary>Server-side renders inline <c>$...$</c> math to static KaTeX HTML</summary>
+public sealed class BarkMathInlineRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathInline>
+{
+    protected override void Write(HtmlRenderer renderer, MathInline obj) =>
+        renderer.Write(mathRenderer.RenderToHtml(obj.Content.ToString(), displayMode: false));
+}
+
+/// <summary>Server-side renders block <c>$$...$$</c> math to static KaTeX HTML</summary>
+public sealed class BarkMathBlockRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathBlock>
+{
+    protected override void Write(HtmlRenderer renderer, MathBlock obj)
+    {
+        renderer.EnsureLine();
+        renderer.WriteLine(mathRenderer.RenderToHtml(obj.Lines.ToString(), displayMode: true));
     }
 }
 
 public static class BarkMarkdownExtensions
 {
     /// <summary>
-    /// Enables custom containers (<c>::: tip/warning/details/code-group</c>), math (<c>$...$</c>/<c>$$...$$</c>),
-    /// and fenced-code-block conventions: <c>{1,3}</c> line highlighting, <c>[!code highlight]</c> notation,
-    /// <c>:line-numbers</c>, and <c>[title]</c> tab titles.
+    /// Enables custom containers (<c>::: tip/warning/details/code-group</c>); math (<c>$...$</c>/<c>$$...$$</c>,
+    /// rendered server-side via <see cref="MathRenderer"/>); fenced-code-block conventions:
+    /// <c>{1,3}</c> line highlighting, <c>[!code highlight]</c> notation, <c>:line-numbers</c>, <c>[title]</c> tab titles
     /// </summary>
     public static MarkdownPipelineBuilder UseBarkMarkdownExtensions(
         this MarkdownPipelineBuilder pipeline,
-        ISyntaxHighlighter? syntaxHighlighter = null)
+        ISyntaxHighlighter? syntaxHighlighter = null,
+        MathRenderer? mathRenderer = null)
     {
         pipeline.UseCustomContainers();
         pipeline.UseMathematics();
         pipeline.Extensions.AddIfNotAlready(
-            new BarkMarkdownExtension(syntaxHighlighter ?? NullSyntaxHighlighter.Instance));
+            new BarkMarkdownExtension(syntaxHighlighter ?? NullSyntaxHighlighter.Instance, mathRenderer ?? new MathRenderer()));
         return pipeline;
     }
 }
