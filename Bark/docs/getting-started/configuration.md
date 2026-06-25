@@ -10,7 +10,7 @@ Bark splits configuration into two files:
 - **`appsettings.json`**: host-level concerns, where the docs folder lives, whether hot reload is on, theme colors. Set per deployment, needs a restart.
 - **`docs/config.json`**: content-level concerns, brand text, navigation, footer, social links. Set per project, hot-reloaded along with your Markdown. No restart needed.
 
-That split means a content editor never needs deploy access just to fix a typo in the brand name. This page walks through what you'll touch first. For the full field-by-field list, see [Site Config](../reference/site-config).
+That split means a content editor never needs deploy access just to fix a typo in the brand name. This page walks through what you'll touch first. For the full field-by-field list, see [Site Config](/reference/site-config).
 
 ## `appsettings.json`: `Docs` section
 

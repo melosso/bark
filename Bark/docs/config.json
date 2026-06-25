@@ -51,11 +51,11 @@
         "title": "Reference",
         "items": [
           { "title": "Site Config", "path": "reference/site-config" },
-          { "title": "Frontmatter Config", "path": "reference/frontmatter-config" },
+          { "title": "Frontmatter", "path": "reference/frontmatter-config" },
           { "title": "API Reference", "path": "reference/api-reference" },
           { "title": "Sitemap & Crawlers", "path": "reference/sitemap-generation" },
           {
-            "title": "Default Theme",
+            "title": "Customisation",
             "items": [
               { "title": "Navigation", "path": "reference/default-theme-nav" },
               { "title": "Sidebar", "path": "reference/default-theme-sidebar" },

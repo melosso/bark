@@ -5,13 +5,15 @@ description: HTTP routes Bark exposes
 
 # API Reference
 
-Bark is a minimal-API application with a small surface area. A documentation server serves Markdown and stays legible enough that you can read the whole route table in less than a minute.
+Every HTTP route Bark exposes. The whole surface area fits on one page, read it in a minute.
 
 ## `GET /{path}`
 
 Returns the rendered HTML page for the given documentation path.
 
-**Example:** `GET /getting-started/getting-started`
+```bash
+curl http://localhost:5000/getting-started/getting-started/
+```
 
 What happens on each request:
 
@@ -24,15 +26,15 @@ Unknown paths return a 404 page rather than an exception.
 
 ## `GET /api/search`
 
-| Query param | Required | Notes |
-|---|---|---|
-| `q` | yes | Search term. Queries under 2 characters return an empty array. |
+Returns a JSON array of search results, ranked by a weighted score.
 
 ```bash
 curl "http://localhost:5000/api/search?q=hot+reload"
 ```
 
-Returns a JSON array of search results, ranked by a weighted score:
+| Query param | Required | Notes |
+|---|---|---|
+| `q` | yes | Search term. Queries under 2 characters return an empty array. |
 
 | Match location | Weight |
 |---|---|
@@ -41,15 +43,17 @@ Returns a JSON array of search results, ranked by a weighted score:
 | Heading | 3 |
 | Body text | 1 |
 
-The index is an in-memory inverted index, rebuilt in full (not incrementally) every time the docs rebuild. Fast enough at the scale this tool is meant for, and simpler than maintaining incremental diffing logic for marginal gains.
+The index is an in-memory inverted index, rebuilt in full (not incrementally) every time the docs rebuild.
 
 ## `GET /api/build-version`
+
+Returns an integer that increments every time the docs content actually changes, not on every filesystem event (see [Getting Started](/getting-started/getting-started) for why that distinction matters).
 
 ```json
 { "version": 4 }
 ```
 
-An integer that increments every time the docs content actually changes, not on every filesystem event (see [Getting Started](../getting-started/getting-started) for why that distinction matters). The dev-mode hot-reload script polls this endpoint and reloads the browser when it sees a new value. You probably won't call this directly, but it's there if you want to build your own "content changed" hook.
+The dev-mode hot-reload script polls this endpoint and reloads the browser when it sees a new value. You probably won't call this directly, but it's there if you want to build your own "content changed" hook.
 
 ## `GET /sitemap.xml`
 
@@ -57,16 +61,18 @@ Returns a standard XML sitemap covering every known page, `<lastmod>` populated 
 
 ## `GET /robots.txt`
 
+Returns a `robots.txt` with a `Sitemap:` line built from the actual request host, correct behind a reverse proxy as long as forwarded headers are configured.
+
 ```
 User-agent: *
 Allow: /
 Sitemap: https://your-host/sitemap.xml
 ```
 
-The `Sitemap:` line is built from the actual request host, so it's correct behind a reverse proxy as long as forwarded headers are configured. See [Deploy](../getting-started/deploy).
+See [Deploy](/getting-started/deploy) for the forwarded-headers setup.
 
 ## `GET /llms.txt`
 
-A plain-text index of every page (title, URL, and description) formatted for LLM crawlers and agentic tools that prefer a flat, low-noise summary over crawling rendered HTML. This functions like `sitemap.xml`, aimed at a different kind of reader.
+Returns a plain-text index of every page (title, URL, and description), formatted for LLM crawlers and agentic tools that prefer a flat, low-noise summary over crawling rendered HTML.
 
-See [Sitemap & Crawlers](../sitemap-generation) for how these three endpoints fit together.
+See [Sitemap & Crawlers](/reference/sitemap-generation) for how these three endpoints fit together.

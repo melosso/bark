@@ -5,7 +5,7 @@ description: Docker, Windows/IIS, Linux release, or build from source
 
 # Deploy
 
-Pick whichever path fits your environment. Docker is the fastest way to setup your own instance (usually in less than a minute).
+These guides assume you already have a `docs/` folder with content in it, see [Getting Started](getting-started) if you don't. Pick whichever path matches your environment. Docker is the fastest, usually under a minute from a blank folder to a running site.
 
 ## Option A: Docker Compose
 
@@ -44,11 +44,11 @@ Browse to `http://localhost:8080`.
 A self-contained Linux x64 build (`*-Linux_x64.zip`) ships alongside every release if you'd rather run the binary directly without Docker.
 
 > [!WARNING]
-> This installation method is currently undocumented. Please keep an eye on [#1](https://github.com/melosso/bark/issues/1) for the status of the issue. Docker is the supported path on Linux as of right now.
+> This installation method is currently undocumented. Track [#1](https://github.com/melosso/bark/issues/1) for status. Docker is the supported path on Linux right now.
 
 ## Option D: Build from source
 
-If you're contributing to Bark itself, or just don't want to pull a container image:
+If you're contributing to Bark itself, or don't want to pull a container image:
 
 ```bash
 cd Bark
@@ -64,7 +64,7 @@ dotnet Bark.dll
 
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) installed to publish. The published output still needs the .NET runtime on the target machine unless you add `--self-contained true -r <rid>`.
 
-If you're actively developing Bark's own source rather than just running it, `dotnet watch --project src/Bark` from a clone gives you C#-side hot reload too.
+If you're actively developing Bark's own source rather than running it, `dotnet watch --project src/Bark` from a clone gives you C#-side hot reload too.
 
 ## Option E: Static export (GitHub Pages, etc.)
 
@@ -83,7 +83,7 @@ cd publish && ./Bark --export ./output --base-url https://you.github.io --base-p
 
 - `--export <dir>`: writes every page, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and `wwwroot`.
 - `--base-url <origin>`: the real public origin. Rewrites the absolute URLs in `robots.txt` and `llms.txt`.
-- `--base-path </prefix>`: needed when you're not at the domain root, like a GitHub project page (`you.github.io/your-repo/`). Set `Docs:BasePath` in `appsettings.json` instead for reverse-proxy subpath hosting. See [Site Config](../reference/site-config).
+- `--base-path </prefix>`: needed when you're not at the domain root, like a GitHub project page (`you.github.io/your-repo/`). Set `Docs:BasePath` in `appsettings.json` instead for reverse-proxy subpath hosting. See [Site Config](/reference/site-config).
 
 > [!NOTE]
 > `--export` disables hot reload, so there's no `/api/build-version` polling. Search still renders but fails gracefully without a backend.

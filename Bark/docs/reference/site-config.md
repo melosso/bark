@@ -5,7 +5,7 @@ description: Full reference for appsettings.json and docs/config.json
 
 # Site Config
 
-Every option Bark reads, grouped by file. If you want the narrative walkthrough instead, see [Configuration](../getting-started/configuration).
+Every option Bark reads, grouped by file. If you want the narrative walkthrough instead, see [Configuration](/getting-started/configuration).
 
 ## `appsettings.json`: `Docs`
 
@@ -16,13 +16,13 @@ Host-level. Set per deployment, requires a restart to change.
 | `RootPath` | `string` | `docs` | Path to the Markdown files directory, relative to the app's working directory. |
 | `DefaultPage` | `string` | `index` | Page served at `/`. |
 | `EnableHotReload` | `bool` | `true` | Watch `*.md` and `config.json` for changes and rebuild in the background. Disable in production if you publish content as part of your deploy and don't want a `FileSystemWatcher` running. |
-| `BasePath` | `string?` | `null` | Prefix every internal link, theme asset URL, and API call with this path segment. Use it when Bark isn't served from the domain root, for example a GitHub Pages project page at `you.github.io/your-repo/` or a reverse proxy mounting Bark under `/docs`. A CLI `--base-path` flag overrides this at runtime, which is how [static export](../getting-started/deploy#option-e-static-export-github-pages-etc) sets it without touching config. |
+| `BasePath` | `string?` | `null` | Prefix every internal link, theme asset URL, and API call with this path segment. Use it when Bark isn't served from the domain root, for example a GitHub Pages project page at `you.github.io/your-repo/` or a reverse proxy mounting Bark under `/docs`. A CLI `--base-path` flag overrides this at runtime, which is how [static export](/getting-started/deploy#option-e-static-export-github-pages-etc) sets it without touching config. |
 
 ## Theming
 
 Short version: drop `custom.css` / `custom.js` / `theme.json` into `wwwroot/theme/` for filesystem-only theming, no restart-free hot reload (these need an app restart, unlike `docs/`), or set `Docs:Themes` below for deployment-level config. If `Docs:Themes` is present in `appsettings.json` at all, it wins outright over `theme.json`, the two aren't merged field-by-field.
 
-Please see [Extending Themes](../getting-started/extending-themes).
+See [Extending Themes](/getting-started/extending-themes).
 
 ## `appsettings.json`: `Docs:Themes`
 
@@ -130,7 +130,7 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
         "items": [
           { "title": "Site Config", "path": "reference/site-config" },
           {
-            "title": "Default Theme",
+            "title": "Customisation",
             "items": [
               { "title": "Nav", "path": "reference/default-theme-nav" },
               { "title": "Sidebar", "path": "reference/default-theme-sidebar" }
