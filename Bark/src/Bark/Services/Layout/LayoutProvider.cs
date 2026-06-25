@@ -36,7 +36,7 @@ public static partial class LayoutProvider
             : "";
 
         var layoutClass = isHomePage ? "layout bark-home-layout" : "layout";
-        var sidebarLeftHtml = isHomePage ? "" : $@"
+        var sidebarLeftHtml = $@"
         <aside class=""sidebar-left"" id=""sidebar-left"" aria-label=""Documentation navigation"">
             {mobileTopNavHtml}
             {navigationHtml}

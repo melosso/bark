@@ -321,6 +321,7 @@ public static partial class LayoutProvider
             min-width: 0;
         }}
         .bark-home-layout {{ grid-template-columns: 1fr; }}
+        .bark-home-layout .sidebar-left {{ display: none; }}
         .bark-home-layout .main-container {{ max-width: 100%; padding: 0; }}
         .bark-home-content {{ max-width: 960px; margin: 0 auto; padding: 0 2rem; }}
         .bark-hero {{ text-align: center; padding: 4.5rem 1.5rem 3.5rem; }}
@@ -831,6 +832,7 @@ public static partial class LayoutProvider
         }}
         @media (max-width: 768px) {{
             .layout {{ grid-template-columns: 1fr; }}
+            .bark-home-layout .sidebar-left {{ display: block; }}
             .main-container {{ padding: 2rem 1.5rem; }}
             .menu-toggle {{
                 display: inline-flex;

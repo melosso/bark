@@ -53,8 +53,6 @@ public static partial class LayoutProvider
                 }});
             }}
 
-            // Home pages render without a sidebar-left aside at all -- skip wiring it up entirely
-            // rather than null-checking every reference below.
             if (sidebarLeft) {{
                 function closeSidebar() {{
                     sidebarLeft.classList.remove('open');
