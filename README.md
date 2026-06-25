@@ -68,29 +68,25 @@ Front attributes such as `title`, `description` are entirely optional. Bark fall
 
 #### Configuration
 
-Drop a `docs/config.json` to set brand text, a footer, explicit navigation, and social links:
+Drop a `docs/config.json` to set brand text, navigation, and social links:
 
 ```json
 {
   "brand": "Bark",
-  "footer": "Built with Bark · [AGPL-3.0](LICENSE)",
   "nav": [
     {
-      "section": "Getting Started",
+      "title": "Getting Started",
       "items": [
         { "title": "Installation", "path": "getting-started/installation" }
       ]
     }
-  ],
-  "socialLinks": [
-    { "icon": "github", "url": "https://github.com/example/bark" }
   ]
 }
 ```
 
 When `nav` is present it replaces the auto-generated folder-based navigation. Both content and config are hot-reloaded. No restart needed.
 
-Theme overrides, such as CSS variables, dark mode and custom CSS, live in `appsettings.json` under `Docs:Themes`, not `config.json`.
+Theme overrides, such as CSS variables, dark mode and custom CSS, are handled through environment variables or `appsettings.json` instead.
 
 ## License
 
