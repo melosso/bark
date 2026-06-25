@@ -544,9 +544,9 @@ public static partial class LayoutProvider
         .content div[class^=""language-""].has-focused-lines .line.has-focus {{ opacity: 1; filter: none; }}
         .content .line-numbers-mode pre {{ padding-left: 2.5rem; }}
         .content .line-numbers-wrapper {{
-            position: absolute; top: 1.25rem; left: 0; width: 2rem;
+            position: absolute; top: 2rem; left: 0; width: 2rem;
             text-align: right; color: var(--text-muted); font-family: var(--font-mono);
-            font-size: 0.85rem; line-height: 1.4em; user-select: none;
+            font-size: 0.85rem; line-height: 1.6; user-select: none;
         }}
         /* Custom containers: ::: tip / warning / danger / info / details */
         .content .custom-block {{
