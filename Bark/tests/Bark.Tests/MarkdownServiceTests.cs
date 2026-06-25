@@ -92,6 +92,28 @@ var x = 1;
     }
 
     [Fact]
+    public void Parse_InlineMath_RendersStaticKaTeXHtml()
+    {
+        var (html, _, _, _) = _service.Parse("$E = mc^2$");
+        Assert.Contains("class=\"katex\"", html);
+        Assert.Contains("annotation encoding=\"application/x-tex\">E = mc^2</annotation>", html);
+        Assert.DoesNotContain(@"\(E = mc^2\)", html);
+    }
+
+    [Fact]
+    public void Parse_BlockMath_RendersStaticKaTeXHtml()
+    {
+        var md = """
+$$
+E = mc^2
+$$
+""";
+        var (html, _, _, _) = _service.Parse(md);
+        Assert.Contains("class=\"katex-display\"", html);
+        Assert.Contains("annotation encoding=\"application/x-tex\">", html);
+    }
+
+    [Fact]
     public void Slugify_ReplacesSpacesWithHyphens()
     {
         var result = MarkdownService.Slugify("Hello World");

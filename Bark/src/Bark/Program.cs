@@ -42,7 +42,9 @@ try
     builder.Services.AddSingleton(themeOptions);
 
     builder.Services.AddSingleton<ISyntaxHighlighter, TextMateSyntaxHighlighter>();
-    builder.Services.AddSingleton(sp => new MarkdownService(sp.GetRequiredService<ISyntaxHighlighter>(), basePath));
+    builder.Services.AddSingleton<MathRenderer>();
+    builder.Services.AddSingleton(sp => new MarkdownService(
+        sp.GetRequiredService<ISyntaxHighlighter>(), basePath, sp.GetRequiredService<MathRenderer>()));
     builder.Services.AddSingleton<DocumentationService>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<DocumentationService>());
 

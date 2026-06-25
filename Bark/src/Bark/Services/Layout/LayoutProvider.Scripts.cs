@@ -448,18 +448,6 @@ public static partial class LayoutProvider
                 }});
             }});
 
-            // KaTeX rendering for Markdig's \(...\) / \[...\] math output
-            if (window.renderMathInElement) {{
-                document.querySelectorAll('.content').forEach(function(el) {{
-                    window.renderMathInElement(el, {{
-                        delimiters: [
-                            {{ left: '\\\\[', right: '\\\\]', display: true }},
-                            {{ left: '\\\\(', right: '\\\\)', display: false }}
-                        ]
-                    }});
-                }});
-            }}
-
             // Mermaid bakes colors into the SVG at render time and ignores CSS variables, so the
             // current theme must be passed in explicitly; a full reload is needed to redraw if
             // the user flips the theme toggle after diagrams are on the page.
