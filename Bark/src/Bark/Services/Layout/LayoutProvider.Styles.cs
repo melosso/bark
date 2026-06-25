@@ -520,6 +520,12 @@ public static partial class LayoutProvider
         .content div[class^=""language-""] button.copy {{
             display: none;
         }}
+        .content div[class^=""language-""] .code-title {{
+            padding: 0.6rem 1rem; font-size: 0.8rem; font-family: var(--font-mono);
+            color: var(--text-muted); border-bottom: 1px solid var(--border);
+        }}
+        .content div[class^=""language-""].has-title .lang {{ display: none; }}
+        .content div[class^=""language-""].has-title pre {{ padding-top: 0.75rem; }}
         /* Resolves the --shiki-light/dark vars TextMateSyntaxHighlighter writes per token,
            same prefers-color-scheme + [data-theme] override pattern as the rest of the theme. */
         .shiki, .shiki span {{ color: var(--shiki-light); }}

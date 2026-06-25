@@ -24,7 +24,7 @@ public sealed class BarkCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) 
         WritePlain(renderer, obj);
     }
 
-    public void WriteFenced(HtmlRenderer renderer, FencedCodeBlock obj, bool forceActive)
+    public void WriteFenced(HtmlRenderer renderer, FencedCodeBlock obj, bool forceActive, bool isCodeGroupChild = false)
     {
         renderer.EnsureLine();
 
@@ -42,11 +42,15 @@ public sealed class BarkCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) 
         var notated = CodeNotationProcessor.Process(rawLines, meta.HighlightedLines);
         var lang = string.IsNullOrEmpty(meta.Lang) ? "txt" : meta.Lang;
 
+        var showTitleBar = !isCodeGroupChild && !string.IsNullOrEmpty(meta.Title);
+
         var outerClasses = new List<string>(4) { $"language-{lang}" };
         if (forceActive)
             outerClasses.Add("active");
         if (meta.LineNumbers == true)
             outerClasses.Add("line-numbers-mode");
+        if (showTitleBar)
+            outerClasses.Add("has-title");
         outerClasses.AddRange(notated.ContainerClasses);
 
         IReadOnlyList<IReadOnlyList<SyntaxToken>> tokenizedLines;
@@ -63,6 +67,8 @@ public sealed class BarkCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) 
         }
 
         renderer.Write("<div class=\"").Write(string.Join(' ', outerClasses)).Write("\">");
+        if (showTitleBar)
+            renderer.Write("<div class=\"code-title\">").WriteEscape(meta.Title!).Write("</div>");
         renderer.Write("<button title=\"Copy code\" class=\"copy\"></button>");
         renderer.Write("<span class=\"lang\">").WriteEscape(lang.Replace('_', ' ')).Write("</span>");
 

@@ -46,6 +46,26 @@ SELECT id, title FROM pages WHERE published = true ORDER BY title;
 
 Use the real language id (`csharp`, not `c#`); the shorthand doesn't work the same.
 
+## Title bars
+
+Add `[filename]` to the fence info string to show a title bar instead of the language badge:
+
+````md
+```json [./appsettings.json]
+{
+    "Hello": "world"
+}
+```
+````
+
+Renders as:
+
+```json [./appsettings.json]
+{
+    "Hello": "world"
+}
+```
+
 ## Line highlighting
 
 Highlight specific lines with `{n,m-o}` in the fence info string:

@@ -41,6 +41,25 @@ public sealed class MarkdownServiceTests
     }
 
     [Fact]
+    public void Parse_FencedBlockWithTitle_RendersTitleBarAndHidesLang()
+    {
+        var md = "```json [./appsettings.json]\n{\n  \"Hello\": \"world\"\n}\n```\n";
+        var (html, _, _, _) = _service.Parse(md);
+
+        Assert.Contains("class=\"language-json has-title\"", html);
+        Assert.Contains("<div class=\"code-title\">./appsettings.json</div>", html);
+    }
+
+    [Fact]
+    public void Parse_CodeGroupChild_DoesNotRenderTitleBar()
+    {
+        var md = "::: code-group\n```json [./appsettings.json]\n{}\n```\n:::\n";
+        var (html, _, _, _) = _service.Parse(md);
+
+        Assert.DoesNotContain("code-title", html);
+    }
+
+    [Fact]
     public void Parse_FourBacktickFence_ToleratesNestedTripleBacktickFences()
     {
         // CommonMark closes a fence on any same/longer same-char line, so nested ``` needs a longer outer fence.
