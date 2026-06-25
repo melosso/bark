@@ -389,7 +389,7 @@ public static partial class LayoutProvider
         .breadcrumb .current {{ color: var(--text-color); font-weight: 500; }}
         .content h1 {{
             font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em;
-            margin-bottom: 1rem; scroll-margin-top: 2rem;
+            margin-bottom: 1rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         .content h2, .content h3, .content h4, .content h5, .content h6 {{
             position: relative;
@@ -403,12 +403,12 @@ public static partial class LayoutProvider
         .content a.footnote-ref:target,
         .content a.footnote-back-ref:target {{
             background-color: var(--accent-light); outline: 2px solid var(--accent);
-            border-radius: 4px; padding: 0 0.2em; scroll-margin-top: 5rem;
+            border-radius: 4px; padding: 0 0.2em; scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         .content .footnotes li:target {{
             background-color: var(--accent-light); outline: 2px solid var(--accent);
             border-radius: 6px; padding: 0.25rem 0.6rem; margin-left: -0.6rem;
-            scroll-margin-top: 5rem;
+            scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         @keyframes bark-target-flash {{
             0%, 40% {{ background-color: var(--accent-light); }}
@@ -437,7 +437,7 @@ public static partial class LayoutProvider
         .content h2 {{
             font-size: 1.4rem; font-weight: 500; letter-spacing: -0.02em;
             margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.3rem;
-            border-bottom: 1px solid var(--border); scroll-margin-top: 2rem;
+            border-bottom: 1px solid var(--border); scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         .content p {{
             color: var(--text-color); margin-bottom: 1.25rem;
@@ -465,15 +465,15 @@ public static partial class LayoutProvider
         }}
         .content h3 {{
             font-size: 1.15rem; font-weight: 500; letter-spacing: -0.01em;
-            margin-top: 2rem; margin-bottom: 0.75rem; scroll-margin-top: 2rem;
+            margin-top: 2rem; margin-bottom: 0.75rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         .content h4 {{
             font-size: 1rem; font-weight: 500;
-            margin-top: 1.5rem; margin-bottom: 0.5rem; scroll-margin-top: 2rem;
+            margin-top: 1.5rem; margin-bottom: 0.5rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         .content h5, .content h6 {{
             font-size: 0.9rem; font-weight: 600;
-            margin-top: 1.25rem; margin-bottom: 0.5rem; scroll-margin-top: 2rem;
+            margin-top: 1.25rem; margin-bottom: 0.5rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         pre {{
             background-color: var(--code-bg);
