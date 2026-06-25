@@ -7,6 +7,21 @@ public sealed class MarkdownServiceTests
     private readonly MarkdownService _service = new();
 
     [Fact]
+    public void AllDocs_ParseWithoutLeakingRawContainerOrFenceSyntax()
+    {
+        var docsDir = Path.Combine(AppContext.BaseDirectory, "docs");
+        var problems = new List<string>();
+        foreach (var file in Directory.GetFiles(docsDir, "*.md", SearchOption.AllDirectories))
+        {
+            var md = File.ReadAllText(file);
+            var (html, _, _, _) = _service.Parse(md);
+            if (html.Contains("<p>```") || html.Contains("<p>:::") || html.Contains("```</p>") || html.Contains(":::</p>"))
+                problems.Add(file);
+        }
+        Assert.Empty(problems);
+    }
+
+    [Fact]
     public void Parse_WithFrontMatter_ExtractsTitle()
     {
         var md = "---\ntitle: My Custom Title\ndescription: A test page\n---\n\n# Content\n";
