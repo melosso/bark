@@ -5,22 +5,17 @@ description: Run Bark locally in under a minute
 
 # Getting Started
 
-Bark makes it easy to turn your Markdown folders into a fully searchable documentation site. You can get started right away without needing to manage complex configurations or build processes.
+Bark is a documentation server: point it at a folder of Markdown and it serves a full site, navigation, search, and all. This guide gets a copy running locally.
 
-Simply follow this guide to get your site up and running. Once configured, the application automatically updates your navigation, table of contents, and search index every time you save your files.
+Want to know why it's built this way before diving in? Read [What is Bark?](/what-is-bark). Just want it running? Keep reading.
 
-## Key Features
+## Prerequisites
 
-- **Markdown support**: CommonMark, GitHub-flavored features (tables, task lists, alerts), and advanced additions like code groups, line highlighting, and math.
-- **Hot reload**: Edit your configuration and see your changes instantly
-- **Built-in Search**: Includes an in-memory index and exposed REST API for integration
-- **Production-ready**: Includes response compression, Kestrel limits, Serilog logging, ETag-based caching
+Docker is the fastest path and the one this guide uses. No Docker? [Deploy](../deploy) covers Windows/IIS, a Linux release zip, and building from source instead.
 
-More features like full customisation and automatic `sitemap.xml`/`robots.txt`/`llms.txt` generation are noteworthy too.
+## Installation
 
-## Run it
-
-Docker is the fastest way to get started. Create a `docker-compose.yml` file:
+Create a `docker-compose.yml`:
 
 ```yaml
 services:
@@ -33,19 +28,17 @@ services:
       - ./docs:/app/docs
 ```
 
-Map your `docs/` folder (containing your Markdown files and optional `config.json`), then run:
+The `./docs` volume is your content: Markdown files plus an optional `config.json`. Bark reads everything from there.
+
+## Up and running
 
 ```bash
 docker compose up -d
 ```
 
-Your site will be available at `http://localhost:8080`.
+Open `http://localhost:8080`. That's the whole setup.
 
-Not using Docker? See [Deploy](../deploy) for different configurations (e.g. IIS on Windows Server).
-
-## File Structure
-
-By default the server looks for Markdown files in the `docs/` folder. The folder structure determines your site navigation, which can be overridden in `config.json`. An `index.md` file serves as the landing page for any folder.
+## File structure
 
 ```
 docs/
@@ -62,14 +55,11 @@ docs/
     └── sitemap-generation.md
 ```
 
-Front matter, which is the block of metadata at the very top of your Markdown file, is optional. If missing, Bark uses the filename or the navigation title defined in `config.json`:
+Your folder layout becomes your site's navigation and URLs automatically. The exact rules for turning a file path into a URL live in [Routing](./routing); every front matter field a page can set lives in [Frontmatter Config](../reference/frontmatter-config).
 
-```markdown
----
-title: Getting Started
-description: Get Bark running locally
----
+## What's next
 
-# Getting Started
-...
-```
+- [Configuration](./configuration): `config.json` options, themes, and branding.
+- [Using Markdown](./markdown): every Markdown extension Bark supports, with live examples.
+- [Routing](./routing): how file paths map to URLs.
+- [Deploy](./deploy): Docker, IIS, Linux, or building from source, plus the production defaults Bark ships with.

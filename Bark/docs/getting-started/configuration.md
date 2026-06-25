@@ -5,12 +5,12 @@ description: appsettings.json options, docs/config.json, and theming
 
 # Configuration
 
-Bark splits configuration into two places by design:
+Bark splits configuration into two files:
 
-- **`appsettings.json`**: host-level concerns, like where the docs folder lives, whether hot reload is on, theme colors. Set per deployment.
-- **`docs/config.json`**: content-level concerns, like brand text, navigation, footer, social links. Set per project, and hot-reloaded along with your Markdown. No restart needed.
+- **`appsettings.json`**: host-level concerns, where the docs folder lives, whether hot reload is on, theme colors. Set per deployment, needs a restart.
+- **`docs/config.json`**: content-level concerns, brand text, navigation, footer, social links. Set per project, hot-reloaded along with your Markdown. No restart needed.
 
-Keeping infra config and content config apart means a content editor never needs deploy permissions just to fix a typo in the brand name. The full field-by-field reference for both files lives in [Site Config](../reference/site-config). This page is the narrative version, with the parts you'll actually touch first.
+That split means a content editor never needs deploy access just to fix a typo in the brand name. This page walks through what you'll touch first. For the full field-by-field list, see [Site Config](../reference/site-config).
 
 ## `appsettings.json`: `Docs` section
 
@@ -32,10 +32,12 @@ Keeping infra config and content config apart means a content editor never needs
 }
 ```
 
-> [!TIP]
-> `BasePath` matters most for [static export](deploy#option-e-static-export-github-pages-etc), where a `--base-path` CLI flag usually replaces this setting entirely. Set it in `appsettings.json` instead when you're running the live server behind a reverse proxy that mounts Bark under a subpath.
+::: tip
 
-Want to change colors, fonts, or ship your own CSS/JS? That's a separate concern from the settings above, covered in [Customization](customization).
+`BasePath` matters most for [static export](deploy#option-e-static-export-github-pages-etc), where a `--base-path` CLI flag usually replaces this setting entirely. Set it in `appsettings.json` instead when you're running the live server behind a reverse proxy that mounts Bark under a subpath.
+:::
+
+Want to change colors, fonts, or ship your own CSS/JS? That's a separate concern from the settings above, covered in [Extending Themes](extending-themes).
 
 ## `docs/config.json`: navigation
 
@@ -63,7 +65,7 @@ You get three levels of control over navigation, and you can mix them:
   "sidebar": {
     "/getting-started/": [
       {
-        "section": "Introduction",
+        "title": "Introduction",
         "items": [
           { "title": "Getting Started", "path": "getting-started/getting-started" },
           { "title": "Configuration", "path": "getting-started/configuration" },
@@ -74,7 +76,7 @@ You get three levels of control over navigation, and you can mix them:
     ],
     "/reference/": [
       {
-        "section": "Reference",
+        "title": "Reference",
         "items": [
           { "title": "Site Config", "path": "reference/site-config" },
           { "title": "API Reference", "path": "reference/api-reference" },

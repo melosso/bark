@@ -22,7 +22,7 @@ Host-level. Set per deployment, requires a restart to change.
 
 Short version: drop `custom.css` / `custom.js` / `theme.json` into `wwwroot/theme/` for filesystem-only theming, no restart-free hot reload (these need an app restart, unlike `docs/`), or set `Docs:Themes` below for deployment-level config. If `Docs:Themes` is present in `appsettings.json` at all, it wins outright over `theme.json`, the two aren't merged field-by-field.
 
-Please see [Customization](../getting-started/customization). 
+Please see [Extending Themes](../getting-started/extending-themes).
 
 ## `appsettings.json`: `Docs:Themes`
 

@@ -154,6 +154,27 @@ This is a danger container.
 Hidden content goes here.
 :::
 
+Custom containers are sugar over a plain `<div class="TYPE custom-block">`. Markdig passes raw HTML straight through, so you can write the div yourself when you need something the shorthand can't do, like a one-off inline style:
+
+```md
+<div class="tip custom-block">
+
+Just want to try it out? Skip to the [Quickstart](./getting-started).
+
+</div>
+```
+
+Renders as:
+
+<div class="tip custom-block">
+
+Just want to try it out? Skip to the [Quickstart](./getting-started).
+
+</div>
+
+> [!NOTE]
+> Leave a blank line after the opening `<div>` and before the closing `</div>`. Without it, Markdig treats the inside as raw HTML instead of Markdown and your `[links](...)` won't render.
+
 ## Badges
 
 Small inline labels, the kind you'd drop next to a heading to flag "new in 3.0" or an unstable API. Write them as plain HTML, Bark passes unrecognized tags straight through and styles `<badge>` itself:

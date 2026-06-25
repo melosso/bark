@@ -5,7 +5,7 @@
   "footer": "Built with Bark · [AGPL-3.0](https://github.com/melosso/bark/blob/main/LICENSE)",
   "topNav": [
     { "text": "Home", "link": "/" },
-    { "text": "Getting Started", "link": "/getting-started/getting-started" },
+    { "text": "Guide", "link": "what-is-bark" },
     { "text": "Reference", "link": "/reference/site-config" },
     {
       "text": "More",
@@ -16,7 +16,8 @@
     }
   ],
   "sidebar": {
-    "/getting-started/": [
+    "": [
+      { "title": "What is Bark?", "path": "what-is-bark" },
       {
         "title": "Introduction",
         "collapsed": false,
@@ -32,7 +33,8 @@
         "collapsed": false,
         "items": [
           { "title": "Markdown", "path": "getting-started/markdown" },
-          { "title": "Diagrams", "path": "getting-started/diagrams" }
+          { "title": "Diagrams", "path": "getting-started/diagrams" },
+          { "title": "Assets", "path": "getting-started/assets" }
         ]
       },
       { 
