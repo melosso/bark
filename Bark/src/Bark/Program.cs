@@ -346,6 +346,6 @@ static string NormalizeBasePath(string? raw)
 void LogApplicationBanner()
 {
     Log.Information("");
-    Log.Information("Bark - A simple documentation server built with ASP.NET Core");
+    Log.Information("Bark - Your fast documentation server built on .NET");
     Log.Information("");
 }
