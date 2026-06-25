@@ -3,11 +3,15 @@ using Markdig.Extensions.CustomContainers;
 using Markdig.Extensions.Mathematics;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
+using Bark.Models;
 
 namespace Bark.Services.MarkdownExtensions;
 
 /// <summary>Replaces Markdig's default HTML renderers for code blocks, custom containers, and math</summary>
-public sealed class BarkMarkdownExtension(ISyntaxHighlighter syntaxHighlighter, MathRenderer mathRenderer) : IMarkdownExtension
+public sealed class BarkMarkdownExtension(
+    ISyntaxHighlighter syntaxHighlighter,
+    MathRenderer mathRenderer,
+    CodeGroupIconOptions? codeGroupIcons = null) : IMarkdownExtension
 {
     // Custom-containers/math are enabled via UseCustomContainers()/UseMathematics() in
     // UseBarkMarkdownExtensions() instead, since adding extensions from inside another
@@ -24,7 +28,7 @@ public sealed class BarkMarkdownExtension(ISyntaxHighlighter syntaxHighlighter, 
         var codeBlockRenderer = new BarkCodeBlockRenderer(syntaxHighlighter);
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<CodeBlockRenderer>(codeBlockRenderer);
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlCustomContainerRenderer>(
-            new BarkContainerRenderer(codeBlockRenderer));
+            new BarkContainerRenderer(codeBlockRenderer, codeGroupIcons ?? new CodeGroupIconOptions()));
 
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathInlineRenderer>(new BarkMathInlineRenderer(mathRenderer));
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathBlockRenderer>(new BarkMathBlockRenderer(mathRenderer));
@@ -58,12 +62,13 @@ public static class BarkMarkdownExtensions
     public static MarkdownPipelineBuilder UseBarkMarkdownExtensions(
         this MarkdownPipelineBuilder pipeline,
         ISyntaxHighlighter? syntaxHighlighter = null,
-        MathRenderer? mathRenderer = null)
+        MathRenderer? mathRenderer = null,
+        CodeGroupIconOptions? codeGroupIcons = null)
     {
         pipeline.UseCustomContainers();
         pipeline.UseMathematics();
         pipeline.Extensions.AddIfNotAlready(
-            new BarkMarkdownExtension(syntaxHighlighter ?? NullSyntaxHighlighter.Instance, mathRenderer ?? new MathRenderer()));
+            new BarkMarkdownExtension(syntaxHighlighter ?? NullSyntaxHighlighter.Instance, mathRenderer ?? new MathRenderer(), codeGroupIcons));
         return pipeline;
     }
 }

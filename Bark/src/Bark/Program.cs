@@ -41,10 +41,15 @@ try
         ?? new ThemeOptions();
     builder.Services.AddSingleton(themeOptions);
 
+    var codeGroupIconOptions = builder.Configuration.GetSection("Docs:CodeGroupIcons").Get<CodeGroupIconOptions>()
+        ?? new CodeGroupIconOptions();
+    builder.Services.AddSingleton(codeGroupIconOptions);
+
     builder.Services.AddSingleton<ISyntaxHighlighter, TextMateSyntaxHighlighter>();
     builder.Services.AddSingleton<MathRenderer>();
     builder.Services.AddSingleton(sp => new MarkdownService(
-        sp.GetRequiredService<ISyntaxHighlighter>(), basePath, sp.GetRequiredService<MathRenderer>()));
+        sp.GetRequiredService<ISyntaxHighlighter>(), basePath, sp.GetRequiredService<MathRenderer>(),
+        sp.GetRequiredService<CodeGroupIconOptions>()));
     builder.Services.AddSingleton<DocumentationService>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<DocumentationService>());
 

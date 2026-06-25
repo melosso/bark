@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+using Bark.Models;
 using Markdig.Extensions.CustomContainers;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
@@ -6,7 +8,7 @@ using Markdig.Syntax;
 namespace Bark.Services.MarkdownExtensions;
 
 /// <summary>Renders <c>::: name</c> ... <c>:::</c> blocks: tip/info/warning/danger/details and code-group.</summary>
-public sealed class BarkContainerRenderer : HtmlObjectRenderer<CustomContainer>
+public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomContainer>
 {
     private static readonly Dictionary<string, string> DefaultTitles = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -18,10 +20,12 @@ public sealed class BarkContainerRenderer : HtmlObjectRenderer<CustomContainer>
     };
 
     private readonly BarkCodeBlockRenderer _codeBlockRenderer;
+    private readonly CodeGroupIconOptions _icons;
 
-    public BarkContainerRenderer(BarkCodeBlockRenderer codeBlockRenderer)
+    public BarkContainerRenderer(BarkCodeBlockRenderer codeBlockRenderer, CodeGroupIconOptions? icons = null)
     {
         _codeBlockRenderer = codeBlockRenderer;
+        _icons = icons ?? new CodeGroupIconOptions();
     }
 
     protected override void Write(HtmlRenderer renderer, CustomContainer obj)
@@ -94,8 +98,12 @@ public sealed class BarkContainerRenderer : HtmlObjectRenderer<CustomContainer>
             renderer.Write("<input type=\"radio\" name=\"group-").Write(groupId.ToString()).Write("\" id=\"").Write(tabId).Write('"');
             if (tabIndex == 0)
                 renderer.Write(" checked");
-            renderer.Write("><label data-title=\"").WriteEscape(title).Write("\" for=\"").Write(tabId).Write("\">")
-                .WriteEscape(title).Write("</label>");
+            renderer.Write("><label data-title=\"").WriteEscape(title).Write("\" for=\"").Write(tabId).Write("\">");
+
+            if (_icons.Enabled)
+                renderer.Write(BuildIconTag(title));
+
+            renderer.WriteEscape(title).Write("</label>");
 
             tabIndex++;
         }
@@ -119,4 +127,17 @@ public sealed class BarkContainerRenderer : HtmlObjectRenderer<CustomContainer>
         renderer.Write("</div></div>");
         renderer.EnsureLine();
     }
+
+    private string BuildIconTag(string title)
+    {
+        var slug = _icons.Overrides is { } overrides && overrides.TryGetValue(title, out var mapped)
+            ? mapped
+            : SlugRegex().Replace(title.ToLowerInvariant(), "-").Trim('-');
+
+        var src = System.Net.WebUtility.HtmlEncode($"{_icons.BaseUrl}/{slug}.{_icons.Format}");
+        return $"<img src=\"{src}\" class=\"tab-icon\" alt=\"\" aria-hidden=\"true\" loading=\"lazy\" onerror=\"this.remove()\">";
+    }
+
+    [GeneratedRegex(@"[^a-z0-9]+")]
+    private static partial Regex SlugRegex();
 }
