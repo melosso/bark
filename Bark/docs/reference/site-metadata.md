@@ -1,11 +1,13 @@
 ---
-title: HTML Metadata
+title: Global Meta Tags
 description: Configuring page titles, meta descriptions, the HTML lang attribute, and arbitrary head tags in docs/config.json
 ---
 
-# HTML Metadata
+# Global Meta Tags
 
-When search engines index your site, social platforms generate previews, and assistive technologies announce your page to readers, the metadata in `<head>` is the first thing they see. Bark gives you a comfortable set of controls for all of it directly inside `docs/config.json`, so the same file that shapes your navigation also shapes how your content appears to the wider web.
+When search engines index your site, social platforms generate previews, and assistive technologies announce your page to readers, the metadata in `<head>` is the first thing they see. 
+
+Bark gives you a comfortable set of controls for all of it directly inside `docs/config.json`, so the same file that shapes your navigation also shapes how your content appears to the wider web.
 
 ## Page Titles
 

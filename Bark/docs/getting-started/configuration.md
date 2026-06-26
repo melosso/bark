@@ -7,14 +7,16 @@ description: appsettings.json options, docs/config.json, and theming
 
 Bark splits configuration into two files:
 
-- **`appsettings.json`**: host-level concerns, where the docs folder lives, whether hot reload is on, theme colors. Set per deployment, needs a restart.
-- **`docs/config.json`**: content-level concerns, brand text, navigation, footer, social links. Set per project, hot-reloaded along with your Markdown. No restart needed.
+- **`appsettings.json`**: host-level concerns, where the docs folder lives, whether hot reload is on, theme colors. Applied per deployment, and requires an app restart to take effect.
+- **`docs/config.json`**: content-level concerns, site title and metadata, brand text, navigation, footer, social links. Set per project and hot-reloaded alongside your Markdown. No restart needed.
 
-That split means a content editor never needs deploy access just to fix a typo in the brand name. This page walks through what you'll touch first. For the full field-by-field list, see [Site Config](/reference/site-config).
+That split means a content editor never needs deploy access just to fix a typo in the brand name. This page walks through what you'll touch first. For the full field-by-field list, see <span style="font-weight:500;">[Site Config](/reference/site-config)</span>. 
+
+If you are running Bark in Docker or a container environment, please see <span style="font-weight:500;">[Environment Variables](/getting-started/environment-variables)</span> for the equivalent variable names.
 
 ## `appsettings.json`
 
-Related to the `Docs` section:
+These settings belong to the `Docs` section of your `appsettings.json`:
 
 | Setting | Default | Description |
 |---|---|---|
@@ -41,6 +43,8 @@ Related to the `Docs` section:
 Want to change colors, fonts, or ship your own CSS/JS? That's a separate concern from the settings above, covered in [Extending Themes](extending-themes).
 
 ## `docs/config.json`
+
+This file covers everything from your site's title and HTML metadata to navigation, footer, and social links. The section below focuses on the navigation options since they have the most moving parts. For a full field-by-field list, including `title`, `description`, `lang`, and custom head tags, see [Site Config](/reference/site-config).
 
 You get three levels of control over navigation, and you can mix them:
 
@@ -94,7 +98,8 @@ You get three levels of control over navigation, and you can mix them:
 
 A `topNav` item is either a direct link (`text` + `link`) or a dropdown (`text` + `items`, no `link`), exactly the two shapes shown above. `sidebar` keys are path prefixes: whichever key is the **longest match** for the page you're viewing wins, so `/getting-started/` and `/getting-started/advanced/` can coexist, with the more specific one taking over for pages under it.
 
-> [!TIP]
-> When `sidebar` is present, it takes priority over `nav` for any page matching one of its prefixes. `nav`, when present at all, fully replaces the auto-generated folder-based navigation for every page. Neither merges with the folder tree. Leave both out if you want Bark to build navigation from your folders.
+::: tip
+When `sidebar` is present, it takes priority over `nav` for any page matching one of its prefixes. `nav`, when present at all, fully replaces the auto-generated folder-based navigation for every page. Neither merges with the folder tree. Leave both out if you want Bark to build navigation from your folders.
+:::
 
-`footer` is rendered as Markdown, so links and formatting work. `socialLinks[].icon` of `"github"` or `"mastodon"` get inline SVGs; anything else renders as plain text.
+Your `footer` is rendered as Markdown, so links and formatting work exactly as you would expect. For social links, an `icon` value of `"github"` or `"mastodon"` renders as an inline SVG; any other value renders as plain text.

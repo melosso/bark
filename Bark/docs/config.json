@@ -57,7 +57,7 @@
           { "title": "Frontmatter", "path": "reference/frontmatter-config" },
           { "title": "API Reference", "path": "reference/api-reference" },
           { "title": "Sitemap & Crawlers", "path": "reference/sitemap-generation" },
-          { "title": "HTML Metadata", "path": "reference/site-metadata" },
+          { "title": "Global Meta Tags", "path": "reference/site-metadata" },
           {
             "title": "Customisation",
             "items": [
