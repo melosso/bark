@@ -41,19 +41,34 @@ Optional. Every field is a CSS variable override or theme toggle. Anything left 
 | `FontSans` | `string` | `--font-sans` | Body font stack. |
 | `FontMono` | `string` | `--font-mono` | Code font stack. |
 | `CustomCssUrl` | `string` | n/a | Injects an extra `<link rel="stylesheet">`, loaded after Bark's built-in styles so it can override them. Takes priority over an auto-detected `wwwroot/theme/custom.css` if both are present. |
-| `BrandText` | `string` | n/a | Sidebar brand label. `config.json`'s `brand` takes priority if both are set. |
+| `BrandText` | `string` | n/a | Sidebar brand label. `config.json`'s `brand` takes priority if set; if `brand` is absent, `config.json`'s `title` is used instead. |
 | `DarkMode` | `bool` | n/a | Toggles the `prefers-color-scheme: dark` variant and the in-page dark mode switch. Default `true`. |
 | `ShowScrollIndicator` | `bool` | n/a | Toggles the thin scroll-progress bar pinned to the top of the viewport. Default `true`. |
 
 ## `docs/config.json`: site metadata
 
+For a full walkthrough of the HTML head fields below, see [HTML Metadata](/reference/site-metadata).
+
 | Option | Type | Description |
 |---|---|---|
-| `brand` | `string?` | Sidebar/header brand label. Overrides `Docs:Themes:BrandText`. |
+| `title` | `string?` | Site name. Appended to every page title as `Page Title \| Site Name`. See [HTML Metadata](/reference/site-metadata). |
+| `titleTemplate` | `string?` | Custom title pattern. Use `:title` and `:siteName` as placeholders. For example, `":title · :siteName"` produces `Getting Started · Bark`. Overrides the default suffix format when set. |
+| `description` | `string?` | Site-wide fallback `<meta name="description">`. Per-page frontmatter description takes priority. |
+| `lang` | `string?` | `lang` attribute on `<html>`. Defaults to `"en"`. |
+| `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for Open Graph, canonical links, and structured data. |
+| `brand` | `string?` | Sidebar/header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
 | `footer` | `string?` | Rendered as Markdown inside the page footer. Links and formatting work. See [Footer](default-theme-footer). |
 | `favicon` | `string?` | A URL/path to an icon file, or a single emoji character to use as an inline SVG favicon. |
 | `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" stamp. Off by default. See [Last Updated Timestamp](default-theme-last-updated). |
 | `editLink` | `EditLinkConfig?` | "Edit this page" link near the pagination footer. See [Edit Link](default-theme-edit-link). |
+
+**`HeadTag`**
+
+| Field | Type | Description |
+|---|---|---|
+| `tag` | `string` | HTML tag name, e.g. `"meta"`, `"link"`, `"script"`. |
+| `attrs` | `Record<string, string>?` | Attribute key-value pairs. Values are HTML-encoded automatically. |
+| `content` | `string?` | Inner HTML for non-void tags (`<script>`, `<style>`). Void elements (`<meta>`, `<link>`, `<base>`) ignore this field. |
 
 ## `docs/config.json`: navigation
 
@@ -93,6 +108,9 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
 
 ```json
 {
+  "title": "Bark",
+  "description": "A fast, lightweight Markdown documentation server built on .NET.",
+  "lang": "en",
   "brand": "Bark",
   "footer": "Built with Bark · [AGPL-3.0](LICENSE)",
   "favicon": "🌳",
