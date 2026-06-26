@@ -1,6 +1,6 @@
 ---
 title: Bark
-description: Bark, a fast, lightweight Markdown documentation server for .NET
+description: Bark, a fast, lightweight Markdown documentation server
 layout: home
 hero:
   name: Bark

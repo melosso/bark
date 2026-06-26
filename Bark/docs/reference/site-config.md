@@ -5,11 +5,11 @@ description: Full reference for appsettings.json and docs/config.json
 
 # Site Config
 
-Every option Bark reads, grouped by file. If you want the narrative walkthrough instead, see [Configuration](/getting-started/configuration).
+This page lists every option Bark reads, grouped by the file it belongs to. If you are looking for a narrative walkthrough instead, see [Configuration](/getting-started/configuration).
 
 ## `appsettings.json`: `Docs`
 
-Host-level. Set per deployment, requires a restart to change.
+These are host-level settings, applied per deployment. Any changes here require an app restart to take effect. If you are deploying with Docker, each of these can be supplied as an environment variable instead. See [Environment Variables](/getting-started/environment-variables).
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -20,13 +20,13 @@ Host-level. Set per deployment, requires a restart to change.
 
 ## Theming
 
-Short version: drop `custom.css` / `custom.js` / `theme.json` into `wwwroot/theme/` for filesystem-only theming, no restart-free hot reload (these need an app restart, unlike `docs/`), or set `Docs:Themes` below for deployment-level config. If `Docs:Themes` is present in `appsettings.json` at all, it wins outright over `theme.json`, the two aren't merged field-by-field.
+The quickest approach is to drop `custom.css`, `custom.js`, or `theme.json` into `wwwroot/theme/` for filesystem-based theming. Please note that these files require an app restart to take effect, unlike your `docs/` content. For deployment-level control, you can set `Docs:Themes` in `appsettings.json` instead. When `Docs:Themes` is present, it takes full priority over `theme.json`. The two are not merged field by field.
 
 See [Extending Themes](/getting-started/extending-themes).
 
 ## `appsettings.json`: `Docs:Themes`
 
-Optional. Every field is a CSS variable override or theme toggle. Anything left unset falls back to Bark's default palette. The same fields, in camelCase, work in `wwwroot/theme/theme.json`.
+All fields in this section are optional. Each one is either a CSS variable override or a theme toggle, and anything you leave unset falls back to Bark's default palette. The same fields, written in camelCase, are also accepted in `wwwroot/theme/theme.json`.
 
 | Option | Type | Maps to | Description |
 |---|---|---|---|
@@ -41,21 +41,38 @@ Optional. Every field is a CSS variable override or theme toggle. Anything left 
 | `FontSans` | `string` | `--font-sans` | Body font stack. |
 | `FontMono` | `string` | `--font-mono` | Code font stack. |
 | `CustomCssUrl` | `string` | n/a | Injects an extra `<link rel="stylesheet">`, loaded after Bark's built-in styles so it can override them. Takes priority over an auto-detected `wwwroot/theme/custom.css` if both are present. |
-| `BrandText` | `string` | n/a | Sidebar brand label. `config.json`'s `brand` takes priority if both are set. |
+| `BrandText` | `string` | n/a | Sidebar brand label. `config.json`'s `brand` takes priority if set; if `brand` is absent, `config.json`'s `title` is used instead. |
 | `DarkMode` | `bool` | n/a | Toggles the `prefers-color-scheme: dark` variant and the in-page dark mode switch. Default `true`. |
 | `ShowScrollIndicator` | `bool` | n/a | Toggles the thin scroll-progress bar pinned to the top of the viewport. Default `true`. |
 
 ## `docs/config.json`: site metadata
 
+For a full walkthrough of the HTML head fields below, see [HTML Metadata](/reference/site-metadata).
+
 | Option | Type | Description |
 |---|---|---|
-| `brand` | `string?` | Sidebar/header brand label. Overrides `Docs:Themes:BrandText`. |
+| `title` | `string?` | Site name. Appended to every page title as `Page Title \| Site Name`. See [HTML Metadata](/reference/site-metadata). |
+| `titleTemplate` | `string?` | Custom title pattern. Use `:title` and `:siteName` as placeholders. For example, `":title · :siteName"` produces `Getting Started · Bark`. Overrides the default suffix format when set. |
+| `description` | `string?` | Site-wide fallback `<meta name="description">`. Per-page frontmatter description takes priority. |
+| `lang` | `string?` | `lang` attribute on `<html>`. Defaults to `"en"`. |
+| `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for Open Graph, canonical links, and structured data. |
+| `brand` | `string?` | Sidebar/header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
 | `footer` | `string?` | Rendered as Markdown inside the page footer. Links and formatting work. See [Footer](default-theme-footer). |
 | `favicon` | `string?` | A URL/path to an icon file, or a single emoji character to use as an inline SVG favicon. |
 | `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" stamp. Off by default. See [Last Updated Timestamp](default-theme-last-updated). |
 | `editLink` | `EditLinkConfig?` | "Edit this page" link near the pagination footer. See [Edit Link](default-theme-edit-link). |
 
+**`HeadTag`**
+
+| Field | Type | Description |
+|---|---|---|
+| `tag` | `string` | HTML tag name, e.g. `"meta"`, `"link"`, `"script"`. |
+| `attrs` | `Record<string, string>?` | Attribute key-value pairs. Values are HTML-encoded automatically. |
+| `content` | `string?` | Inner HTML for non-void tags (`<script>`, `<style>`). Void elements (`<meta>`, `<link>`, `<base>`) ignore this field. |
+
 ## `docs/config.json`: navigation
+
+These fields control your header bar, sidebars, and legacy flat navigation. You can use them together or independently depending on the shape of your docs.
 
 | Option | Type | Description |
 |---|---|---|
@@ -93,6 +110,9 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
 
 ```json
 {
+  "title": "Bark",
+  "description": "A fast, lightweight Markdown documentation server built on .NET.",
+  "lang": "en",
   "brand": "Bark",
   "footer": "Built with Bark · [AGPL-3.0](LICENSE)",
   "favicon": "🌳",
@@ -149,6 +169,8 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
 
 ## `docs/config.json`: social links
 
+Social links appear in the top-right area of the header and in the mobile sidebar. Each entry needs at minimum an icon name and a URL.
+
 | Field | Type | Description |
 |---|---|---|
 | `icon` | `string` | `"github"` and `"mastodon"` render as inline SVGs. Anything else renders as plain text. |
@@ -159,4 +181,4 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
 
 Bark is designed to be straightforward, so it avoids complex configuration overhead. You will not find a `markdown` options object, a way to pass through your own bundler, or an API for build hooks, simply because there is no client-side bundler to manage.
 
-Essential Markdown features like custom containers, code groups, math support, and line highlighting are baked in and always active. If you need to customize or extend these features beyond their defaults, you will need to modify the underlying source code, as these cannot be adjusted via configuration files.
+Essential Markdown features like custom containers, code groups, math support, and line highlighting are baked in and always active. If you would like to customize or extend these features beyond their defaults, you would need to modify the underlying source code, as they cannot be adjusted via configuration files.

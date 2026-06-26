@@ -202,20 +202,19 @@ Just want to try it out? Skip to the [Quickstart](./getting-started).
 
 </div>
 
-> [!NOTE]
-> Leave a blank line after the opening `<div>` and before the closing `</div>`. Without it, Markdig treats the inside as raw HTML instead of Markdown and your `[links](...)` won't render.
+Though make sure to leave a blank line after the opening `<div>` and before the closing `</div>`. Without it, the Markdown renderer treats the inside as raw HTML instead of Markdown and your `[links](...)` won't render.
 
 ## Badges
 
 Small inline labels, the kind you'd drop next to a heading to flag "new in 3.0" or an unstable API. Write them as plain HTML, Bark passes unrecognized tags straight through and styles `<badge>` itself:
 
 ```md
-Search now supports `Ctrl+K` <Badge type="tip">3.0+</Badge>
+Hello world <Badge type="tip">3.0+</Badge>
 ```
 
 Renders as:
 
-Search now supports `Ctrl+K` <Badge type="tip">3.0+</Badge>
+Hello world <Badge type="tip">3.0+</Badge>
 
 Four types, same colors as the alert blocks above: `info` (blue), `tip` (green, default), `warning` (amber), `danger` (red).
 

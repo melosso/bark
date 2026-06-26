@@ -26,7 +26,9 @@ public static partial class LayoutProvider
         string? lastUpdatedHtml = null,
         string? editLinkHtml = null,
         bool showScrollIndicator = true,
-        string basePath = "")
+        string basePath = "",
+        string lang = "en",
+        string? headTagsHtml = null)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -118,13 +120,14 @@ public static partial class LayoutProvider
 
         return $@"
 <!DOCTYPE html>
-<html lang=""en"">
+<html lang=""{HtmlEncode(lang)}"">
 <head>
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>{HtmlEncode(title)}</title>
     {descriptionHtml}
     {faviconHtml}
+    {headTagsHtml}
     {themeInitScript}
     {themeCss}
     {GetStyles(darkModeMediaQuery)}
@@ -211,12 +214,12 @@ public static partial class LayoutProvider
 </html>";
     }
 
-    public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "")
+    public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "", string lang = "en")
     {
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
         return $@"
 <!DOCTYPE html>
-<html lang=""en"">
+<html lang=""{htmlEncode(lang)}"">
 <head>
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">

@@ -1,4 +1,7 @@
 {
+  "title": "Bark",
+  "description": "A fast, lightweight Markdown documentation server built on .NET.",
+  "lang": "en",
   "brand": "Bark",
   "favicon": "🌳",
   "lastUpdated": true,
@@ -54,6 +57,7 @@
           { "title": "Frontmatter", "path": "reference/frontmatter-config" },
           { "title": "API Reference", "path": "reference/api-reference" },
           { "title": "Sitemap & Crawlers", "path": "reference/sitemap-generation" },
+          { "title": "Global Meta Tags", "path": "reference/site-metadata" },
           {
             "title": "Customisation",
             "items": [
