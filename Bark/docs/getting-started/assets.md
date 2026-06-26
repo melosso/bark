@@ -5,11 +5,11 @@ description: How Bark serves images and other static files referenced from Markd
 
 # Asset Handling
 
-Markdown files reference images, downloads, and other static files all the time. Bark treats these the same way any ASP.NET Core app treats static files: through `wwwroot/`, served by `UseStaticFiles()`. Your `docs/` folder holds content, `wwwroot/` holds assets.
+When writing documentation, you will often need to reference images or other files. You can keep your Markdown content in the `docs/` folder, while placing your static assets in the `wwwroot/` folder to make them accessible to the web. 
 
 ## Where to put files
 
-Put images and downloads under `wwwroot/`, then reference them with a root-relative path:
+Sometimes you may need to provide static assets like images or downloadable files alongside your documentation. Place these files under the `wwwroot/` directory, and reference them using a root-relative path:
 
 ```markdown
 ![Architecture diagram](/images/architecture.png)
@@ -17,27 +17,29 @@ Put images and downloads under `wwwroot/`, then reference them with a root-relat
 [Download the sample config](/files/sample-config.json)
 ```
 
-Files in `wwwroot/` are served directly at their URL path without any build-time processing, hashing, or transformation.
+Files placed in `wwwroot/` are served directly at their URL path without any build-time processing, hashing, or transformation.
 
 ::: tip
-Any other files in the `docs/` folder are included in the build output but remain *inaccessible* via HTTP. Since only `wwwroot/` is exposed to the web, any assets placed within the `docs/` directory must be moved to `wwwroot/` to be served.
+Any files left in the `docs/` folder are included in the build output, but they remain inaccessible via HTTP. If you would like an asset to be exposed to the web, ensure it is moved to the `wwwroot/` directory.
 :::
 
-## Relative paths don't work the way you'd expect
+## Relative paths
 
-Bark serves pages at directory-style URLs. `getting-started/assets.md` renders at `/getting-started/assets/`, not at a path that mirrors where the file sits in `docs/`. A relative image path like `./diagram.png` resolves against that URL, not against the Markdown file's location on disk, so it almost always 404s. Use a root-relative path instead.
+Because Bark serves pages at directory-style URLs, you might notice that relative paths behave a bit differently than you expect. For example, `getting-started/assets.md` is rendered at `/getting-started/assets/`, rather than a path that mirrors the file's location on disk.
+
+A relative image path like `./diagram.png` will resolve against that URL, which can sometimes lead to a 404 error. In this case, we recommend using a root-relative path instead.
 
 ## Base path
 
-If you're running Bark behind `--base-path` (or `Docs:BasePath` in config), root-relative links in **front matter** fields like `hero.image` or feature links get the base path prefixed automatically.
+If your setup requires running Bark behind a `--base-path` (or `Docs:BasePath` in config), the application will auto-prefix the base path for root-relative links in structured **front matter** fields, such as `hero.image` or feature links.
 
 ::: note
-That auto-prefixing only applies to structured front matter fields, not to regular Markdown body content. An `![](...)` image inside the body of a page is rendered by Markdig as-is. If you're running behind a base path, write the base path into the image URL yourself: `![Logo](/docs/images/logo.png)` instead of `/images/logo.png`.
+Keep in mind that this auto-prefixing only applies to structured front matter fields, and not to your regular Markdown body content. An `![](...)` image inside the body of a page is rendered exactly as-is. If you are running behind a base path, you will need to write the base path into the image URL yourself (e.g., `![Logo](/docs/images/logo.png)` instead of `/images/logo.png`).
 :::
 
 ## External assets
 
-Ofcourse Bark supports assets from external sources, for example:
+You can, of course, reference assets from external sources if you prefer:
 
 ```markdown
 ![Diagram hosted elsewhere](https://cdn.example.com/diagram.png)
@@ -45,4 +47,4 @@ Ofcourse Bark supports assets from external sources, for example:
 
 ## Theme assets
 
-Theme overrides are the one asset convention Bark auto-detects: drop `custom.css` or `custom.js` into `wwwroot/theme/` and Bark picks them up at startup, no config edit required. See [Extending Themes](/getting-started/extending-themes) for details. That mechanism is for site-wide styling and scripting, not for per-page content images.
+If you would like to apply theme overrides, Bark auto-detects files like `custom.css` or `custom.js`. Drop them into the `wwwroot/theme/` folder and Bark will pick them up at startup without requiring any configuration edits. See [Extending Themes](/getting-started/extending-themes) for more details on this process. N
