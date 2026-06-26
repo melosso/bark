@@ -121,6 +121,63 @@ public sealed class LayoutProviderTests
     }
 
     [Fact]
+    public void GetLayout_DefaultLang_IsEn()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null);
+
+        Assert.Contains("lang=\"en\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_CustomLang_UsedInHtmlTag()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            lang: "fr");
+
+        Assert.Contains("lang=\"fr\"", html);
+        Assert.DoesNotContain("lang=\"en\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_HeadTagsHtml_InjectedInHead()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            headTagsHtml: "<meta name=\"robots\" content=\"noindex\">");
+
+        Assert.Contains("<meta name=\"robots\" content=\"noindex\">", html);
+        var headEnd = html.IndexOf("</head>", StringComparison.Ordinal);
+        var metaPos = html.IndexOf("<meta name=\"robots\"", StringComparison.Ordinal);
+        Assert.True(metaPos < headEnd, "head tag should appear before </head>");
+    }
+
+    [Fact]
+    public void Get404Layout_DefaultLang_IsEn()
+    {
+        var html = LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode);
+        Assert.Contains("lang=\"en\"", html);
+    }
+
+    [Fact]
+    public void Get404Layout_CustomLang_UsedInHtmlTag()
+    {
+        var html = LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, lang: "de");
+        Assert.Contains("lang=\"de\"", html);
+        Assert.DoesNotContain("lang=\"en\"", html);
+    }
+
+    [Fact]
     public void Get404Layout_Contains404()
     {
         var html = LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode);

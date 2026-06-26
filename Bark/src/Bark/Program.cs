@@ -170,6 +170,8 @@ try
 
         path = (path ?? "").Trim('/');
 
+        var config = docs.Config;
+
         var page = await docs.GetPageAsync(path, context.RequestAborted);
         if (page == null && isRootRequest)
             page = await BuildSafeRootPage(docs, basePath, context.RequestAborted);
@@ -178,7 +180,7 @@ try
         {
             context.Response.StatusCode = 404;
             context.Response.ContentType = "text/html; charset=utf-8";
-            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath));
+            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath, config?.Lang ?? "en"));
             return;
         }
 
@@ -196,7 +198,6 @@ try
         }
 
         var nav = await docs.GetNavigationAsync(context.RequestAborted);
-        var config = docs.Config;
         var navHtml = NavigationHtmlRenderer.BuildNavigationHtml(nav, path, config, basePath);
         var topNavHtml = NavigationHtmlRenderer.BuildTopNavHtml(config?.TopNav, path, basePath);
         var mobileTopNavHtml = NavigationHtmlRenderer.BuildMobileTopNavHtml(config?.TopNav, path, basePath);
@@ -224,7 +225,7 @@ try
         var themeCss = ThemeProvider.BuildThemeCss(themeOptions);
         var customCssLink = ThemeProvider.BuildCustomCssLink(themeOptions, autoCustomCssUrl);
         var customJsScript = ThemeProvider.BuildCustomJsScript(autoCustomJsUrl);
-        var brandText = config?.Brand ?? ThemeProvider.GetBrandText(themeOptions);
+        var brandText = config?.Brand ?? config?.Title ?? ThemeProvider.GetBrandText(themeOptions);
         var combinedThemeCss = themeCss + customCssLink + customJsScript;
 
         var socialLinksHtml = SocialLinksHtmlRenderer.BuildSocialLinksHtml(config?.SocialLinks);
@@ -245,7 +246,7 @@ try
             : string.Empty;
 
         var fullHtml = LayoutProvider.GetLayout(
-            title: page.Title,
+            title: PageTitleRenderer.ComputeTitle(page.Title, config),
             content: page.HtmlContent,
             navigationHtml: navHtml,
             topNavHtml: topNavHtml,
@@ -262,11 +263,13 @@ try
             enableLiveReload: docsOptions.EnableHotReload,
             buildVersion: docs.BuildVersion,
             favicon: config?.Favicon,
-            description: page.Description,
+            description: string.IsNullOrEmpty(page.Description) ? config?.Description : page.Description,
             isHomePage: isHomePage,
             lastUpdatedHtml: lastUpdatedHtml,
             editLinkHtml: editLinkHtml,
-            basePath: basePath
+            basePath: basePath,
+            lang: config?.Lang ?? "en",
+            headTagsHtml: HeadTagHtmlRenderer.BuildHeadTagsHtml(config?.Head)
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";

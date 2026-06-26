@@ -1,4 +1,7 @@
 {
+  "title": "Bark",
+  "description": "A fast, lightweight Markdown documentation server built on ASP.NET Core.",
+  "lang": "en",
   "brand": "Bark",
   "favicon": "🌳",
   "lastUpdated": true,

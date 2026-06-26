@@ -2,6 +2,12 @@ namespace Bark.Models;
 
 public class BarkConfig
 {
+    public string? Title { get; set; }
+    public string? TitleTemplate { get; set; }
+    public string? Description { get; set; }
+    public string? Lang { get; set; }
+    public List<HeadTag>? Head { get; set; }
+
     public string? Brand { get; set; }
     public string? Footer { get; set; }
     public string? Favicon { get; set; }
@@ -69,4 +75,11 @@ public class SocialLink
     public string Icon { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
     public string? Title { get; set; }
+}
+
+public record HeadTag
+{
+    public string Tag { get; init; } = string.Empty;
+    public Dictionary<string, string>? Attrs { get; init; }
+    public string? Content { get; init; }
 }
