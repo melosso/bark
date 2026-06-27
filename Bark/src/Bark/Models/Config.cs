@@ -1,6 +1,6 @@
 namespace Bark.Models;
 
-public class BarkConfig
+public class Config
 {
     public string? Title { get; set; }
     public string? TitleTemplate { get; set; }

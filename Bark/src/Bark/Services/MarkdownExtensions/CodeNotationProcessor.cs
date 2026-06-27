@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Bark.Services.MarkdownExtensions;
 
-/// <summary>Result of processing line-notation comments (<c>[!code highlight]</c>, <c>[!code ++]</c>, <c>[!code word:x]</c>, etc.) and meta highlight ranges.</summary>
+/// <summary>Result of processing line-notation comments and meta highlight ranges.</summary>
 public sealed record CodeNotationResult(
     IReadOnlyList<string> Lines,
     IReadOnlyList<IReadOnlySet<string>> LineClasses,

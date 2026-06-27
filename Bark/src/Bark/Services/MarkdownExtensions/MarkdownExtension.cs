@@ -7,12 +7,14 @@ using Bark.Models;
 
 namespace Bark.Services.MarkdownExtensions;
 
-public sealed class BarkMarkdownExtension(
+/// <summary>Replaces Markdig's default renderers for code blocks, custom containers, and math</summary>
+public sealed class MarkdownExtension(
     ISyntaxHighlighter syntaxHighlighter,
     CodeGroupIconOptions? codeGroupIcons = null,
     string basePath = "",
     MathRenderer? mathRenderer = null) : IMarkdownExtension
 {
+    // Math/Custom-containers registered in UseMarkdownExtensions(), not here, to avoid modifying pipeline collection during Setup().
     public void Setup(MarkdownPipelineBuilder pipeline)
     {
     }
@@ -29,19 +31,21 @@ public sealed class BarkMarkdownExtension(
 
         if (mathRenderer != null)
         {
-            htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathInlineRenderer>(new BarkMathInlineRenderer(mathRenderer));
-            htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathBlockRenderer>(new BarkMathBlockRenderer(mathRenderer));
+            htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathInlineRenderer>(new MathInlineRenderer(mathRenderer));
+            htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlMathBlockRenderer>(new MathBlockRenderer(mathRenderer));
         }
     }
 }
 
-public sealed class BarkMathInlineRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathInline>
+/// <summary>Server-side renders inline <c>$...$</c> math to static KaTeX HTML</summary>
+public sealed class MathInlineRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathInline>
 {
     protected override void Write(HtmlRenderer renderer, MathInline obj) =>
         renderer.Write(mathRenderer.RenderToHtml(obj.Content.ToString(), displayMode: false));
 }
 
-public sealed class BarkMathBlockRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathBlock>
+/// <summary>Server-side renders block <c>$$...$$</c> math to static KaTeX HTML</summary>
+public sealed class MathBlockRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathBlock>
 {
     protected override void Write(HtmlRenderer renderer, MathBlock obj)
     {
@@ -50,9 +54,10 @@ public sealed class BarkMathBlockRenderer(MathRenderer mathRenderer) : HtmlObjec
     }
 }
 
-public static class BarkMarkdownExtensions
+public static class MarkdownExtensions
 {
-    public static MarkdownPipelineBuilder UseBarkMarkdownExtensions(
+    /// <summary>Enables custom containers, server-side math rendering, and fenced-code-block notation.</summary>
+    public static MarkdownPipelineBuilder UseMarkdownExtensions(
         this MarkdownPipelineBuilder pipeline,
         ISyntaxHighlighter? syntaxHighlighter = null,
         CodeGroupIconOptions? codeGroupIcons = null,
@@ -61,7 +66,7 @@ public static class BarkMarkdownExtensions
     {
         pipeline.UseCustomContainers();
         pipeline.Extensions.AddIfNotAlready(
-            new BarkMarkdownExtension(
+            new MarkdownExtension(
                 syntaxHighlighter ?? NullSyntaxHighlighter.Instance,
                 codeGroupIcons,
                 basePath,

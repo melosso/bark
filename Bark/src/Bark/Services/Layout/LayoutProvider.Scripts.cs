@@ -369,7 +369,16 @@ public static partial class LayoutProvider
                 }}, 200);
             }});
 
-            // Copy and download buttons for code blocks
+            // Wrap wide tables in scroll container; overflow-x:auto on table itself doesn't reliably contain it.
+            var tables = document.querySelectorAll('.content table');
+            tables.forEach(function(table) {{
+                var wrapper = document.createElement('div');
+                wrapper.className = 'table-wrapper';
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+            }});
+
+
             var codeBlocks = document.querySelectorAll('.content pre');
             codeBlocks.forEach(function(pre) {{
                 var wrapper = document.createElement('div');
@@ -422,7 +431,6 @@ public static partial class LayoutProvider
                 wrapper.appendChild(buttons);
             }});
 
-            // code-group tab switching
             var codeGroups = document.querySelectorAll('.bark-code-group');
             codeGroups.forEach(function(group) {{
                 var inputs = group.querySelectorAll('.tabs input');

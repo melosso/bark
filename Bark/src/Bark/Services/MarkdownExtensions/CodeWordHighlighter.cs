@@ -2,7 +2,7 @@ using System.Linq;
 
 namespace Bark.Services.MarkdownExtensions;
 
-/// <summary>A text run: a <see cref="SyntaxToken"/> color pair plus whether it's inside a highlighted-word match.</summary>
+/// <summary>Token color pair plus highlighted-word-match flag.</summary>
 internal readonly record struct RenderedSpan(string Text, string? LightColor, string? DarkColor, bool IsHighlightedWord);
 
 /// <summary>Splits tokens at word-match boundaries so matched slices can be wrapped in a `highlighted-word` span.</summary>

@@ -7,7 +7,7 @@ public static class PageTitleRenderer
 {
     private static readonly Regex TokenPattern = new(@":title|:siteName", RegexOptions.Compiled);
 
-    public static string ComputeTitle(string pageTitle, BarkConfig? config)
+    public static string ComputeTitle(string pageTitle, Config? config)
     {
         var template = config?.TitleTemplate;
         var siteName = config?.Title;

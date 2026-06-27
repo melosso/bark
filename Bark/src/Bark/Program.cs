@@ -127,7 +127,7 @@ try
     {
         var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
         var pages = await docs.GetAllPagesAsync(context.RequestAborted);
-        var config = docs.Config;
+        var config = docs.SiteConfig;
         var sb = new StringBuilder();
         sb.AppendLine($"# {config?.Brand ?? "Bark"}");
         sb.AppendLine();
@@ -171,7 +171,7 @@ try
 
         path = (path ?? "").Trim('/');
 
-        var config = docs.Config;
+        var config = docs.SiteConfig;
 
         var page = await docs.GetPageAsync(path, context.RequestAborted);
         if (page == null && isRootRequest)

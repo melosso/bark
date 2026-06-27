@@ -46,7 +46,7 @@ public sealed partial class MarkdownService
             .UseTaskLists()
             .UseYamlFrontMatter()
 
-            .UseBarkMarkdownExtensions(syntaxHighlighter, codeGroupIcons, basePath, mathRenderer)
+            .UseMarkdownExtensions(syntaxHighlighter, codeGroupIcons, basePath, mathRenderer)
 
             // UseGenericAttributes() should be the last extension added to the pipeline, as it modifies other parsers to recognize attribute syntax (see https://xoofx.github.io/markdig/docs/extensions/generic-attributes)
             .UseGenericAttributes()
@@ -230,7 +230,7 @@ public sealed partial class MarkdownService
     private static string UnescapeBraces(string html) =>
         html.Replace(BARK_LCB, "{").Replace(BARK_RCB, "}");
 
-    // // Frontmatter hero/feature links use root-relative paths and require the same basePath treatment as Bark-generated chrome links...
+    // Frontmatter hero/feature links: root-relative, needs same basePath treatment as chrome links.
     private static string PrefixInternalLink(string path, string basePath)
     {
         if (!path.StartsWith('/') || path.StartsWith("//"))

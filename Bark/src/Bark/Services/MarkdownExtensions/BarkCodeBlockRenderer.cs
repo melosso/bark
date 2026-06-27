@@ -5,12 +5,7 @@ using Markdig.Syntax;
 
 namespace Bark.Services.MarkdownExtensions;
 
-/// <summary>
-/// Replaces Markdig's default <see cref="CodeBlockRenderer"/>: `language-{lang}` wrapper div with
-/// copy button + lang label, per-line `&lt;span class="line"&gt;` with highlight/diff/focus/error/warning
-/// notation classes, and an optional line-numbers gutter. Without a real tokenizer, output lines
-/// are HTML-escaped plain text rather than colorized spans-per-token.
-/// </summary>
+/// <summary>Replaces Markdig's default <see cref="CodeBlockRenderer"/> with language wrappers, notation classes, copy button, and optional line numbers.</summary>
 public sealed class BarkCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) : HtmlObjectRenderer<CodeBlock>
 {
     protected override void Write(HtmlRenderer renderer, CodeBlock obj)

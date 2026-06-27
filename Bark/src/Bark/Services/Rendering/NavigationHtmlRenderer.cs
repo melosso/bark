@@ -5,7 +5,7 @@ namespace Bark.Services.Rendering;
 
 public static class NavigationHtmlRenderer
 {
-    public static string BuildNavigationHtml(NavigationNode node, string currentPath, BarkConfig? config, string basePath)
+    public static string BuildNavigationHtml(NavigationNode node, string currentPath, Config? config, string basePath)
     {
         if (config?.Sidebar is { Count: > 0 } sidebars)
         {
@@ -198,7 +198,7 @@ public static class NavigationHtmlRenderer
 
     // Prev/next must walk pages in the same order as whatever sidebar is actually showing for this
     // page, not always the auto-generated folder tree -- same precedence as BuildNavigationHtml.
-    public static List<string?> GetOrderedPaths(NavigationNode node, BarkConfig? config, string currentPath)
+    public static List<string?> GetOrderedPaths(NavigationNode node, Config? config, string currentPath)
     {
         if (config?.Sidebar is { Count: > 0 } sidebars)
         {

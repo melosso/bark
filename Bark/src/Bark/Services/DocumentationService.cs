@@ -23,7 +23,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
     private readonly ConcurrentDictionary<string, DocumentationPage> _pageCache = new();
     private readonly SearchIndex _searchIndex = new();
     private NavigationNode? _navigation;
-    private BarkConfig? _docsConfig;
+    private Config? _docsConfig;
     private string? _lastContentHash;
     private readonly SemaphoreSlim _buildLock = new(1, 1);
     private readonly Channel<FileSystemEventArgs> _fileChannel =
@@ -43,7 +43,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _logger = logger;
     }
 
-    public BarkConfig? Config => _docsConfig;
+    public Config? SiteConfig => _docsConfig;
     public long BuildVersion { get; private set; }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -352,7 +352,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         return crumbs;
     }
 
-    private static Dictionary<string, string> BuildNavTitleLookup(BarkConfig? config)
+    private static Dictionary<string, string> BuildNavTitleLookup(Config? config)
     {
         var lookup = new Dictionary<string, string>();
 
@@ -384,7 +384,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
     private static string WrapTables(string html) =>
         TableRegex().Replace(html, m => $"<div class=\"table-wrapper\">{m.Value}</div>");
 
-    private static BarkConfig? LoadConfig(string docsPath)
+    private static Config? LoadConfig(string docsPath)
     {
         var configPath = Path.Combine(docsPath, "config.json");
         if (!File.Exists(configPath))
@@ -393,7 +393,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         try
         {
             var json = File.ReadAllText(configPath);
-            return JsonSerializer.Deserialize<BarkConfig>(json, new JsonSerializerOptions
+            return JsonSerializer.Deserialize<Config>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
