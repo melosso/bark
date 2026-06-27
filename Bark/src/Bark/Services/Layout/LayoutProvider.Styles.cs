@@ -613,6 +613,9 @@ public static partial class LayoutProvider
         .content tr:nth-child(even) {{
             background-color: var(--code-bg);
         }}
+        .content tr:nth-child(even) code {{
+            background-color: color-mix(in srgb, var(--accent) 8%, var(--code-bg));
+        }}
         .code-block-wrapper {{
             position: relative;
         }}
