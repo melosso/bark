@@ -97,6 +97,7 @@ try
 
     // Drop files at wwwroot/theme/custom.{css,js} and they're picked up at startup, no config edit needed. Does NOT support hot rloading.
     var themeDir = Path.Combine(app.Environment.WebRootPath, "theme");
+    Directory.CreateDirectory(themeDir);
     var autoCustomCssUrl = File.Exists(Path.Combine(themeDir, "custom.css")) ? $"{basePath}/theme/custom.css" : null;
     var autoCustomJsUrl = File.Exists(Path.Combine(themeDir, "custom.js")) ? $"{basePath}/theme/custom.js" : null;
 
