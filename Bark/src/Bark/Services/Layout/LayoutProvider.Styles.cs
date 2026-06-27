@@ -84,7 +84,8 @@ public static partial class LayoutProvider
             display: flex; align-items: center; gap: 1rem;
         }}
         .top-nav {{
-            display: flex; align-items: center; gap: 1.5rem; margin-left: 1.5rem; height: 100%;
+            position: absolute; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 1.5rem; height: 100%;
         }}
         .top-nav-item {{ display: flex; align-items: center; height: 100%; position: relative; }}
         .top-nav-link {{
