@@ -34,6 +34,7 @@ public static partial class LayoutProvider
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
+        var brandImageSrc = ResolveAssetUrl(brandImage, basePath);
         var descriptionHtml = !string.IsNullOrWhiteSpace(description)
             ? $"<meta name=\"description\" content=\"{HtmlEncode(description)}\">"
             : "";
@@ -146,7 +147,7 @@ public static partial class LayoutProvider
                     <path d=""M3 6h18M3 12h18M3 18h18"" stroke-linecap=""round""/>
                 </svg>
             </button>
-            <div class=""brand""><a href=""{homeHref}"">{(brandImage is not null ? $"<img src=\"{brandImage}\" alt=\"\">" : "")}{brandText ?? "Bark"}</a></div>
+            <div class=""brand""><a href=""{homeHref}"">{(brandImageSrc is not null ? $"<img src=\"{HtmlEncode(brandImageSrc)}\" alt=\"\">" : "")}{brandText ?? "Bark"}</a></div>
             <button type=""button"" class=""search-trigger"" id=""search-trigger""
                     aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""Search documentation"">
                 <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.3-4.3""/></svg>
@@ -288,24 +289,37 @@ public static partial class LayoutProvider
     public static string HtmlEncode(string? value) =>
         value != null ? System.Net.WebUtility.HtmlEncode(value) : string.Empty;
 
+    public static string? ResolveAssetUrl(string? url, string basePath)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return url;
+
+        if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return url;
+
+        if (url.StartsWith('/'))
+            return $"{basePath}{url}";
+
+        return url;
+    }
+
     private static string BuildFaviconLink(string? favicon, string basePath = "")
     {
         if (string.IsNullOrWhiteSpace(favicon))
             return string.Empty;
 
-        var isRootRelative = favicon.StartsWith('/');
-        var isUrl = favicon.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-            || favicon.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-            || isRootRelative;
-
-        if (isUrl)
+        // Emoji or plain text fallback; not a URL or path
+        if (!favicon.StartsWith('/')
+            && !favicon.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            && !favicon.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
-            var href = isRootRelative ? $"{basePath}{favicon}" : favicon;
-            return $"<link rel=\"icon\" href=\"{HtmlEncode(href)}\">";
+            var svg = $"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>{favicon}</text></svg>";
+            var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(svg));
+            return $"<link rel=\"icon\" href=\"data:image/svg+xml;base64,{base64}\">";
         }
 
-        var svg = $"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>{favicon}</text></svg>";
-        var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(svg));
-        return $"<link rel=\"icon\" href=\"data:image/svg+xml;base64,{base64}\">";
+        var href = ResolveAssetUrl(favicon, basePath);
+        return $"<link rel=\"icon\" href=\"{HtmlEncode(href)}\">";
     }
 }

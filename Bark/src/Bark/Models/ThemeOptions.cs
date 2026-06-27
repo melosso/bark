@@ -13,6 +13,7 @@ public sealed record ThemeOptions
     public string? FontSans { get; init; }
     public string? FontMono { get; init; }
     public string? CustomCssUrl { get; init; }
+    public string? CustomJsUrl { get; init; }
     public string? BrandText { get; init; }
     public bool DarkMode { get; init; } = true;
 

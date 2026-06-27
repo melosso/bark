@@ -218,4 +218,129 @@ public sealed class LayoutProviderTests
     {
         Assert.Equal("", LayoutProvider.HtmlEncode(""));
     }
+
+    [Fact]
+    public void ResolveAssetUrl_AbsoluteUrl_ReturnsUnchanged()
+    {
+        var result = LayoutProvider.ResolveAssetUrl("https://example.com/asset.svg", "/docs");
+        Assert.Equal("https://example.com/asset.svg", result);
+    }
+
+    [Fact]
+    public void ResolveAssetUrl_RootRelativeWithBasePath_PrependsBasePath()
+    {
+        var result = LayoutProvider.ResolveAssetUrl("/asset.svg", "/docs");
+        Assert.Equal("/docs/asset.svg", result);
+    }
+
+    [Fact]
+    public void ResolveAssetUrl_RootRelativeNoBasePath_ReturnsRootRelative()
+    {
+        var result = LayoutProvider.ResolveAssetUrl("/asset.svg", "");
+        Assert.Equal("/asset.svg", result);
+    }
+
+    [Fact]
+    public void ResolveAssetUrl_RelativeUrl_ReturnsUnchanged()
+    {
+        var result = LayoutProvider.ResolveAssetUrl("asset.svg", "/docs");
+        Assert.Equal("asset.svg", result);
+    }
+
+    [Fact]
+    public void ResolveAssetUrl_Null_ReturnsNull()
+    {
+        var result = LayoutProvider.ResolveAssetUrl(null, "/docs");
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void ResolveAssetUrl_Empty_ReturnsEmpty()
+    {
+        var result = LayoutProvider.ResolveAssetUrl("", "/docs");
+        Assert.Equal("", result);
+    }
+
+    [Fact]
+    public void GetLayout_BrandImageRootRelative_WithBasePath()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            brandImage: "/brand.svg",
+            basePath: "/docs");
+
+        Assert.Contains("<img src=\"/docs/brand.svg\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_BrandImageRootRelativeNoBasePath_StaysRootRelative()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            brandImage: "/brand.svg");
+
+        Assert.Contains("<img src=\"/brand.svg\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_BrandImageAbsoluteUrl_Unchanged()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            brandImage: "https://cdn.example.com/logo.svg",
+            basePath: "/docs");
+
+        Assert.Contains("<img src=\"https://cdn.example.com/logo.svg\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_FaviconRootRelative_WithBasePath()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            favicon: "/icon.ico",
+            basePath: "/docs");
+
+        Assert.Contains("<link rel=\"icon\" href=\"/docs/icon.ico\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_FaviconAbsoluteUrl_Unchanged()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            favicon: "https://example.com/favicon.ico",
+            basePath: "/docs");
+
+        Assert.Contains("<link rel=\"icon\" href=\"https://example.com/favicon.ico\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_FaviconEmoji_FallbackToDataUri()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            favicon: "🔥");
+
+        Assert.Contains("<link rel=\"icon\" href=\"data:image/svg+xml;base64,", html);
+        Assert.DoesNotContain("/🔥", html);
+    }
 }

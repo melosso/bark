@@ -1,4 +1,5 @@
 using Bark.Models;
+using Bark.Services.Layout;
 
 namespace Bark.Services;
 
@@ -28,18 +29,25 @@ public static class ThemeProvider
         return "<style>\n:root {\n" + string.Join("\n", vars) + "\n}\n</style>";
     }
 
-    public static string BuildCustomCssLink(ThemeOptions? theme, string? autoDetectedCssUrl = null)
+    public static string BuildCustomCssLink(ThemeOptions? theme, string? autoDetectedCssUrl = null, string basePath = "")
     {
-        var url = theme?.CustomCssUrl is { Length: > 0 } configured ? configured : autoDetectedCssUrl;
+        var url = theme?.CustomCssUrl is { Length: > 0 } configured
+            ? LayoutProvider.ResolveAssetUrl(configured, basePath)
+            : autoDetectedCssUrl;
         return url is { Length: > 0 }
             ? $"<link rel=\"stylesheet\" href=\"{url}\">"
             : string.Empty;
     }
 
-    public static string BuildCustomJsScript(string? autoDetectedJsUrl) =>
-        autoDetectedJsUrl is { Length: > 0 }
-            ? $"<script defer src=\"{autoDetectedJsUrl}\"></script>"
+    public static string BuildCustomJsScript(ThemeOptions? theme, string? autoDetectedJsUrl = null, string basePath = "")
+    {
+        var url = theme?.CustomJsUrl is { Length: > 0 } configured
+            ? LayoutProvider.ResolveAssetUrl(configured, basePath)
+            : autoDetectedJsUrl;
+        return url is { Length: > 0 }
+            ? $"<script defer src=\"{url}\"></script>"
             : string.Empty;
+    }
 
     public static string GetBrandText(ThemeOptions? theme)
     {

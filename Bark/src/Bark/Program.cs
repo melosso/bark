@@ -225,8 +225,8 @@ try
         }
 
         var themeCss = ThemeProvider.BuildThemeCss(themeOptions);
-        var customCssLink = ThemeProvider.BuildCustomCssLink(themeOptions, autoCustomCssUrl);
-        var customJsScript = ThemeProvider.BuildCustomJsScript(autoCustomJsUrl);
+        var customCssLink = ThemeProvider.BuildCustomCssLink(themeOptions, autoCustomCssUrl, basePath);
+        var customJsScript = ThemeProvider.BuildCustomJsScript(themeOptions, autoCustomJsUrl, basePath);
         var brandText = config?.Brand ?? config?.Title ?? ThemeProvider.GetBrandText(themeOptions);
         var brandImage = config?.BrandImage;
         var combinedThemeCss = themeCss + customCssLink + customJsScript;
