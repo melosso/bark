@@ -131,8 +131,8 @@ public static partial class LayoutProvider
     {themeInitScript}
     {themeCss}
     {GetStyles(darkModeMediaQuery)}
-    <link rel=""stylesheet"" href=""https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"">
-    <script defer src=""https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js""></script>
+    <link rel=""stylesheet"" href=""{basePath}/css/katex.min.css"">
+    <script defer src=""{basePath}/js/mermaid.min.js""></script>
 </head>
 <body>
     <a href=""#main-content"" class=""skip-link"">Skip to content</a>

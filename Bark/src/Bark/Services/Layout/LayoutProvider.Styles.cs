@@ -594,6 +594,10 @@ public static partial class LayoutProvider
             overflow-x: auto; -webkit-overflow-scrolling: touch;
             margin: 1.5rem 0; border-radius: 6px;
         }}
+        .task-list-item input[type=""checkbox""] {{
+            width: 1em; height: 1em; margin: 0 0.4em 0 0;
+            vertical-align: middle;
+        }}
         .content table {{
             width: 100%; border-collapse: collapse;
             font-size: 0.875rem;

@@ -9,7 +9,7 @@ All pages are primarily written in [Markdown](https://www.markdownguide.org/gett
 
 ## Syntax-highlighted code blocks
 
-We're using grammar-based tokenization (using `TextMateSharp`) which works across the ~65 languages bundled with Bark. A few examples:
+We're using grammar-based tokenization[^1] which works across the ~65 languages bundled with Bark. A few examples:
 
 ```csharp
 public sealed record Order(string Id, decimal Total)
@@ -76,7 +76,7 @@ function add(a: number, b: number) {
 }
 ```
 
-Or mark a line with a trailing comment. Bark strips the marker and keeps the highlight:
+Or mark a line with a ==trailing== comment. Bark strips the marker and keeps the highlight:
 
 ```ts
 const cache = new Map();
@@ -172,6 +172,10 @@ This is a note container.
 This is a tip container.
 :::
 
+::: info
+This is an info container.
+:::
+
 ::: warning
 This is a warning container.
 :::
@@ -223,8 +227,9 @@ Four types, same colors as the alert blocks above: `info` (blue), `tip` (green, 
 <Badge type="warning">warning</Badge>
 <Badge type="danger">danger</Badge>
 
-> [!IMPORTANT]
-> Always close the tag: `<Badge type="tip">text</Badge>`. A self-closing `<Badge text="x" />` looks reasonable but breaks, HTML has no XML-style self-close for unknown elements, so it silently swallows the rest of the paragraph as its content instead of rendering a badge.
+::: danger
+Always close the tag: `<Badge type="tip">text</Badge>`. A self-closing `<Badge text="x" />` looks reasonable but breaks, HTML has no XML-style self-close for unknown elements, so it silently swallows the rest of the paragraph as its content instead of rendering a badge.
+:::
 
 ## Math
 
@@ -249,6 +254,15 @@ Tables, task lists, footnotes, and alert blocks all work too:
 - [x] Done
 - [ ] Not done yet
 
-A sentence with a footnote.[^1]
+A sentence with a footnote.[^2]
 
-[^1]: The footnote text.
+[^1]: Using TextMateSharp found [here](https://github.com/danipen/TextMateSharp){target="_blank" rel="noopener"}.
+[^2]: The footnote text.
+
+## Link attributes
+
+Append `{target="_blank" rel="noopener"}` after a link to open it in a new tab:
+
+```md
+[Bark on GitHub](https://github.com/org/bark){target="_blank" rel="noopener"}
+```

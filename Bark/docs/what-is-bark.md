@@ -27,7 +27,7 @@ Bark's content is just Markdown files in a folder. Keep them in git, and documen
 
 ## Bark vs. other site generators
 
-Tools like [Hugo](https://github.com/gohugoio/hugo), [MkDocs](https://github.com/mkdocs/mkdocs), and [VitePress](https://github.com/vuejs/vitepress) are great if you're happy deploying to static hosting and don't mind a build step. Bark is especially interesting for teams already running .NET.
+Tools like [Hugo](https://github.com/gohugoio/hugo){target="_blank" rel="noopener"}, [MkDocs](https://github.com/mkdocs/mkdocs){target="_blank" rel="noopener"}, and [VitePress](https://github.com/vuejs/vitepress){target="_blank" rel="noopener"} are great if you're happy deploying to static hosting and don't mind a build step. Bark is especially interesting for teams already running .NET.
 
 ## Performance
 

@@ -1,8 +1,8 @@
+using System.Linq;
 using Jint;
 
 namespace Bark.Services.MarkdownExtensions;
 
-/// <summary>Renders LaTeX to static KaTeX HTML server-side via Jint; see katex.min.js</summary>
 public sealed class MathRenderer
 {
     private readonly Lock _lock = new();
