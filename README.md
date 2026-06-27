@@ -45,7 +45,7 @@ For those running Windows, follow the following steps:
 5. Make sure the [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) is installed on the server (gives IIS the ASP.NET Core Module).
 6. Start the site and browse to it.
 
-A Linux x64 self-contained-runtime build (`*-Linux_x64.zip`) is published alongside it if you'd rather run the binary directly without Docker, though as of right now this installation method remains undocumented ([#1](https://github.com/melosso/bark/issues/1)).
+A Linux x64 self-contained-runtime build (`*-Linux_x64.zip`) is published alongside each release. See [Option C: Linux release zip](Bark/docs/getting-started/deploy#option-c-linux-release-zip) for installation instructions.
 
 ## Configuration
 

@@ -41,10 +41,34 @@ Browse to `http://localhost:8080`.
 
 ## Option C: Linux release zip
 
-A self-contained Linux x64 build (`*-Linux_x64.zip`) ships alongside every release if you'd rather run the binary directly without Docker.
+A self-contained Linux x64 build (`*-Linux_x64.zip`) ships alongside every release. This is a convenient option if you prefer running the binary directly without Docker.
 
-> [!WARNING]
-> This installation method is currently undocumented. Track [#1](https://github.com/melosso/bark/issues/1) for status. Docker is the supported path on Linux right now.
+1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/melosso/bark/releases).
+2. Extract it to your server (for example `/srv/bark`):
+
+```bash
+mkdir -p /srv/bark && unzip Bark-*-Linux_x64.zip -d /srv/bark
+```
+
+3. Prepare your `docs/` directory with your Markdown content and optional `config.json`:
+
+```bash
+mkdir -p /srv/bark/docs
+# Place your .md files in /srv/bark/docs
+```
+
+4. Run the binary:
+
+```bash
+cd /srv/bark && ./Bark
+```
+
+> [!NOTE]
+> The binary expects a `docs/` folder relative to the current working directory. If your content lives elsewhere, set `Docs:RootPath` in `appsettings.json` or pass it as an environment variable. See [Environment Variables](/getting-started/environment-variables) for the full list.
+
+5. Browse to `http://localhost:8080`.
+
+For a production setup, you can configure Bark as a systemd service (see [Running as a service](#running-as-a-service-source-builds) below).
 
 ## Option D: Build from source
 
