@@ -19,6 +19,16 @@ public static partial class LayoutProvider
             --alert-caution: #cf222e;
             --font-sans: system-ui, -apple-system, BlinkMacSystemFont, ""Segoe UI"", Roboto, sans-serif;
             --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+            --search-bg: var(--sidebar-bg);
+            --search-border: var(--border);
+            --search-hover-border: var(--accent);
+            --nav-hover-bg: var(--code-bg);
+            --nav-active-bg: var(--accent-light);
+            --overlay-bg: rgba(0, 0, 0, 0.5);
+            --code-button-bg: var(--bg-color);
+            --code-button-border: var(--border);
+            --code-button-hover: var(--accent);
         }}
         {darkModeMediaQuery}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -110,8 +120,8 @@ public static partial class LayoutProvider
             padding: 0.45rem 0.6rem; border-radius: 6px;
             font-size: 0.875rem; color: var(--text-color); text-decoration: none;
         }}
-        .top-nav-dropdown-link:hover {{ 
-            background-color: var(--code-bg); color: var(--accent); 
+        .top-nav-dropdown-link:hover {{
+            background-color: var(--code-bg); color: var(--accent);
         }}
         .external-link-icon {{
             display: inline-block; width: 12px; height: 12px; flex-shrink: 0;
@@ -135,8 +145,8 @@ public static partial class LayoutProvider
             color: var(--text-color); text-decoration: none;
         }}
         .brand a:hover {{ color: var(--accent); }}
-        .brand img {{ 
-            height: 22px; width: auto; vertical-align: middle; margin-right: 0.75rem; 
+        .brand img {{
+            height: 22px; width: auto; vertical-align: middle; margin-right: 0.75rem;
         }}
         .theme-toggle {{
             position: relative; flex-shrink: 0; width: 48px; height: 28px;
@@ -144,8 +154,8 @@ public static partial class LayoutProvider
             background-color: var(--code-bg); cursor: pointer;
             transition: background-color 0.15s ease, border-color 0.15s ease;
         }}
-        .theme-toggle:hover {{ 
-            border-color: var(--accent); 
+        .theme-toggle:hover {{
+            border-color: var(--accent);
         }}
         .theme-toggle-thumb {{
             position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
@@ -171,13 +181,13 @@ public static partial class LayoutProvider
         .search-trigger {{
             display: flex; align-items: center; gap: 0.55rem;
             margin-left: 1rem; padding: 0.4rem 0.65rem;
-            border: 1px solid var(--border); border-radius: 8px;
-            background-color: var(--sidebar-bg); color: var(--text-muted);
+            border: 1px solid var(--search-border); border-radius: 8px;
+            background-color: var(--search-bg); color: var(--text-muted);
             font-family: inherit; font-size: 0.85rem; cursor: pointer;
             transition: border-color 0.15s ease, color 0.15s ease;
         }}
         .search-trigger-mobile {{ display: none; }}
-        .search-trigger:hover {{ border-color: var(--accent); color: var(--text-color); }}
+        .search-trigger:hover {{ border-color: var(--search-hover-border); color: var(--text-color); }}
         .search-trigger svg {{ width: 16px; height: 16px; flex-shrink: 0; }}
         .search-trigger-kbd {{
             font-family: var(--font-sans); font-size: 0.7rem;
@@ -189,7 +199,7 @@ public static partial class LayoutProvider
         }}
         .search-overlay {{
             position: fixed; inset: 0; z-index: 1200;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: var(--overlay-bg);
             display: flex; align-items: flex-start; justify-content: center;
             padding: 8vh 1rem 2rem; opacity: 0; transition: opacity 0.15s ease;
         }}
@@ -265,10 +275,10 @@ public static partial class LayoutProvider
             transition: all 0.15s ease;
         }}
         .nav-item a:hover {{
-            color: var(--text-color); background-color: var(--code-bg);
+            color: var(--text-color); background-color: var(--nav-hover-bg);
         }}
         .nav-item.active a {{
-            color: var(--accent); background-color: var(--accent-light); font-weight: 500;
+            color: var(--accent); background-color: var(--nav-active-bg); font-weight: 500;
         }}
         /* .sidebar-group-title stays a plain <div>; <summary> can't be fully de-styled across
            engines, so summary.sidebar-group-summary just wraps it as a click target. */
@@ -320,9 +330,9 @@ public static partial class LayoutProvider
             color: var(--text-muted); text-decoration: none; font-size: 0.875rem;
             border-radius: 6px; transition: all 0.15s ease;
         }}
-        .sidebar-link a:hover {{ color: var(--text-color); background-color: var(--code-bg); }}
+        .sidebar-link a:hover {{ color: var(--text-color); background-color: var(--nav-hover-bg); }}
         .sidebar-link.is-active a {{
-            color: var(--accent); background-color: var(--accent-light); font-weight: 500;
+            color: var(--accent); background-color: var(--nav-active-bg); font-weight: 500;
         }}
         .main-container {{
             padding: 3rem 4rem;
@@ -637,17 +647,17 @@ public static partial class LayoutProvider
             opacity: 1;
         }}
         .code-block-buttons button {{
-            background: var(--bg-color); border: 1px solid var(--border);
+            background: var(--code-button-bg); border: 1px solid var(--code-button-border);
             border-radius: 4px; padding: 0.25rem 0.5rem;
             font-size: 0.7rem; color: var(--text-muted); cursor: pointer;
             font-family: var(--font-sans); line-height: 1.4;
             transition: color 0.15s ease, border-color 0.15s ease;
         }}
         .code-block-buttons button:hover {{
-            color: var(--accent); border-color: var(--accent);
+            color: var(--code-button-hover); border-color: var(--code-button-hover);
         }}
         .code-block-buttons button.copied {{
-            color: var(--accent); border-color: var(--accent);
+            color: var(--code-button-hover); border-color: var(--code-button-hover);
         }}
         .markdown-alert {{
             padding: 0.75rem 1rem; margin: 1.5rem 0;
@@ -883,7 +893,7 @@ public static partial class LayoutProvider
             }}
             .sidebar-overlay.open {{
                 display: block; position: fixed; top: var(--topbar-height); left: 0; right: 0; bottom: 0;
-                background: rgba(0, 0, 0, 0.4); z-index: 1001;
+                background: var(--overlay-bg); z-index: 1001;
             }}
             .nav-item a, .toc-item a {{
                 min-height: 44px; display: flex; align-items: center;
