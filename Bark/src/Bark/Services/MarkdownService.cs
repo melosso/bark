@@ -22,24 +22,31 @@ public sealed partial class MarkdownService
     public MarkdownService(
         ISyntaxHighlighter? syntaxHighlighter = null,
         string basePath = "",
-        MathRenderer? mathRenderer = null,
-        CodeGroupIconOptions? codeGroupIcons = null)
+        CodeGroupIconOptions? codeGroupIcons = null,
+        MathRenderer? mathRenderer = null)
     {
         _basePath = basePath;
         _pipeline = new MarkdownPipelineBuilder()
-            .UseYamlFrontMatter()
+            .UseAbbreviations()
+            .UseAlertBlocks()
             .UseAutoIdentifiers()
+            .UseAutoLinks()
+            .UseEmphasisExtras()
+            .UseDefinitionLists()
+            .UseEmojiAndSmiley()
+            .UseFootnotes()
+            .UseGridTables()
+            .UseListExtras()
+            .UseMediaLinks()
+            .UseMathematics()
             .UsePipeTables()
             .UseTaskLists()
-            .UseDefinitionLists()
-            .UseFootnotes()
-            .UseEmojiAndSmiley()
-            .UseMediaLinks()
-            .UseListExtras()
-            .UseGridTables()
-            .UseAutoLinks()
-            .UseAlertBlocks()
-            .UseBarkMarkdownExtensions(syntaxHighlighter, mathRenderer, codeGroupIcons, basePath)
+            .UseYamlFrontMatter()
+
+            .UseBarkMarkdownExtensions(syntaxHighlighter, codeGroupIcons, basePath, mathRenderer)
+
+            // UseGenericAttributes() should be the last extension added to the pipeline, as it modifies other parsers to recognize attribute syntax (see https://xoofx.github.io/markdig/docs/extensions/generic-attributes)
+            .UseGenericAttributes()
             .Build();
 
         _yamlDeserializer = new DeserializerBuilder()
