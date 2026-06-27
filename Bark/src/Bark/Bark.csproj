@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Jint" />
     <PackageReference Include="Markdig" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="TextMateSharp" />
@@ -19,6 +20,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources/Themes/*.json" />
+    <EmbeddedResource Include="wwwroot/js/katex.min.js" />
   </ItemGroup>
 
 
