@@ -31,7 +31,11 @@ public static partial class LayoutProvider
             --code-button-hover: var(--accent);
         }}
         {darkModeMediaQuery}
-        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        * {{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }}
         html, body {{
             /* `clip` not `hidden` -- `hidden` forces overflow-y to `auto` too, turning body
                into a scroll container and breaking position: sticky on the sidebars. */
@@ -69,7 +73,9 @@ public static partial class LayoutProvider
                 scroll-behavior: auto !important;
             }}
         }}
-        :root {{ --topbar-height: 57px; }}
+        :root {{
+            --topbar-height: 57px;
+        }}
         /* z-index scale: sidebar-overlay 1001 < topbar 1002 < mobile drawer 1003 < skip-link 1100
            < scroll-indicator 1101, so the indicator stays visible above the opaque topbar. */
         .icon-btn {{
@@ -79,8 +85,14 @@ public static partial class LayoutProvider
             flex-shrink: 0; text-decoration: none;
             transition: color 0.15s ease, background-color 0.15s ease;
         }}
-        .icon-btn:hover {{ color: var(--accent); background-color: var(--code-bg); }}
-        .icon-btn svg {{ width: 18px; height: 18px; }}
+        .icon-btn:hover {{
+            color: var(--accent);
+            background-color: var(--code-bg);
+        }}
+        .icon-btn svg {{
+            width: 18px;
+            height: 18px;
+        }}
         .topbar {{
             display: flex; align-items: center; justify-content: space-between;
             height: var(--topbar-height); padding: 0 1.5rem;
@@ -97,24 +109,39 @@ public static partial class LayoutProvider
             position: absolute; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; gap: 1.5rem; height: 100%;
         }}
-        .top-nav-item {{ display: flex; align-items: center; height: 100%; position: relative; }}
+        .top-nav-item {{
+            display: flex;
+            align-items: center;
+            height: 100%;
+            position: relative;
+        }}
         .top-nav-link {{
             display: inline-flex; align-items: center; gap: 0.3rem;
             font-size: 0.9rem; font-weight: 500; color: var(--text-muted);
             text-decoration: none; background: none; border: none; cursor: pointer;
             padding: 0; font-family: inherit;
         }}
-        .top-nav-link:hover, .top-nav-link.active {{ color: var(--accent); }}
-        .top-nav-chevron {{ width: 14px; height: 14px; transition: transform 0.15s ease; }}
+        .top-nav-link:hover, .top-nav-link.active {{
+            color: var(--accent);
+        }}
+        .top-nav-chevron {{
+            width: 14px;
+            height: 14px;
+            transition: transform 0.15s ease;
+        }}
         .top-nav-item.has-dropdown:hover .top-nav-chevron,
-        .top-nav-item.has-dropdown:focus-within .top-nav-chevron {{ transform: rotate(180deg); }}
+        .top-nav-item.has-dropdown:focus-within .top-nav-chevron {{
+            transform: rotate(180deg);
+        }}
         .top-nav-dropdown-menu {{
             display: none; position: absolute; top: 100%; left: 0; min-width: 180px;
             background-color: var(--bg-color); border: 1px solid var(--border); border-radius: 8px;
             padding: 0.4rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); z-index: 1003;
         }}
         .top-nav-item.has-dropdown:hover .top-nav-dropdown-menu,
-        .top-nav-item.has-dropdown:focus-within .top-nav-dropdown-menu {{ display: block; }}
+        .top-nav-item.has-dropdown:focus-within .top-nav-dropdown-menu {{
+            display: block;
+        }}
         .top-nav-dropdown-link {{
             display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
             padding: 0.45rem 0.6rem; border-radius: 6px;
@@ -127,7 +154,9 @@ public static partial class LayoutProvider
             display: inline-block; width: 12px; height: 12px; flex-shrink: 0;
             opacity: 0.6; vertical-align: -1px; margin-left: 0.25rem;
         }}
-        .mobile-top-nav {{ display: none; }}
+        .mobile-top-nav {{
+            display: none;
+        }}
         .layout {{
             display: grid;
             grid-template-columns: 270px 1fr 270px;
@@ -144,7 +173,9 @@ public static partial class LayoutProvider
             font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em;
             color: var(--text-color); text-decoration: none;
         }}
-        .brand a:hover {{ color: var(--accent); }}
+        .brand a:hover {{
+            color: var(--accent);
+        }}
         .brand img {{
             height: 22px; width: auto; vertical-align: middle; margin-right: 0.75rem;
         }}
@@ -164,15 +195,33 @@ public static partial class LayoutProvider
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }}
-        .theme-toggle-thumb svg {{ width: 13px; height: 13px; color: var(--accent); }}
-        .theme-toggle-thumb .icon-moon {{ display: none; }}
-        :root[data-theme=""dark""] .theme-toggle-thumb {{ transform: translateX(20px); }}
-        :root[data-theme=""dark""] .theme-toggle-thumb .icon-sun {{ display: none; }}
-        :root[data-theme=""dark""] .theme-toggle-thumb .icon-moon {{ display: block; }}
+        .theme-toggle-thumb svg {{
+            width: 13px;
+            height: 13px;
+            color: var(--accent);
+        }}
+        .theme-toggle-thumb .icon-moon {{
+            display: none;
+        }}
+        :root[data-theme=""dark""] .theme-toggle-thumb {{
+            transform: translateX(20px);
+        }}
+        :root[data-theme=""dark""] .theme-toggle-thumb .icon-sun {{
+            display: none;
+        }}
+        :root[data-theme=""dark""] .theme-toggle-thumb .icon-moon {{
+            display: block;
+        }}
         @media (prefers-color-scheme: dark) {{
-            :root:not([data-theme=""light""]) .theme-toggle-thumb {{ transform: translateX(20px); }}
-            :root:not([data-theme=""light""]) .theme-toggle-thumb .icon-sun {{ display: none; }}
-            :root:not([data-theme=""light""]) .theme-toggle-thumb .icon-moon {{ display: block; }}
+            :root:not([data-theme=""light""]) .theme-toggle-thumb {{
+                transform: translateX(20px);
+            }}
+            :root:not([data-theme=""light""]) .theme-toggle-thumb .icon-sun {{
+                display: none;
+            }}
+            :root:not([data-theme=""light""]) .theme-toggle-thumb .icon-moon {{
+                display: block;
+            }}
         }}
         .sr-only {{
             position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -186,9 +235,18 @@ public static partial class LayoutProvider
             font-family: inherit; font-size: 0.85rem; cursor: pointer;
             transition: border-color 0.15s ease, color 0.15s ease;
         }}
-        .search-trigger-mobile {{ display: none; }}
-        .search-trigger:hover {{ border-color: var(--search-hover-border); color: var(--text-color); }}
-        .search-trigger svg {{ width: 16px; height: 16px; flex-shrink: 0; }}
+        .search-trigger-mobile {{
+            display: none;
+        }}
+        .search-trigger:hover {{
+            border-color: var(--search-hover-border);
+            color: var(--text-color);
+        }}
+        .search-trigger svg {{
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }}
         .search-trigger-kbd {{
             font-family: var(--font-sans); font-size: 0.7rem;
             font-weight: 400; letter-spacing: 0.02em;
@@ -203,8 +261,12 @@ public static partial class LayoutProvider
             display: flex; align-items: flex-start; justify-content: center;
             padding: 8vh 1rem 2rem; opacity: 0; transition: opacity 0.15s ease;
         }}
-        .search-overlay[hidden] {{ display: none; }}
-        .search-overlay.open {{ opacity: 1; }}
+        .search-overlay[hidden] {{
+            display: none;
+        }}
+        .search-overlay.open {{
+            opacity: 1;
+        }}
         .search-modal {{
             width: 100%; max-width: 720px; max-height: 80vh;
             background-color: var(--bg-color); border: 1px solid var(--border); border-radius: 12px;
@@ -213,50 +275,106 @@ public static partial class LayoutProvider
             transform: translateY(-12px) scale(0.98);
             transition: transform 0.15s ease;
         }}
-        .search-overlay.open .search-modal {{ transform: translateY(0) scale(1); }}
+        .search-overlay.open .search-modal {{
+            transform: translateY(0) scale(1);
+        }}
         .search-modal-header {{
             display: flex; align-items: center; gap: 0.75rem;
             padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); flex-shrink: 0;
         }}
-        .search-modal-header > svg {{ width: 20px; height: 20px; color: var(--text-muted); flex-shrink: 0; }}
+        .search-modal-header > svg {{
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }}
         .search-modal-input {{
             flex: 1; min-width: 0; border: none; outline: none; background: transparent;
             color: var(--text-color); font-size: 1.05rem; font-family: var(--font-sans);
         }}
-        .search-modal-close {{ flex-shrink: 0; }}
-        .search-modal-results {{ flex: 1; overflow-y: auto; padding: 0.5rem; }}
+        .search-modal-close {{
+            flex-shrink: 0;
+        }}
+        .search-modal-results {{
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }}
         .search-result-item {{
             display: block; padding: 0.7rem 0.9rem; border-radius: 8px;
             text-decoration: none; transition: background-color 0.1s ease;
         }}
-        .search-result-item.active, .search-result-item:hover {{ background-color: var(--accent-light); }}
-        .search-result-title {{ font-weight: 500; color: var(--text-color); font-size: 0.9rem; }}
-        .search-result-excerpt {{ font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }}
+        .search-result-item.active, .search-result-item:hover {{
+            background-color: var(--accent-light);
+        }}
+        .search-result-title {{
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }}
+        .search-result-excerpt {{
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }}
         .search-highlight {{
             background-color: var(--accent-light); color: var(--accent);
             border-radius: 3px; padding: 0 0.15em; font-weight: 600;
         }}
-        .search-result-empty {{ color: var(--text-muted); font-size: 0.85rem; padding: 1rem; text-align: center; }}
+        .search-result-empty {{
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 1rem;
+            text-align: center;
+        }}
         .DocSearch-Commands {{
             display: flex; gap: 1.25rem; padding: 0.6rem 1.25rem; margin: 0; list-style: none;
             border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);
             flex-shrink: 0;
         }}
-        .DocSearch-Commands li {{ display: flex; align-items: center; gap: 0.4rem; }}
+        .DocSearch-Commands li {{
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }}
         .DocSearch-Commands-Key {{
             display: inline-flex; align-items: center; justify-content: center;
             font-family: var(--font-mono); border: 1px solid var(--border); border-radius: 4px;
             padding: 0.1rem 0.3rem; background-color: var(--code-bg); min-width: 1.4rem; height: 1.4rem;
         }}
-        .DocSearch-Commands-Key svg {{ width: 14px; height: 14px; }}
-        .DocSearch-Escape-Key {{ font-size: 0.7rem; line-height: 1; }}
+        .DocSearch-Commands-Key svg {{
+            width: 14px;
+            height: 14px;
+        }}
+        .DocSearch-Escape-Key {{
+            font-size: 0.7rem;
+            line-height: 1;
+        }}
         @media (max-width: 768px) {{
-            .search-trigger {{ display: none; }}
-            .search-trigger-mobile {{ display: inline-flex; }}
-            .search-modal-close {{ width: 44px; height: 44px; }}
-            .search-overlay {{ padding: 0; }}
-            .search-modal {{ max-width: 100%; max-height: 100%; height: 100%; height: 100dvh; border-radius: 0; }}
-            .DocSearch-Commands {{ flex-wrap: wrap; row-gap: 0.4rem; }}
+            .search-trigger {{
+                display: none;
+            }}
+            .search-trigger-mobile {{
+                display: inline-flex;
+            }}
+            .search-modal-close {{
+                width: 44px;
+                height: 44px;
+            }}
+            .search-overlay {{
+                padding: 0;
+            }}
+            .search-modal {{
+                max-width: 100%;
+                max-height: 100%;
+                height: 100%;
+                height: 100dvh;
+                border-radius: 0;
+            }}
+            .DocSearch-Commands {{
+                flex-wrap: wrap;
+                row-gap: 0.4rem;
+            }}
         }}
         .nav-group {{
             margin-bottom: 2.25rem;
@@ -284,20 +402,32 @@ public static partial class LayoutProvider
            engines, so summary.sidebar-group-summary just wraps it as a click target. */
         /* Each .sidebar-group-items adds 0.9rem left padding; depth compounds via nesting,
            no per-level overrides needed. Root list gets no padding. */
-        .sidebar-tree {{ font-size: 0.9rem; }}
-        .sidebar-group {{ margin-bottom: 0.25rem; }}
+        .sidebar-tree {{
+            font-size: 0.9rem;
+        }}
+        .sidebar-group {{
+            margin-bottom: 0.25rem;
+        }}
         .sidebar-group-summary {{
             display: block; list-style: none; cursor: pointer;
         }}
-        .sidebar-group-summary::-webkit-details-marker {{ display: none; }}
-        .sidebar-group-summary::marker {{ content: """"; }}
-        .sidebar-group.no-caret > .sidebar-group-title {{ cursor: default; }}
+        .sidebar-group-summary::-webkit-details-marker {{
+            display: none;
+        }}
+        .sidebar-group-summary::marker {{
+            content: """";
+        }}
+        .sidebar-group.no-caret > .sidebar-group-title {{
+            cursor: default;
+        }}
         .sidebar-group-title {{
             display: flex; align-items: center; gap: 0.4rem;
             padding: 0.5rem 0.8rem; border-radius: 6px;
             user-select: none; transition: background-color 0.15s ease;
         }}
-        .sidebar-group-summary:hover .sidebar-group-title {{ background-color: var(--code-bg); }}
+        .sidebar-group-summary:hover .sidebar-group-title {{
+            background-color: var(--code-bg);
+        }}
         /* Only the caret should distinguish colapsible from static groups, not typography */
         .sidebar-group-title h2, .sidebar-group-title h3 {{
             font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
@@ -305,16 +435,30 @@ public static partial class LayoutProvider
         }}
         /* Ancestors get a text-color cue only; the highlighted background is reserved for the
            one active leaf link, so a nested active page doesn't stack backgrounds at every level. */
-        .sidebar-group-title.has-active h2, .sidebar-group-title.has-active h3 {{ color: var(--accent); }}
+        .sidebar-group-title.has-active h2, .sidebar-group-title.has-active h3 {{
+            color: var(--accent);
+        }}
         .caret-icon {{
             display: inline-flex; flex-shrink: 0; width: 16px; height: 16px;
             color: var(--text-muted); transition: transform 0.2s ease;
         }}
-        .caret-icon svg {{ width: 100%; height: 100%; }}
-        details[open] > .sidebar-group-summary .caret-icon {{ transform: rotate(90deg); }}
-        .sidebar-group-items {{ padding-left: 0.9rem; margin-bottom: 0.5rem; }}
-        .sidebar-tree > .sidebar-group > .sidebar-group-items {{ padding-left: 0; }}
-        .sidebar-link {{ margin-bottom: 0.1rem; }}
+        .caret-icon svg {{
+            width: 100%;
+            height: 100%;
+        }}
+        details[open] > .sidebar-group-summary .caret-icon {{
+            transform: rotate(90deg);
+        }}
+        .sidebar-group-items {{
+            padding-left: 0.9rem;
+            margin-bottom: 0.5rem;
+        }}
+        .sidebar-tree > .sidebar-group > .sidebar-group-items {{
+            padding-left: 0;
+        }}
+        .sidebar-link {{
+            margin-bottom: 0.1rem;
+        }}
         /* Top-level entries get a divider between sections; scoped to direct children of
            .sidebar-tree so items inside a group stay tightly packed. */
         .sidebar-tree > .sidebar-group + .sidebar-group,
@@ -330,7 +474,10 @@ public static partial class LayoutProvider
             color: var(--text-muted); text-decoration: none; font-size: 0.875rem;
             border-radius: 6px; transition: all 0.15s ease;
         }}
-        .sidebar-link a:hover {{ color: var(--text-color); background-color: var(--nav-hover-bg); }}
+        .sidebar-link a:hover {{
+            color: var(--text-color);
+            background-color: var(--nav-hover-bg);
+        }}
         .sidebar-link.is-active a {{
             color: var(--accent); background-color: var(--nav-active-bg); font-weight: 500;
         }}
@@ -339,13 +486,34 @@ public static partial class LayoutProvider
             max-width: 800px; justify-self: center; width: 100%;
             min-width: 0;
         }}
-        .bark-home-layout {{ grid-template-columns: 1fr; }}
-        .bark-home-layout .sidebar-left {{ display: none; }}
-        .bark-home-layout .main-container {{ max-width: 100%; padding: 0; }}
-        .bark-home-content {{ max-width: 960px; margin: 0 auto; padding: 0 2rem; }}
-        .bark-hero {{ text-align: center; padding: 4.5rem 1.5rem 3.5rem; }}
-        .bark-hero-image {{ font-size: 4rem; margin-bottom: 1.5rem; line-height: 1; }}
-        .bark-hero-image img {{ max-width: 200px; max-height: 200px; }}
+        .bark-home-layout {{
+            grid-template-columns: 1fr;
+        }}
+        .bark-home-layout .sidebar-left {{
+            display: none;
+        }}
+        .bark-home-layout .main-container {{
+            max-width: 100%;
+            padding: 0;
+        }}
+        .bark-home-content {{
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }}
+        .bark-hero {{
+            text-align: center;
+            padding: 4.5rem 1.5rem 3.5rem;
+        }}
+        .bark-hero-image {{
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            line-height: 1;
+        }}
+        .bark-hero-image img {{
+            max-width: 200px;
+            max-height: 200px;
+        }}
         .bark-hero-name {{
             font-size: 2.75rem; font-weight: 700; letter-spacing: -0.02em;
             color: var(--accent); margin-bottom: 0.5rem;
@@ -358,18 +526,30 @@ public static partial class LayoutProvider
             font-size: 1.15rem; color: var(--text-muted); max-width: 540px;
             margin: 0 auto 2rem;
         }}
-        .bark-hero-actions {{ display: flex; justify-content: center; gap: 0.9rem; flex-wrap: wrap; }}
+        .bark-hero-actions {{
+            display: flex;
+            justify-content: center;
+            gap: 0.9rem;
+            flex-wrap: wrap;
+        }}
         .bark-hero-action {{
             display: inline-flex; align-items: center; padding: 0.65rem 1.4rem;
             border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none;
             transition: opacity 0.15s ease, background-color 0.15s ease;
         }}
-        .bark-hero-action.brand {{ background-color: var(--accent); color: var(--bg-color); }}
-        .bark-hero-action.brand:hover {{ opacity: 0.85; }}
+        .bark-hero-action.brand {{
+            background-color: var(--accent);
+            color: var(--bg-color);
+        }}
+        .bark-hero-action.brand:hover {{
+            opacity: 0.85;
+        }}
         .bark-hero-action.alt {{
             border: 1px solid var(--border); color: var(--text-color); background: transparent;
         }}
-        .bark-hero-action.alt:hover {{ background-color: var(--accent-light); }}
+        .bark-hero-action.alt:hover {{
+            background-color: var(--accent-light);
+        }}
         .bark-features {{
             display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1.25rem; padding: 1rem 1.5rem 4rem;
@@ -379,22 +559,42 @@ public static partial class LayoutProvider
             border-radius: 10px; background-color: var(--sidebar-bg);
             text-decoration: none; color: inherit; transition: border-color 0.15s ease;
         }}
-        a.bark-feature:hover {{ border-color: var(--accent); }}
-        .bark-feature-icon {{ font-size: 1.75rem; margin-bottom: 0.75rem; }}
-        .bark-feature-title {{ font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; }}
-        .bark-feature-details {{ font-size: 0.875rem; color: var(--text-muted); line-height: 1.5; }}
+        a.bark-feature:hover {{
+            border-color: var(--accent);
+        }}
+        .bark-feature-icon {{
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+        }}
+        .bark-feature-title {{
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }}
+        .bark-feature-details {{
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }}
         .page-meta {{
             display: flex; justify-content: space-between; align-items: center; gap: 1rem;
             margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border);
             flex-wrap: wrap;
         }}
-        .page-meta-right {{ margin-left: auto; }}
-        .last-updated {{ font-size: 0.8rem; color: var(--text-muted); }}
+        .page-meta-right {{
+            margin-left: auto;
+        }}
+        .last-updated {{
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }}
         .edit-link {{
             display: inline-flex; align-items: center; gap: 0.35rem;
             font-size: 0.85rem; color: var(--text-muted); text-decoration: none;
         }}
-        .edit-link:hover {{ color: var(--accent); }}
+        .edit-link:hover {{
+            color: var(--accent);
+        }}
         .breadcrumb {{
             display: flex; align-items: center; gap: 0.4rem;
             margin-bottom: 1.5rem; font-size: 0.8rem; flex-wrap: wrap;
@@ -403,10 +603,19 @@ public static partial class LayoutProvider
             color: var(--text-muted); text-decoration: none;
             transition: color 0.15s ease;
         }}
-        .breadcrumb a:hover {{ color: var(--accent); }}
-        .breadcrumb .separator {{ color: var(--text-muted); }}
-        .breadcrumb .crumb-text {{ color: var(--text-muted); }}
-        .breadcrumb .current {{ color: var(--text-color); font-weight: 500; }}
+        .breadcrumb a:hover {{
+            color: var(--accent);
+        }}
+        .breadcrumb .separator {{
+            color: var(--text-muted);
+        }}
+        .breadcrumb .crumb-text {{
+            color: var(--text-muted);
+        }}
+        .breadcrumb .current {{
+            color: var(--text-color);
+            font-weight: 500;
+        }}
         .content h1 {{
             font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em;
             margin-bottom: 1rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
@@ -431,8 +640,12 @@ public static partial class LayoutProvider
             scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         @keyframes bark-target-flash {{
-            0%, 40% {{ background-color: var(--accent-light); }}
-            100% {{ background-color: transparent; }}
+            0%, 40% {{
+                background-color: var(--accent-light);
+            }}
+            100% {{
+                background-color: transparent;
+            }}
         }}
         @media (prefers-reduced-motion: reduce) {{
             .content h1:target, .content h2:target, .content h3:target,
@@ -447,8 +660,12 @@ public static partial class LayoutProvider
             color: var(--text-muted);
             transition: opacity 0.15s ease, color 0.15s ease;
         }}
-        .header-anchor::before {{ content: ""#""; }}
-        .header-anchor:hover {{ color: var(--accent); }}
+        .header-anchor::before {{
+            content: ""#"";
+        }}
+        .header-anchor:hover {{
+            color: var(--accent);
+        }}
         .content h2:hover .header-anchor, .content h3:hover .header-anchor,
         .content h4:hover .header-anchor, .content h5:hover .header-anchor,
         .content h6:hover .header-anchor, .header-anchor:focus {{
@@ -544,32 +761,73 @@ public static partial class LayoutProvider
             padding: 0.6rem 1rem; font-size: 0.8rem; font-family: var(--font-mono);
             color: var(--text-muted); border-bottom: 1px solid var(--border);
         }}
-        .content div[class^=""language-""].has-title .lang {{ display: none; }}
-        .content div[class^=""language-""].has-title pre {{ padding-top: 0.75rem; }}
+        .content div[class^=""language-""].has-title .lang {{
+            display: none;
+        }}
+        .content div[class^=""language-""].has-title pre {{
+            padding-top: 0.75rem;
+        }}
         /* Resolves the --shiki-light/dark vars TextMateSyntaxHighlighter writes per token,
            same prefers-color-scheme + [data-theme] override pattern as the rest of the theme. */
-        .shiki, .shiki span {{ color: var(--shiki-light); }}
-        .shiki {{ background-color: var(--shiki-light-bg); }}
-        @media (prefers-color-scheme: dark) {{
-            :root:not([data-theme=""light""]) .shiki, :root:not([data-theme=""light""]) .shiki span {{ color: var(--shiki-dark); }}
-            :root:not([data-theme=""light""]) .shiki {{ background-color: var(--shiki-dark-bg); }}
+        .shiki, .shiki span {{
+            color: var(--shiki-light);
         }}
-        :root[data-theme=""dark""] .shiki, :root[data-theme=""dark""] .shiki span {{ color: var(--shiki-dark); }}
-        :root[data-theme=""dark""] .shiki {{ background-color: var(--shiki-dark-bg); }}
-        .content .line {{ display: inline-block; width: 100%; min-height: 1.4em; }}
+        .shiki {{
+            background-color: var(--shiki-light-bg);
+        }}
+        @media (prefers-color-scheme: dark) {{
+            :root:not([data-theme=""light""]) .shiki, :root:not([data-theme=""light""]) .shiki span {{
+                color: var(--shiki-dark);
+            }}
+            :root:not([data-theme=""light""]) .shiki {{
+                background-color: var(--shiki-dark-bg);
+            }}
+        }}
+        :root[data-theme=""dark""] .shiki, :root[data-theme=""dark""] .shiki span {{
+            color: var(--shiki-dark);
+        }}
+        :root[data-theme=""dark""] .shiki {{
+            background-color: var(--shiki-dark-bg);
+        }}
+        .content .line {{
+            display: inline-block;
+            width: 100%;
+            min-height: 1.4em;
+        }}
         .content .line.highlighted {{
             background-color: var(--accent-light);
             margin: 0 -1.25rem; padding: 0 1.25rem;
             box-shadow: 2px 0 0 var(--accent) inset;
         }}
-        .content .line.highlighted.error {{ box-shadow: 2px 0 0 var(--alert-caution) inset; }}
-        .content .line.highlighted.warning {{ box-shadow: 2px 0 0 var(--alert-warning) inset; }}
-        .content .line.diff {{ margin: 0 -1.25rem; padding: 0 1.25rem; }}
-        .content .line.diff.add {{ background-color: rgba(46, 160, 67, 0.15); }}
-        .content .line.diff.remove {{ background-color: rgba(248, 81, 73, 0.15); opacity: 0.7; }}
-        .content div[class^=""language-""].has-focused-lines .line {{ opacity: 0.5; filter: blur(0.06rem); transition: opacity 0.2s, filter 0.2s; }}
-        .content div[class^=""language-""].has-focused-lines .line.has-focus {{ opacity: 1; filter: none; }}
-        .content .line-numbers-mode pre {{ padding-left: 2.5rem; }}
+        .content .line.highlighted.error {{
+            box-shadow: 2px 0 0 var(--alert-caution) inset;
+        }}
+        .content .line.highlighted.warning {{
+            box-shadow: 2px 0 0 var(--alert-warning) inset;
+        }}
+        .content .line.diff {{
+            margin: 0 -1.25rem;
+            padding: 0 1.25rem;
+        }}
+        .content .line.diff.add {{
+            background-color: rgba(46, 160, 67, 0.15);
+        }}
+        .content .line.diff.remove {{
+            background-color: rgba(248, 81, 73, 0.15);
+            opacity: 0.7;
+        }}
+        .content div[class^=""language-""].has-focused-lines .line {{
+            opacity: 0.5;
+            filter: blur(0.06rem);
+            transition: opacity 0.2s, filter 0.2s;
+        }}
+        .content div[class^=""language-""].has-focused-lines .line.has-focus {{
+            opacity: 1;
+            filter: none;
+        }}
+        .content .line-numbers-mode pre {{
+            padding-left: 2.5rem;
+        }}
         .content .line-numbers-wrapper {{
             position: absolute; top: 2rem; left: 0; width: 2rem;
             text-align: right; color: var(--text-muted); font-family: var(--font-mono);
@@ -581,33 +839,74 @@ public static partial class LayoutProvider
             line-height: 1.5; font-size: 0.9rem; color: var(--text-muted);
             background-color: var(--accent-light);
         }}
-        .content .custom-block p:not(.custom-block-title) {{ margin: 0; }}
-        .content .custom-block.tip {{ color: var(--alert-tip); background-color: color-mix(in srgb, var(--alert-tip) 10%, var(--bg-color)); }}
-        .content .custom-block.info {{ color: var(--alert-note); background-color: color-mix(in srgb, var(--alert-note) 10%, var(--bg-color)); }}
-        .content .custom-block.warning {{ color: var(--alert-warning); background-color: color-mix(in srgb, var(--alert-warning) 10%, var(--bg-color)); }}
-        .content .custom-block.danger {{ color: var(--alert-caution); background-color: color-mix(in srgb, var(--alert-caution) 10%, var(--bg-color)); }}
-        .content .custom-block-title {{ font-weight: 700; margin: 0 0 0.5rem; }}
+        .content .custom-block p:not(.custom-block-title) {{
+            margin: 0;
+        }}
+        .content .custom-block.tip {{
+            color: var(--alert-tip);
+            background-color: color-mix(in srgb, var(--alert-tip) 10%, var(--bg-color));
+        }}
+        .content .custom-block.info {{
+            color: var(--alert-note);
+            background-color: color-mix(in srgb, var(--alert-note) 10%, var(--bg-color));
+        }}
+        .content .custom-block.warning {{
+            color: var(--alert-warning);
+            background-color: color-mix(in srgb, var(--alert-warning) 10%, var(--bg-color));
+        }}
+        .content .custom-block.danger {{
+            color: var(--alert-caution);
+            background-color: color-mix(in srgb, var(--alert-caution) 10%, var(--bg-color));
+        }}
+        .content .custom-block-title {{
+            font-weight: 700;
+            margin: 0 0 0.5rem;
+        }}
         .content .custom-block a {{
             color: inherit; font-weight: 600; text-decoration: underline;
             text-decoration-color: currentColor; text-underline-offset: 2px;
         }}
-        .content .custom-block a:hover {{ opacity: 0.75; }}
-        .content details.custom-block summary {{ font-weight: 700; cursor: pointer; margin: 0 0 0.5rem; }}
+        .content .custom-block a:hover {{
+            opacity: 0.75;
+        }}
+        .content details.custom-block summary {{
+            font-weight: 700;
+            cursor: pointer;
+            margin: 0 0 0.5rem;
+        }}
         /* code-group tabs */
-        .content .bark-code-group {{ margin: 1.5rem 0; }}
+        .content .bark-code-group {{
+            margin: 1.5rem 0;
+        }}
         .content .bark-code-group .tabs {{
             display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border);
         }}
-        .content .bark-code-group .tabs input {{ display: none; }}
+        .content .bark-code-group .tabs input {{
+            display: none;
+        }}
         .content .bark-code-group .tabs label {{
             display: inline-flex; align-items: center; gap: 0.35rem;
             padding: 0.5rem 0.9rem; font-size: 0.85rem; color: var(--text-muted);
             cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
         }}
-        .content .bark-code-group .tabs .tab-icon {{ width: 14px; height: 14px; flex-shrink: 0; }}
-        .content .bark-code-group .blocks > div[class^=""language-""] {{ display: none; margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }}
-        .content .bark-code-group .blocks > div[class^=""language-""].active {{ display: block; }}
-        .content .bark-code-group .tabs label.active-tab {{ color: var(--text-color); border-bottom-color: var(--accent); }}
+        .content .bark-code-group .tabs .tab-icon {{
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }}
+        .content .bark-code-group .blocks > div[class^=""language-""] {{
+            display: none;
+            margin-top: 0;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }}
+        .content .bark-code-group .blocks > div[class^=""language-""].active {{
+            display: block;
+        }}
+        .content .bark-code-group .tabs label.active-tab {{
+            color: var(--text-color);
+            border-bottom-color: var(--accent);
+        }}
         .table-wrapper {{
             overflow-x: auto; -webkit-overflow-scrolling: touch;
             margin: 1.5rem 0; border-radius: 6px;
@@ -693,12 +992,24 @@ public static partial class LayoutProvider
             border-left-color: var(--alert-caution);
             background-color: color-mix(in srgb, var(--alert-caution) 10%, var(--bg-color));
         }}
-        .markdown-alert-note .markdown-alert-title svg {{ color: var(--alert-note); }}
-        .markdown-alert-tip .markdown-alert-title svg {{ color: var(--alert-tip); }}
-        .markdown-alert-important .markdown-alert-title svg {{ color: var(--alert-important); }}
-        .markdown-alert-warning .markdown-alert-title svg {{ color: var(--alert-warning); }}
-        .markdown-alert-caution .markdown-alert-title svg {{ color: var(--alert-caution); }}
-        .markdown-alert > :last-child {{ margin-bottom: 0; }}
+        .markdown-alert-note .markdown-alert-title svg {{
+            color: var(--alert-note);
+        }}
+        .markdown-alert-tip .markdown-alert-title svg {{
+            color: var(--alert-tip);
+        }}
+        .markdown-alert-important .markdown-alert-title svg {{
+            color: var(--alert-important);
+        }}
+        .markdown-alert-warning .markdown-alert-title svg {{
+            color: var(--alert-warning);
+        }}
+        .markdown-alert-caution .markdown-alert-title svg {{
+            color: var(--alert-caution);
+        }}
+        .markdown-alert > :last-child {{
+            margin-bottom: 0;
+        }}
         /* Inline badge: <Badge type=""tip"">text</Badge> in raw Markdown. Markdig passes unrecognized
            tags through as raw HTML and lowercases them, so plain CSS on <badge> is enough -- no
            extension needed. Self-closing `<Badge .../>` is NOT supported: HTML has no XML-style
@@ -728,7 +1039,11 @@ public static partial class LayoutProvider
             background-color: color-mix(in srgb, var(--alert-caution) 16%, var(--code-bg));
             color: var(--alert-caution);
         }}
-        h1 badge, h2 badge, h3 badge, h4 badge {{ font-size: 0.55em; margin-left: 0.5rem; vertical-align: middle; }}
+        h1 badge, h2 badge, h3 badge, h4 badge {{
+            font-size: 0.55em;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }}
         .pagination {{
             display: flex; justify-content: space-between;
             margin-top: 5rem; padding-top: 2rem;
@@ -779,7 +1094,9 @@ public static partial class LayoutProvider
             transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, height 0.2s ease;
             will-change: transform;
         }}
-        .toc-indicator.visible {{ opacity: 1; }}
+        .toc-indicator.visible {{
+            opacity: 1;
+        }}
         .toc-list {{
             list-style: none; font-size: 0.875rem; padding-left: 0.9rem;
         }}
@@ -790,8 +1107,12 @@ public static partial class LayoutProvider
             margin-bottom: 0.1rem;
         }}
         /* Levels differ by indentation and weight/size, not color -- the accent bar is the only color cue. */
-        .toc-list > .toc-item > a {{ font-weight: 500; }}
-        .toc-list > .toc-item > .toc-sublist > .toc-item > a {{ font-weight: 400; }}
+        .toc-list > .toc-item > a {{
+            font-weight: 500;
+        }}
+        .toc-list > .toc-item > .toc-sublist > .toc-item > a {{
+            font-weight: 400;
+        }}
         .toc-list > .toc-item > .toc-sublist > .toc-item > .toc-sublist > .toc-item > a {{
             font-weight: 400; font-size: 0.8rem;
         }}
@@ -801,8 +1122,12 @@ public static partial class LayoutProvider
             transition: color 0.15s ease;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }}
-        .toc-item a:hover {{ color: var(--text-color); }}
-        .toc-item.active > a {{ color: var(--accent); }}
+        .toc-item a:hover {{
+            color: var(--text-color);
+        }}
+        .toc-item.active > a {{
+            color: var(--accent);
+        }}
         .social-links {{
             display: flex; align-items: center; gap: 0.25rem;
         }}
@@ -831,7 +1156,10 @@ public static partial class LayoutProvider
         }}
         /* Bump touch targets to 44px on coarse-pointer devices, not just by viewport width. */
         @media (hover: none) and (pointer: coarse) {{
-            .icon-btn {{ width: 44px; height: 44px; }}
+            .icon-btn {{
+                width: 44px;
+                height: 44px;
+            }}
             .nav-item a, .toc-item a {{
                 min-height: 44px; display: flex; align-items: center;
             }}
@@ -840,9 +1168,15 @@ public static partial class LayoutProvider
             }}
         }}
         @media (max-width: 1024px) {{
-            .layout {{ grid-template-columns: 240px 1fr; }}
-            .sidebar-right {{ display: none; }}
-            .main-container {{ padding: 2rem 1.5rem; }}
+            .layout {{
+                grid-template-columns: 240px 1fr;
+            }}
+            .sidebar-right {{
+                display: none;
+            }}
+            .main-container {{
+                padding: 2rem 1.5rem;
+            }}
         }}
         @media (min-width: 769px) and (max-width: 1024px) {{
             .toc-inline {{
@@ -854,19 +1188,29 @@ public static partial class LayoutProvider
                 text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);
                 padding: 0.5rem 0;
             }}
-            .toc-inline .toc-list {{ padding-bottom: 0.5rem; }}
+            .toc-inline .toc-list {{
+                padding-bottom: 0.5rem;
+            }}
             .toc-inline .toc-item a {{
                 padding-left: 0.5rem; border-left: none;
             }}
         }}
         @media (max-width: 768px) {{
-            .layout {{ grid-template-columns: 1fr; }}
-            .bark-home-layout .sidebar-left {{ display: block; }}
-            .main-container {{ padding: 2rem 1.5rem; }}
+            .layout {{
+                grid-template-columns: 1fr;
+            }}
+            .bark-home-layout .sidebar-left {{
+                display: block;
+            }}
+            .main-container {{
+                padding: 2rem 1.5rem;
+            }}
             .menu-toggle {{
                 display: inline-flex;
             }}
-            .top-nav {{ display: none; }}
+            .top-nav {{
+                display: none;
+            }}
             .mobile-top-nav {{
                 display: block; margin-bottom: 1.25rem; padding-bottom: 1.25rem;
                 border-bottom: 1px solid var(--border);
@@ -875,12 +1219,17 @@ public static partial class LayoutProvider
                 display: block; padding: 0.5rem 0; font-size: 0.95rem;
                 font-weight: 500; color: var(--text-color); text-decoration: none;
             }}
-            .mobile-top-nav-link.active {{ color: var(--accent); }}
+            .mobile-top-nav-link.active {{
+                color: var(--accent);
+            }}
             .mobile-top-nav-group summary {{
                 padding: 0.5rem 0; font-size: 0.95rem; font-weight: 500;
                 color: var(--text-color); cursor: pointer; list-style: none;
             }}
-            .mobile-top-nav-group .mobile-top-nav-link {{ padding-left: 1rem; font-weight: 400; }}
+            .mobile-top-nav-group .mobile-top-nav-link {{
+                padding-left: 1rem;
+                font-weight: 400;
+            }}
             .sidebar-left {{
                 position: fixed; top: var(--topbar-height); left: 0;
                 height: calc(100vh - var(--topbar-height)); width: 280px;
@@ -898,15 +1247,21 @@ public static partial class LayoutProvider
             .nav-item a, .toc-item a {{
                 min-height: 44px; display: flex; align-items: center;
             }}
-            .search-result-title {{ font-size: 0.95rem; }}
-            .search-result-excerpt {{ font-size: 0.8rem; }}
-            .topbar-right .social-links {{ display: none; }}
+            .search-result-title {{
+                font-size: 0.95rem;
+            }}
+            .search-result-excerpt {{
+                font-size: 0.8rem;
+            }}
+            .topbar-right .social-links {{
+                display: none;
+            }}
             .sidebar-social-links {{
                 display: flex; flex-wrap: wrap; gap: 0.25rem;
                 padding: 1.25rem 0 0.25rem;
                 border-top: 1px solid var(--border);
             }}
         }}
-    </style>
+</style>
 ";
 }
