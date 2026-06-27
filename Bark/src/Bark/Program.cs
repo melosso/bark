@@ -227,6 +227,7 @@ try
         var customCssLink = ThemeProvider.BuildCustomCssLink(themeOptions, autoCustomCssUrl);
         var customJsScript = ThemeProvider.BuildCustomJsScript(autoCustomJsUrl);
         var brandText = config?.Brand ?? config?.Title ?? ThemeProvider.GetBrandText(themeOptions);
+        var brandImage = config?.BrandImage;
         var combinedThemeCss = themeCss + customCssLink + customJsScript;
 
         var socialLinksHtml = SocialLinksHtmlRenderer.BuildSocialLinksHtml(config?.SocialLinks);
@@ -257,6 +258,7 @@ try
             paginationHtml: paginationHtml,
             themeCss: combinedThemeCss,
             brandText: brandText,
+            brandImage: brandImage,
             enableDarkMode: ThemeProvider.UseDarkMode(themeOptions),
             showScrollIndicator: ThemeProvider.ShowScrollIndicator(themeOptions),
             footerHtml: footerHtml,

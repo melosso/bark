@@ -110,7 +110,9 @@ public static partial class LayoutProvider
             padding: 0.45rem 0.6rem; border-radius: 6px;
             font-size: 0.875rem; color: var(--text-color); text-decoration: none;
         }}
-        .top-nav-dropdown-link:hover {{ background-color: var(--code-bg); color: var(--accent); }}
+        .top-nav-dropdown-link:hover {{ 
+            background-color: var(--code-bg); color: var(--accent); 
+        }}
         .external-link-icon {{
             display: inline-block; width: 12px; height: 12px; flex-shrink: 0;
             opacity: 0.6; vertical-align: -1px; margin-left: 0.25rem;
@@ -133,13 +135,18 @@ public static partial class LayoutProvider
             color: var(--text-color); text-decoration: none;
         }}
         .brand a:hover {{ color: var(--accent); }}
+        .brand img {{ 
+            height: 22px; width: auto; vertical-align: middle; margin-right: 0.75rem; 
+        }}
         .theme-toggle {{
             position: relative; flex-shrink: 0; width: 48px; height: 28px;
             border: 1px solid var(--border); border-radius: 999px; padding: 0;
             background-color: var(--code-bg); cursor: pointer;
             transition: background-color 0.15s ease, border-color 0.15s ease;
         }}
-        .theme-toggle:hover {{ border-color: var(--accent); }}
+        .theme-toggle:hover {{ 
+            border-color: var(--accent); 
+        }}
         .theme-toggle-thumb {{
             position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
             border-radius: 50%; background-color: var(--bg-color);

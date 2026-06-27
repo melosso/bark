@@ -9,6 +9,7 @@ public class Config
     public List<HeadTag>? Head { get; set; }
 
     public string? Brand { get; set; }
+    public string? BrandImage { get; set; }
     public string? Footer { get; set; }
     public string? Favicon { get; set; }
 

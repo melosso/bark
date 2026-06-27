@@ -13,6 +13,7 @@ public static partial class LayoutProvider
         string paginationHtml,
         string? themeCss = null,
         string? brandText = null,
+        string? brandImage = null,
         bool enableDarkMode = true,
         string? footerHtml = null,
         string? socialLinksHtml = null,
@@ -145,7 +146,7 @@ public static partial class LayoutProvider
                     <path d=""M3 6h18M3 12h18M3 18h18"" stroke-linecap=""round""/>
                 </svg>
             </button>
-            <div class=""brand""><a href=""{homeHref}"">{brandText ?? "Bark"}</a></div>
+            <div class=""brand""><a href=""{homeHref}"">{(brandImage is not null ? $"<img src=\"{brandImage}\" alt=\"\">" : "")}{brandText ?? "Bark"}</a></div>
             <button type=""button"" class=""search-trigger"" id=""search-trigger""
                     aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""Search documentation"">
                 <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.3-4.3""/></svg>

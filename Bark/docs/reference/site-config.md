@@ -57,6 +57,7 @@ For a full walkthrough of the HTML head fields below, see [HTML Metadata](/refer
 | `lang` | `string?` | `lang` attribute on `<html>`. Defaults to `"en"`. |
 | `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for Open Graph, canonical links, and structured data. |
 | `brand` | `string?` | Sidebar/header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
+| `brandImage` | `string?` | An image URL or path to display alongside the brand text in the header. Placed to the left of the brand label. |
 | `footer` | `string?` | Rendered as Markdown inside the page footer. Links and formatting work. See [Footer](default-theme-footer). |
 | `favicon` | `string?` | A URL/path to an icon file, or a single emoji character to use as an inline SVG favicon. |
 | `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" stamp. Off by default. See [Last Updated Timestamp](default-theme-last-updated). |
@@ -114,6 +115,7 @@ A `TopNavItem` is either a link (`text` + `link`) or a dropdown (`text` + `items
   "description": "A fast, lightweight Markdown documentation server built on .NET.",
   "lang": "en",
   "brand": "Bark",
+  "brandImage": "/brand-image.svg",
   "footer": "Built with Bark · [AGPL-3.0](LICENSE)",
   "favicon": "🌳",
   "lastUpdated": true,
