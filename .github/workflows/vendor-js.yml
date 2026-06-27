@@ -1,0 +1,19 @@
+name: Vendor JS
+on: workflow_dispatch
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          curl -sL "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" \
+            -o Bark/src/Bark/wwwroot/js/mermaid.min.js
+          curl -sL "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" \
+            -o Bark/src/Bark/wwwroot/js/katex.min.js
+          curl -sL "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" \
+            -o Bark/src/Bark/wwwroot/js/auto-render.min.js
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          title: "chore: vendor latest JS assets"
+          commit-message: "chore: vendor latest JS assets"
+          branch: vendor-js-update

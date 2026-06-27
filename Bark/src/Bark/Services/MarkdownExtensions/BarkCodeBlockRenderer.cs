@@ -42,6 +42,15 @@ public sealed class BarkCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) 
         var notated = CodeNotationProcessor.Process(rawLines, meta.HighlightedLines);
         var lang = string.IsNullOrEmpty(meta.Lang) ? "txt" : meta.Lang;
 
+        if (lang is "mermaid" or "nomnoml")
+        {
+            renderer.Write("<div class=\"").Write(lang).Write("\">");
+            renderer.WriteLeafRawLines(obj, true, true);
+            renderer.WriteLine("</div>");
+            renderer.EnsureLine();
+            return;
+        }
+
         var showTitleBar = !isCodeGroupChild && !string.IsNullOrEmpty(meta.Title);
 
         var outerClasses = new List<string>(4) { $"language-{lang}" };

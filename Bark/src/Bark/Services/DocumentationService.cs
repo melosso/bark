@@ -4,13 +4,14 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using Bark.Configuration;
 using Bark.Models;
 
 namespace Bark.Services;
 
-public sealed class DocumentationService : IHostedService, IDisposable
+public sealed partial class DocumentationService : IHostedService, IDisposable
 {
     private readonly DocsOptions _options;
     private readonly MarkdownService _markdown;
@@ -193,12 +194,14 @@ public sealed class DocumentationService : IHostedService, IDisposable
                 defaultTitle = navTitle;
 
             var parsed = _markdown.Parse(content, defaultTitle);
+
+            var html = WrapTables(parsed.Html);
             var lastModified = File.GetLastWriteTimeUtc(file);
 
             var page = new DocumentationPage(
                 Path: pagePath,
                 Title: parsed.Title ?? defaultTitle,
-                HtmlContent: parsed.Html,
+                HtmlContent: html,
                 Description: parsed.Description,
                 LastModified: lastModified,
                 Headings: parsed.Headings,
@@ -374,6 +377,12 @@ public sealed class DocumentationService : IHostedService, IDisposable
                 CollectNavTitles(children, lookup);
         }
     }
+
+    [GeneratedRegex(@"<table[^>]*>[\s\S]*?</table>", RegexOptions.IgnoreCase)]
+    private static partial Regex TableRegex();
+
+    private static string WrapTables(string html) =>
+        TableRegex().Replace(html, m => $"<div class=\"table-wrapper\">{m.Value}</div>");
 
     private static BarkConfig? LoadConfig(string docsPath)
     {

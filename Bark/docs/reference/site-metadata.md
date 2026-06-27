@@ -37,8 +37,9 @@ If you would like more control over the separator or the order, `titleTemplate` 
 
 A page called "Configuration" would then produce `Configuration · Bark`. You can place the placeholders in any order and use any separator character you like.
 
-> [!NOTE]
-> If you set `titleTemplate` without setting `title`, the `:siteName` placeholder resolves to an empty string. Setting `titleTemplate` to a fixed string, such as `"Bark Docs"`, is entirely valid if you want every tab to show the same title regardless of the current page.
+::: info
+If you set `titleTemplate` without setting `title`, the `:siteName` placeholder resolves to an empty string. Setting `titleTemplate` to a fixed string, such as `"Bark Docs"`, is entirely valid if you want every tab to show the same title regardless of the current page.
+:::
 
 ## Site Description
 
@@ -94,8 +95,9 @@ Here is a practical example that adds Open Graph metadata and a structured data 
 
 Bark recognizes `<meta>`, `<link>`, and `<base>` as void elements and renders them without a closing tag. Every other tag receives an opening tag, the `content` value if provided, and a closing tag.
 
-> [!NOTE]
-> All entries in `head` are added to every page on your site. For per-page metadata such as individual descriptions and custom titles, please see [Frontmatter Config](/reference/frontmatter-config).
+::: info
+All entries in `head` are added to every page on your site. For per-page metadata such as individual descriptions and custom titles, please see [Frontmatter Config](/reference/frontmatter-config).
+:::
 
 ## A Complete Example
 

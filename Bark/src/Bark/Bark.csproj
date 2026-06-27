@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources/Themes/*.json" />
-    <EmbeddedResource Include="Resources/Math/katex.min.js" />
+    <EmbeddedResource Include="wwwroot/js/katex.min.js" />
   </ItemGroup>
 
 

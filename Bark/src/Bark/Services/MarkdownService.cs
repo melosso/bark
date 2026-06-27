@@ -15,6 +15,9 @@ namespace Bark.Services;
 
 public sealed partial class MarkdownService
 {
+    private const string BARK_LCB = "##BARK_LCB##";
+    private const string BARK_RCB = "##BARK_RCB##";
+
     private readonly MarkdownPipeline _pipeline;
     private readonly IDeserializer _yamlDeserializer;
     private readonly string _basePath;
@@ -22,24 +25,31 @@ public sealed partial class MarkdownService
     public MarkdownService(
         ISyntaxHighlighter? syntaxHighlighter = null,
         string basePath = "",
-        MathRenderer? mathRenderer = null,
-        CodeGroupIconOptions? codeGroupIcons = null)
+        CodeGroupIconOptions? codeGroupIcons = null,
+        MathRenderer? mathRenderer = null)
     {
         _basePath = basePath;
         _pipeline = new MarkdownPipelineBuilder()
-            .UseYamlFrontMatter()
+            .UseAbbreviations()
+            .UseAlertBlocks()
             .UseAutoIdentifiers()
+            .UseAutoLinks()
+            .UseEmphasisExtras()
+            .UseDefinitionLists()
+            .UseEmojiAndSmiley()
+            .UseFootnotes()
+            .UseGridTables()
+            .UseListExtras()
+            .UseMediaLinks()
+            .UseMathematics()
             .UsePipeTables()
             .UseTaskLists()
-            .UseDefinitionLists()
-            .UseFootnotes()
-            .UseEmojiAndSmiley()
-            .UseMediaLinks()
-            .UseListExtras()
-            .UseGridTables()
-            .UseAutoLinks()
-            .UseAlertBlocks()
-            .UseBarkMarkdownExtensions(syntaxHighlighter, mathRenderer, codeGroupIcons, basePath)
+            .UseYamlFrontMatter()
+
+            .UseBarkMarkdownExtensions(syntaxHighlighter, codeGroupIcons, basePath, mathRenderer)
+
+            // UseGenericAttributes() should be the last extension added to the pipeline, as it modifies other parsers to recognize attribute syntax (see https://xoofx.github.io/markdig/docs/extensions/generic-attributes)
+            .UseGenericAttributes()
             .Build();
 
         _yamlDeserializer = new DeserializerBuilder()
@@ -52,6 +62,7 @@ public sealed partial class MarkdownService
         string markdown,
         string? defaultTitle = null)
     {
+        markdown = EscapeBracesInCodeSpans(markdown);
         var document = Markdown.Parse(markdown, _pipeline);
 
         var frontMatter = ParseFrontMatter(document);
@@ -70,7 +81,7 @@ public sealed partial class MarkdownService
             }
         }
 
-        var html = AddHeadingAnchors(Markdown.ToHtml(markdown, _pipeline));
+        var html = UnescapeBraces(AddHeadingAnchors(Markdown.ToHtml(markdown, _pipeline)));
 
         if (frontMatter?.Layout == "home")
             html = RenderHomePage(frontMatter, _basePath) + html;
@@ -207,7 +218,17 @@ public sealed partial class MarkdownService
     }
 
     public string ToHtml(string markdown) =>
-        Markdown.ToHtml(markdown, _pipeline);
+        UnescapeBraces(Markdown.ToHtml(markdown, _pipeline));
+
+    [GeneratedRegex(@"``[^`\n]*``|`[^`\n]*`")]
+    private static partial Regex InlineCodeSpanRegex();
+
+    private static string EscapeBracesInCodeSpans(string markdown) =>
+        InlineCodeSpanRegex().Replace(markdown, m =>
+            m.Value.Replace("{", BARK_LCB).Replace("}", BARK_RCB));
+
+    private static string UnescapeBraces(string html) =>
+        html.Replace(BARK_LCB, "{").Replace(BARK_RCB, "}");
 
     // // Frontmatter hero/feature links use root-relative paths and require the same basePath treatment as Bark-generated chrome links...
     private static string PrefixInternalLink(string path, string basePath)

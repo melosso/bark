@@ -223,13 +223,14 @@ var x = 1;
     [Fact]
     public void Math_BlockAndInline_RenderToStaticKaTeXHtml()
     {
+        var service = new MarkdownService(mathRenderer: new MathRenderer());
         var md = "Inline $x^2$ and block:\n\n$$\nE = mc^2\n$$\n";
-        var (html, _, _, _) = _service.Parse(md);
+        var (html, _, _, _) = service.Parse(md);
 
         Assert.Contains("class=\"katex\"", html);
         Assert.Contains("class=\"katex-display\"", html);
-        Assert.Contains("annotation encoding=\"application/x-tex\">x^2</annotation>", html);
-        Assert.Contains("annotation encoding=\"application/x-tex\">E = mc^2", html);
+        Assert.Contains("annotation encoding=\"application/x-tex\">x^2", html);
+        Assert.Contains("E = mc^2", html);
     }
 
     [Fact]

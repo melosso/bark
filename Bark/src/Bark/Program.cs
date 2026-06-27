@@ -48,8 +48,9 @@ try
     builder.Services.AddSingleton<ISyntaxHighlighter, TextMateSyntaxHighlighter>();
     builder.Services.AddSingleton<MathRenderer>();
     builder.Services.AddSingleton(sp => new MarkdownService(
-        sp.GetRequiredService<ISyntaxHighlighter>(), basePath, sp.GetRequiredService<MathRenderer>(),
-        sp.GetRequiredService<CodeGroupIconOptions>()));
+        sp.GetRequiredService<ISyntaxHighlighter>(), basePath,
+        sp.GetRequiredService<CodeGroupIconOptions>(),
+        sp.GetRequiredService<MathRenderer>()));
     builder.Services.AddSingleton<DocumentationService>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<DocumentationService>());
 
@@ -207,7 +208,6 @@ try
         var crumbs = docs.GetBreadcrumbs(path);
         var breadcrumbHtml = BreadcrumbHtmlRenderer.BuildBreadcrumbHtml(crumbs, page.Title, basePath);
 
-        // Making sure home pages (layout: home) never get prev/next pagination!
         var isHomePage = page.Layout == "home";
         var paginationHtml = string.Empty;
         if (!isHomePage)
@@ -331,8 +331,12 @@ static async Task<DocumentationPage> BuildSafeRootPage(DocumentationService docs
         : "<p>No Markdown files found yet. Drop one into your docs folder to get started.</p>";
 
     var html = $"""
-        <h1>No homepage yet</h1>
-        <p>Create <code>index.md</code> in your docs folder to set what's shown here.</p>
+        <h1>
+            No homepage yet
+        </h1>
+        <p>
+            Create <code>index.md</code> in your docs folder to set what's shown here.
+        </p>
         {linksHtml}
         """;
 

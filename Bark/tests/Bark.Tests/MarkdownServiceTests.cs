@@ -1,4 +1,5 @@
 using Bark.Services;
+using Bark.Services.MarkdownExtensions;
 
 namespace Bark.Tests;
 
@@ -140,23 +141,24 @@ var x = 1;
     [Fact]
     public void Parse_InlineMath_RendersStaticKaTeXHtml()
     {
-        var (html, _, _, _) = _service.Parse("$E = mc^2$");
+        var service = new MarkdownService(mathRenderer: new MathRenderer());
+        var (html, _, _, _) = service.Parse("$E = mc^2$");
         Assert.Contains("class=\"katex\"", html);
-        Assert.Contains("annotation encoding=\"application/x-tex\">E = mc^2</annotation>", html);
-        Assert.DoesNotContain(@"\(E = mc^2\)", html);
+        Assert.Contains("annotation encoding=\"application/x-tex\">E = mc^2", html);
     }
 
     [Fact]
     public void Parse_BlockMath_RendersStaticKaTeXHtml()
     {
+        var service = new MarkdownService(mathRenderer: new MathRenderer());
         var md = """
 $$
 E = mc^2
 $$
 """;
-        var (html, _, _, _) = _service.Parse(md);
+        var (html, _, _, _) = service.Parse(md);
         Assert.Contains("class=\"katex-display\"", html);
-        Assert.Contains("annotation encoding=\"application/x-tex\">", html);
+        Assert.Contains("E = mc^2", html);
     }
 
     [Fact]

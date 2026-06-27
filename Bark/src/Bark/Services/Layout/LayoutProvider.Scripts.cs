@@ -369,16 +369,6 @@ public static partial class LayoutProvider
                 }}, 200);
             }});
 
-            // Wrap tables so wide ones scroll inside their own box instead of widening the page;
-            // a bare overflow-x:auto on the table itself doesn't reliably contain it.
-            var tables = document.querySelectorAll('.content table');
-            tables.forEach(function(table) {{
-                var wrapper = document.createElement('div');
-                wrapper.className = 'table-wrapper';
-                table.parentNode.insertBefore(wrapper, table);
-                wrapper.appendChild(table);
-            }});
-
             // Copy and download buttons for code blocks
             var codeBlocks = document.querySelectorAll('.content pre');
             codeBlocks.forEach(function(pre) {{
@@ -451,23 +441,13 @@ public static partial class LayoutProvider
                 }});
             }});
 
-            // Mermaid bakes colors into the SVG at render time and ignores CSS variables, so the
-            // current theme must be passed in explicitly; a full reload is needed to redraw if
-            // the user flips the theme toggle after diagrams are on the page.
-            var mermaidBlocks = document.querySelectorAll('.content div[class^=""language-mermaid""]');
+            // Mermaid bakes colors into the SVG at render time and ignores CSS variables, so the current theme must be passed in explicitly; a full reload is needed to redraw..
+            var mermaidBlocks = document.querySelectorAll('.mermaid');
             if (mermaidBlocks.length && window.mermaid) {{
                 var currentTheme = document.documentElement.getAttribute('data-theme');
                 var prefersDarkNow = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 var mermaidIsDark = currentTheme ? currentTheme === 'dark' : prefersDarkNow;
-                window.mermaid.initialize({{ startOnLoad: false, theme: mermaidIsDark ? 'dark' : 'default' }});
-                mermaidBlocks.forEach(function(block) {{
-                    var code = block.querySelector('code');
-                    if (!code) return;
-                    var graphDiv = document.createElement('div');
-                    graphDiv.className = 'mermaid';
-                    graphDiv.textContent = code.textContent;
-                    block.replaceWith(graphDiv);
-                }});
+                window.mermaid.initialize({{ theme: mermaidIsDark ? 'dark' : 'default' }});
                 window.mermaid.run();
             }}
         }});
