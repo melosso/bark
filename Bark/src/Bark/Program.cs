@@ -6,6 +6,7 @@ using Serilog;
 using Bark.Configuration;
 using Bark.Models;
 using Bark.Services;
+using Bark.Services.Layout;
 using Bark.Services.MarkdownExtensions;
 using Bark.Services.Rendering;
 

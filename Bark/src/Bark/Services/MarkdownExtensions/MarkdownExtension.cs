@@ -37,23 +37,6 @@ public sealed class MarkdownExtension(
     }
 }
 
-/// <summary>Server-side renders inline <c>$...$</c> math to static KaTeX HTML</summary>
-public sealed class MathInlineRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathInline>
-{
-    protected override void Write(HtmlRenderer renderer, MathInline obj) =>
-        renderer.Write(mathRenderer.RenderToHtml(obj.Content.ToString(), displayMode: false));
-}
-
-/// <summary>Server-side renders block <c>$$...$$</c> math to static KaTeX HTML</summary>
-public sealed class MathBlockRenderer(MathRenderer mathRenderer) : HtmlObjectRenderer<MathBlock>
-{
-    protected override void Write(HtmlRenderer renderer, MathBlock obj)
-    {
-        renderer.EnsureLine();
-        renderer.WriteLine(mathRenderer.RenderToHtml(obj.Lines.ToString(), displayMode: true));
-    }
-}
-
 public static class MarkdownExtensions
 {
     /// <summary>Enables custom containers, server-side math rendering, and fenced-code-block notation.</summary>

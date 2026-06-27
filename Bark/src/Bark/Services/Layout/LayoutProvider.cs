@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Bark.Services;
+namespace Bark.Services.Layout;
 
 public static partial class LayoutProvider
 {
