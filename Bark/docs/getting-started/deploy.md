@@ -68,27 +68,23 @@ If you're actively developing Bark's own source rather than running it, `dotnet 
 
 ## Option E: Static export (GitHub Pages, etc.)
 
-<details>
-<summary><strong>Advanced</strong>: skip the server entirely and export plain HTML/CSS/JS, for GitHub Pages or any static host.</summary>
-
-This option requires cloning the repository; thus compiling Bark yourselves.
+You can skip the server entirely and export plain HTML, CSS, and JS for any static host: GitHub Pages, Netlify, or a plain web server. This path requires cloning the repository and compiling Bark yourself.
 
 ```bash
 dotnet publish src/Bark -c Release -o ./publish
 cd publish && ./Bark --export ./output --base-url https://you.github.io --base-path /your-repo
 ```
 
-> [!WARNING]
-> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location.
+When you run the binary, it accepts these CLI flags:
 
-- `--export <dir>`: writes every page, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and `wwwroot`.
-- `--base-url <origin>`: the real public origin. Rewrites the absolute URLs in `robots.txt` and `llms.txt`.
-- `--base-path </prefix>`: needed when you're not at the domain root, like a GitHub project page (`you.github.io/your-repo/`). Set `Docs:BasePath` in `appsettings.json` instead for reverse-proxy subpath hosting. See [Site Config](/reference/site-config).
+| Flag | Purpose |
+|---|---|
+| `--export <dir>` | Writes every page, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and `wwwroot` to the given directory. |
+| `--base-url <origin>` | The real public origin used for absolute URLs in `robots.txt` and `llms.txt`. |
+| `--base-path </prefix>` | Required when the site lives under a subpath, such as a GitHub project page (`you.github.io/your-repo/`). This flag overrides `Docs:BasePath` at runtime. See [Site Config](/reference/site-config). |
 
 > [!NOTE]
-> `--export` disables hot reload, so there's no `/api/build-version` polling. Search still renders but fails gracefully without a backend.
-
-</details>
+> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location. The `--export` flag also disables hot reload, so there is no `/api/build-version` polling. Search still renders but fails gracefully without a backend.
 
 <br>
 

@@ -179,6 +179,16 @@ Social links appear in the top-right area of the header and in the mobile sideba
 | `url` | `string` | Link target. Opens in a new tab. |
 | `title` | `string?` | Accessible label / tooltip. Falls back to `icon` if omitted. |
 
+## CLI flags
+
+A handful of runtime flags are recognized when you launch Bark directly (as opposed to via Docker). These are most useful when running the [static export](/getting-started/deploy#option-e-static-export-github-pages-etc) workflow, but they also apply to the live server.
+
+| Flag | Overrides | Description |
+|---|---|---|
+| `--export <dir>` | | Writes a static HTML export to the given directory and exits. Disables hot reload. |
+| `--base-url <origin>` | | The public origin for absolute URLs in `robots.txt` and `llms.txt`. |
+| `--base-path </prefix>` | `Docs:BasePath` | Prefixes all links, theme assets, and API routes with this path segment. Particularly useful for GitHub Pages project sites or reverse proxies mounting Bark under a subpath. |
+
 ## Limitations
 
 Bark is designed to be straightforward, so it avoids complex configuration overhead. You will not find a `markdown` options object, a way to pass through your own bundler, or an API for build hooks, simply because there is no client-side bundler to manage.
