@@ -24,7 +24,7 @@ A query matching a page's title outranks one that only matches buried body text.
 curl "http://localhost:5000/api/search?q=hot+reload"
 ```
 
-Queries under 2 characters return an empty array rather than the whole index. See [API Reference](api-reference) for the full response shape.
+Queries under 2 characters return an empty array rather than the whole index. See [API Reference](../api-reference) for the full response shape.
 
 ## What's not here
 

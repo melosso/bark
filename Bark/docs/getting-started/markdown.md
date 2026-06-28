@@ -193,7 +193,7 @@ Custom containers are sugar over a plain `<div class="TYPE custom-block">`. Mark
 ```md
 <div class="tip custom-block">
 
-Just want to try it out? Skip to the [Quickstart](./getting-started).
+Just want to try it out? Skip to the [Quickstart](../getting-started).
 
 </div>
 ```
@@ -202,7 +202,7 @@ Renders as:
 
 <div class="tip custom-block">
 
-Just want to try it out? Skip to the [Quickstart](./getting-started).
+Just want to try it out? Skip to the [Quickstart](../getting-started).
 
 </div>
 

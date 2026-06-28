@@ -5,7 +5,7 @@ description: Docker, Windows/IIS, Linux release, or build from source
 
 # Deploy
 
-These guides assume you already have a `docs/` folder with content in it, see [Getting Started](getting-started) if you don't. Pick whichever path matches your environment. Docker is the fastest, usually under a minute from a blank folder to a running site.
+These guides assume you already have set-up the documentation folder with content in it, see [Getting Started](../getting-started) if you don't. Pick whichever path matches your environment. Docker is the fastest, usually under a minute from a blank folder to a running site.
 
 ## Option A: Docker Compose
 
@@ -63,8 +63,9 @@ mkdir -p /srv/bark/docs
 cd /srv/bark && ./Bark
 ```
 
-> [!NOTE]
-> The binary expects a `docs/` folder relative to the current working directory. If your content lives elsewhere, set `Docs:RootPath` in `appsettings.json` or pass it as an environment variable. See [Environment Variables](/getting-started/environment-variables) for the full list.
+::: note
+The binary expects a `docs/` folder relative to the current working directory. If your content lives elsewhere, set `Docs:RootPath` in `appsettings.json` or pass it as an environment variable. See [Environment Variables](../environment-variables) for the full list.
+:::
 
 5. Browse to `http://localhost:8080`.
 
@@ -107,8 +108,9 @@ When you run the binary, it accepts these CLI flags:
 | `--base-url <origin>` | The real public origin used for absolute URLs in `robots.txt` and `llms.txt`. |
 | `--base-path </prefix>` | Required when the site lives under a subpath, such as a GitHub project page (`you.github.io/your-repo/`). This flag overrides `Docs:BasePath` at runtime. See [Site Config](/reference/site-config). |
 
-> [!NOTE]
-> Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location. The `--export` flag also disables hot reload, so there is no `/api/build-version` polling. Search still renders but fails gracefully without a backend.
+::: note
+Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location. The `--export` flag also disables hot reload, so there is no `/api/build-version` polling. Search still renders but fails gracefully without a backend.
+:::
 
 <br>
 
@@ -121,10 +123,10 @@ Bark is configured for production stability out of the box. The following optimi
 * **Automatic Compression**: All web traffic uses Brotli or Gzip compression (including secure HTTPS traffic) to significantly reduce page load times and save bandwidth.
 * **Built-in DoS Protection**: Safety limits are pre-configured to protect the server from resource exhaustion. This includes strict limits on request body sizes, header sizes, maximum simultaneous connections, and keep-alive timeouts.
 * **Production Logging**: Logs are routed directly to the console. You can easily adjust how detailed these logs are for different environment if necessary.
-* **Smart Caching (ETags)**: Every page includes a unique fingerprint (SHA-256 ETag). If a user's browser already has the current version of a page then the server responds with "304 Not Modified" status, saving resources.
+* **Smart Caching ([ETags](https://en.wikipedia.org/wiki/HTTP_ETag){target="_blank" rel="noopener"})**: Every page includes a unique fingerprint (SHA-256 ETag). If a user's browser already has the current version of a page then the server responds with "304 Not Modified" status, saving resources.
 
-::: note
-**What does this mean for you?** Performance and security optimizations are enabled automatically. You only need to configure your external infrastructure, such as your domain, firewall, and SSL certificates.
+::: note What does this mean for you?
+Performance and security optimizations are enabled automatically. You only need to configure your external infrastructure, such as your domain, firewall, and SSL certificates.
 :::
 
 ## Reverse Proxy Setup

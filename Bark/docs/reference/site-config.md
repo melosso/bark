@@ -65,10 +65,10 @@ These settings shape how your site presents itself to readers, search engines, a
 | `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for structured data, supplementary Open Graph fields like `og:image`, or third-party initialization snippets. Bark generates canonical links and basic Open Graph tags automatically, so those do not need to be listed here. |
 | `brand` | `string?` | Sidebar and header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
 | `brandImage` | `string?` | An image URL or path to display alongside the brand label in the header, placed to the left of the text. |
-| `footer` | `string?` | Rendered as Markdown inside the page footer. Links and inline formatting are fully supported. See [Footer](default-theme-footer). |
+| `footer` | `string?` | Rendered as Markdown inside the page footer. Links and inline formatting are fully supported. See [Footer](../default-theme-footer). |
 | `favicon` | `string?` | A URL or path to an icon file, or a single emoji character to use as an inline SVG favicon. |
-| `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" timestamp. Off by default. When enabled, the date shown for each page comes from the file's last-modified time on disk unless the page sets `date` or `updated` in its frontmatter, which takes priority. See [Last Updated Timestamp](default-theme-last-updated) and [Frontmatter Config](/reference/frontmatter-config#dates). |
-| `editLink` | `EditLinkConfig?` | "Edit this page" link displayed near the pagination footer. See [Edit Link](default-theme-edit-link). |
+| `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" timestamp. Off by default. When enabled, the date shown for each page comes from the file's last-modified time on disk unless the page sets `date` or `updated` in its frontmatter, which takes priority. See [Last Updated Timestamp](../default-theme-last-updated) and [Frontmatter Config](/reference/frontmatter-config#dates). |
+| `editLink` | `EditLinkConfig?` | "Edit this page" link displayed near the pagination footer. See [Edit Link](../default-theme-edit-link). |
 
 **`HeadTag`**
 
@@ -88,8 +88,8 @@ When both `sidebar` and `nav` are present, `sidebar` takes priority for any page
 
 | Option | Type | Description |
 |---|---|---|
-| `topNav` | `TopNavItem[]?` | Header nav bar. See [Nav](default-theme-nav). |
-| `sidebar` | `Record<string, NavEntry[]>?` | Path-prefix-keyed sidebars. The longest matching prefix for the current page wins; an empty-prefix key (`"/"`) acts as a catch-all. Takes priority over `nav`. See [Sidebar](default-theme-sidebar). |
+| `topNav` | `TopNavItem[]?` | Header nav bar. See [Nav](../default-theme-nav). |
+| `sidebar` | `Record<string, NavEntry[]>?` | Path-prefix-keyed sidebars. The longest matching prefix for the current page wins; an empty-prefix key (`"/"`) acts as a catch-all. Takes priority over `nav`. See [Sidebar](../default-theme-sidebar). |
 | `nav` | `NavEntry[]?` | Single flat sidebar, shared by every page. Ignored for any page that matches a `sidebar` prefix. |
 
 **`TopNavItem`**
@@ -202,6 +202,10 @@ When launching Bark directly from the terminal rather than through Docker or a p
 
 ## What Bark does not configure
 
-Bark intentionally keeps its configuration surface small. You will not find a `markdown` options object, a way to pass through your own bundler, or lifecycle hooks for the build process, simply because there is no client-side bundler and no multi-stage pipeline to hook into.
+Bark keeps its site-wide configuration minimal on purpose. While you can manage basic [metadata](../site-metadata), [routing](/getting-started/routing/), and [theme settings](/getting-started/extending-themes/), the platform lacks complex build options, custom bundler integration, or pipeline lifecycle hooks. This is because Bark operates without a client-side bundler (like Vite, Webpack, or Parcel) or a multi-stage compilation process.
 
-Features like custom containers, code groups, math support, and syntax highlighting are baked in and always active. If you would like to extend or replace those features beyond their built-in behavior, that is something you can explore by modifying the source code directly, since Bark is designed to be forked and customized rather than configured into an unfamiliar shape.
+System capabilities like math support, syntax highlighting, and custom containers are baked directly into the core engine and are always active. Bark is engineered to deliver a standardized, high-performance site out of the box without requiring an intricate setup file.
+
+If your project demands custom asset pipelines, structural layout changes, or build-stage hooks, the recommended path is to modify the source code directly. Bark is intentionally designed to be forked and customized rather than bent into shape through configuration files.
+
+--

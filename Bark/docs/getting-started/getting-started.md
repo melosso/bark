@@ -55,11 +55,11 @@ docs/
     └── sitemap-generation.md
 ```
 
-Your folder layout becomes your site's navigation and URLs automatically. The exact rules for turning a file path into a URL live in [Routing](./routing); every front matter field a page can set lives in [Frontmatter Config](/reference/frontmatter-config).
+Your folder layout becomes your site's navigation and URLs automatically. The exact rules for turning a file path into a URL live in [Routing](../routing); every front matter field a page can set lives in [Frontmatter Config](/reference/frontmatter-config).
 
 ## What's next
 
-- [Configuration](./configuration): `config.json` options, themes, and branding.
-- [Using Markdown](./markdown): every Markdown extension Bark supports, with live examples.
-- [Routing](./routing): how file paths map to URLs.
-- [Deploy](./deploy): Docker, IIS, Linux, or building from source, plus the production defaults Bark ships with.
+- [Configuration](../configuration): `config.json` options, themes, and branding.
+- [Using Markdown](../markdown): every Markdown extension Bark supports, with live examples.
+- [Routing](../routing): how file paths map to URLs.
+- [Deploy](../deploy): Docker, IIS, Linux, or building from source, plus the production defaults Bark ships with.

@@ -243,7 +243,73 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _docsConfig = config;
         BuildVersion++;
         _logger.LogInformation("Built documentation with {PageCount} pages", pages.Count);
+
+        LogDeadLinks(pages);
     }
+
+    private void LogDeadLinks(List<DocumentationPage> pages)
+    {
+        var deadSources = new HashSet<string>();
+        foreach (var page in pages)
+        {
+            foreach (Match match in HrefRegex().Matches(page.HtmlContent))
+            {
+                var href = match.Groups[1].Value;
+                if (ShouldSkipHref(href))
+                    continue;
+
+                var resolved = ResolveHref(page.Path, href);
+                if (resolved.Length == 0 || _pageCache.ContainsKey(resolved))
+                    continue;
+
+                deadSources.Add(page.Path);
+            }
+        }
+
+        if (deadSources.Count > 0)
+        {
+            var list = string.Join(", ", deadSources.Order());
+            _logger.LogWarning("Dead internal links found in: {Sources}", list);
+        }
+    }
+
+    private static string ResolveHref(string pagePath, string href)
+    {
+        var fragIdx = href.IndexOf('#');
+        var pathOnly = fragIdx >= 0 ? href[..fragIdx] : href;
+
+        if (pathOnly.StartsWith('/'))
+            return pathOnly.Trim('/').ToLowerInvariant();
+
+        var basePath = pagePath == "index" ? "" : pagePath;
+        var combined = $"{basePath}/{pathOnly}";
+        var segments = new List<string>();
+        foreach (var seg in combined.Split('/'))
+        {
+            if (seg == "..")
+            {
+                if (segments.Count > 0)
+                    segments.RemoveAt(segments.Count - 1);
+            }
+            else if (seg != "." && seg != "")
+                segments.Add(seg);
+        }
+        return string.Join("/", segments).ToLowerInvariant();
+    }
+
+    private static bool ShouldSkipHref(string href)
+    {
+        return href.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("//")
+            || href.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("tel:", StringComparison.OrdinalIgnoreCase)
+            || href.StartsWith("#")
+            || href == "/";
+    }
+
+    [GeneratedRegex(@"<a\s[^>]*href=""([^""]+)""", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex HrefRegex();
 
     private NavigationNode BuildNavigation(string docsPath, IEnumerable<DocumentationPage> pages)
     {

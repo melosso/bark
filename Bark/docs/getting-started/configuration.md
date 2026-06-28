@@ -37,10 +37,10 @@ These settings belong to the `Docs` section of your `appsettings.json`:
 ```
 
 ::: tip
-`BasePath` matters most for [static export](deploy#option-e-static-export-github-pages-etc), where a `--base-path` CLI flag usually replaces this setting entirely. Set it in `appsettings.json` instead when you're running the live server behind a reverse proxy that mounts Bark under a subpath.
+`BasePath` matters most for [static export](../deploy#option-e-static-export-github-pages-etc), where a `--base-path` CLI flag usually replaces this setting entirely. Set it in `appsettings.json` instead when you're running the live server behind a reverse proxy that mounts Bark under a subpath.
 :::
 
-Want to change colors, fonts, or ship your own CSS/JS? That's a separate concern from the settings above, covered in [Extending Themes](extending-themes).
+Want to change colors, fonts, or ship your own CSS/JS? That's a separate concern from the settings above, covered in [Extending Themes](../extending-themes).
 
 ## `docs/config.json`
 

@@ -35,7 +35,7 @@ See the [Configuration](/getting-started/configuration) guide.
 ```
 
 > [!WARNING]
-> Links and images in your page body aren't rewritten for `BasePath`. If you run Bark behind a base path (a GitHub Pages project page, a reverse-proxy subpath), write that prefix into the link yourself: `/docs/getting-started/configuration` instead of `/getting-started/configuration`. Only structured front matter fields (`hero.image`, hero/feature links) get the prefix added automatically. See [Asset Handling](assets#base-path) for the same caveat applied to images.
+> Links and images in your page body aren't rewritten for `BasePath`. If you run Bark behind a base path (a GitHub Pages project page, a reverse-proxy subpath), write that prefix into the link yourself: `/docs/getting-started/configuration` instead of `/getting-started/configuration`. Only structured front matter fields (`hero.image`, hero/feature links) get the prefix added automatically. See [Asset Handling](../assets#base-path) for the same caveat applied to images.
 
 A relative link like `./configuration` also works, but resolves against the page's *URL*, not its location in `docs/`. Since pages serve at directory-style URLs (`/getting-started/getting-started/`, not `/getting-started/getting-started.md`), a relative link from one page to a sibling in the same folder works, but one reaching into a different folder usually doesn't. Root-relative links sidestep the problem entirely, use them by default.
 
