@@ -16,7 +16,8 @@ COPY --from=build /app .
 
 # Ensure wwwroot is writable by the app user so theme files
 # (custom.css, custom.js) can be written or bind-mounted.
-RUN mkdir -p /app/wwwroot/theme /app/log && chown -R 1654:1654 /app/wwwroot /app/log
+# Copy built-in wwwroot for CompositeFileProvider fallback when users mount their own wwwroot.
+RUN mkdir -p /app/wwwroot/theme /app/wwwroot-default /app/log && cp -r /app/wwwroot/. /app/wwwroot-default/ && chown -R 1654:1654 /app/wwwroot /app/log
 USER 1654
 
 ENV ASPNETCORE_URLS=http://+:8080

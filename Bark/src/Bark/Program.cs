@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.FileProviders;
 using Serilog;
 using Bark.Configuration;
 using Bark.Models;
@@ -92,7 +93,23 @@ try
 
     app.Use(SecurityHeaders.Apply);
     app.UseResponseCompression();
-    app.UseStaticFiles();
+
+    var defaultWebRoot = Path.Combine(AppContext.BaseDirectory, "wwwroot-default");
+    if (Directory.Exists(defaultWebRoot))
+    {
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new CompositeFileProvider(
+                new PhysicalFileProvider(app.Environment.WebRootPath),
+                new PhysicalFileProvider(defaultWebRoot)
+            )
+        });
+    }
+    else
+    {
+        app.UseStaticFiles();
+    }
+
     app.UseRouting();
 
     // Drop files at wwwroot/theme/custom.{css,js} and they're picked up at startup, no config edit needed. Does NOT support hot rloading.
