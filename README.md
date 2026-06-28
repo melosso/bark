@@ -40,7 +40,7 @@ For those running Windows, follow the following steps:
 
 1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases).
 2. Extract it to your site folder (e.g. `C:\inetpub\bark`).
-3. In IIS, create a site (or app) pointing at that folder, with the **No Managed Code** .NET CLR version (Bark hosts itself via the ASP.NET Core Module).
+3. In IIS, create a site (or app) pointing at that folder, with the **No Managed Code** .NET CLR version.
 4. The zip already includes a `web.config` wired for in-process hosting. No manual edits needed.
 5. Make sure the [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) is installed on the server (gives IIS the ASP.NET Core Module).
 6. Start the site and browse to it.
