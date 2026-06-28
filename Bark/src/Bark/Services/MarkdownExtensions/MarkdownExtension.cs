@@ -24,10 +24,10 @@ public sealed class MarkdownExtension(
         if (renderer is not HtmlRenderer htmlRenderer)
             return;
 
-        var codeBlockRenderer = new BarkCodeBlockRenderer(syntaxHighlighter);
+        var codeBlockRenderer = new FencedCodeBlockRenderer(syntaxHighlighter);
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<CodeBlockRenderer>(codeBlockRenderer);
         htmlRenderer.ObjectRenderers.ReplaceOrAdd<HtmlCustomContainerRenderer>(
-            new BarkContainerRenderer(codeBlockRenderer, codeGroupIcons ?? new CodeGroupIconOptions(), basePath));
+            new ContainerRenderer(codeBlockRenderer, codeGroupIcons ?? new CodeGroupIconOptions(), basePath));
 
         if (mathRenderer != null)
         {

@@ -37,6 +37,7 @@ public sealed partial class MarkdownService
             .UseAlertBlocks()
             .UseAutoIdentifiers()
             .UseAutoLinks()
+            .UseCitations()
             .UseEmphasisExtras()
             .UseDefinitionLists()
             .UseEmojiAndSmiley()
@@ -101,7 +102,8 @@ public sealed partial class MarkdownService
             frontMatter?.Keywords is { Count: > 0 } kw ? kw.AsReadOnly() : null,
             frontMatter?.Pagination ?? true,
             frontMatter?.Redirect,
-            frontMatter?.Updated ?? frontMatter?.Date);
+            frontMatter?.Updated ?? frontMatter?.Date,
+            frontMatter?.Toc ?? true);
     }
 
     private static string RenderHomePage(FrontMatter frontMatter, string basePath)
@@ -247,7 +249,12 @@ public sealed partial class MarkdownService
             return html;
 
         return BodyContentUrlRegex().Replace(html, m =>
-            $"{m.Groups[1].Value}=\"{basePath}{m.Groups[2].Value}\"");
+        {
+            var url = m.Groups[2].Value;
+            if (PrefixHasBasePath(url, basePath))
+                return m.Value;
+            return $"{m.Groups[1].Value}=\"{basePath}{url}\"";
+        });
     }
 
     [GeneratedRegex(@"(href|src)=""(/(?!/)[^""]*)""")]
@@ -259,6 +266,9 @@ public sealed partial class MarkdownService
         if (!path.StartsWith('/') || path.StartsWith("//"))
             return path;
 
+        if (PrefixHasBasePath(path, basePath))
+            return path;
+
         var trimmed = path.Trim('/');
         return trimmed.Length == 0 ? $"{basePath}/" : $"{basePath}/{trimmed}/";
     }
@@ -268,7 +278,18 @@ public sealed partial class MarkdownService
         if (!path.StartsWith('/') || path.StartsWith("//"))
             return path;
 
+        if (PrefixHasBasePath(path, basePath))
+            return path;
+
         return $"{basePath}{path}";
+    }
+
+    private static bool PrefixHasBasePath(string path, string basePath)
+    {
+        if (string.IsNullOrEmpty(basePath))
+            return false;
+        return path.StartsWith(basePath, StringComparison.Ordinal)
+            && (path.Length == basePath.Length || path[basePath.Length] == '/');
     }
 
     public static string Slugify(string text)

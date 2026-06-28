@@ -8,7 +8,7 @@ using Markdig.Syntax;
 namespace Bark.Services.MarkdownExtensions;
 
 /// <summary>Renders <c>::: name</c> ... <c>:::</c> blocks: tip/info/warning/danger/details and code-group.</summary>
-public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomContainer>
+public sealed partial class ContainerRenderer : HtmlObjectRenderer<CustomContainer>
 {
     private static readonly Dictionary<string, string> DefaultTitles = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -19,11 +19,11 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
         ["details"] = "Details",
     };
 
-    private readonly BarkCodeBlockRenderer _codeBlockRenderer;
+    private readonly FencedCodeBlockRenderer _codeBlockRenderer;
     private readonly CodeGroupIconOptions _icons;
     private readonly string _basePath;
 
-    public BarkContainerRenderer(BarkCodeBlockRenderer codeBlockRenderer, CodeGroupIconOptions? icons = null, string basePath = "")
+    public ContainerRenderer(FencedCodeBlockRenderer codeBlockRenderer, CodeGroupIconOptions? icons = null, string basePath = "")
     {
         _codeBlockRenderer = codeBlockRenderer;
         _icons = icons ?? new CodeGroupIconOptions();
@@ -137,13 +137,23 @@ public sealed partial class BarkContainerRenderer : HtmlObjectRenderer<CustomCon
                 ? mapped
                 : SlugRegex().Replace(title.ToLowerInvariant(), "-").Trim('-'));
 
-        var baseUrl = IsRootRelative(_icons.BaseUrl) ? $"{_basePath}{_icons.BaseUrl}" : _icons.BaseUrl;
-        var src = System.Net.WebUtility.HtmlEncode($"{baseUrl}/{slug}.{_icons.Format}");
+        var iconBase = IsRootRelative(_icons.BaseUrl) ? PrefixBasePath(_icons.BaseUrl) : _icons.BaseUrl;
+        var src = System.Net.WebUtility.HtmlEncode($"{iconBase}/{slug}.{_icons.Format}");
         return $"<img src=\"{src}\" class=\"tab-icon\" alt=\"\" aria-hidden=\"true\" loading=\"lazy\" onerror=\"this.remove()\">";
     }
 
     private static bool IsRootRelative(string url) =>
         url.StartsWith('/') && !url.StartsWith("//");
+
+    private string PrefixBasePath(string url)
+    {
+        if (string.IsNullOrEmpty(_basePath))
+            return url;
+        if (url.StartsWith(_basePath, StringComparison.Ordinal)
+            && (url.Length == _basePath.Length || url[_basePath.Length] == '/'))
+            return url;
+        return $"{_basePath}{url}";
+    }
 
     [GeneratedRegex(@"[^a-z0-9]+")]
     private static partial Regex SlugRegex();

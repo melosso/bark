@@ -11,7 +11,8 @@ public sealed record MarkdownParseResult(
     IReadOnlyList<string>? Keywords = null,
     bool ShowPagination = true,
     string? Redirect = null,
-    DateTime? FrontmatterDate = null)
+    DateTime? FrontmatterDate = null,
+    bool ShowToc = true)
 {
     public void Deconstruct(out string html, out string? title, out string? description, out List<HeadingInfo> headings)
     {

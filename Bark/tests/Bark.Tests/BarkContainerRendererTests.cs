@@ -3,7 +3,7 @@ using Bark.Services;
 
 namespace Bark.Tests;
 
-public sealed class BarkContainerRendererTests
+public sealed class ContainerRendererTests
 {
     private const string CodeGroupMd = "::: code-group\n```sh [npm]\nnpm install\n```\n```sh [pnpm]\npnpm install\n```\n:::\n";
 

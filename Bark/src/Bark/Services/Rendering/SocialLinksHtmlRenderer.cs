@@ -17,7 +17,7 @@ public static class SocialLinksHtmlRenderer
             var iconSvg = await IconProvider.InlineSvgAsync(link.Icon, primaryIconsDir, fallbackIconsDir);
             var icon = iconSvg.Length > 0
                 ? iconSvg
-                : $"<span style=\"font-size:0.9rem\" aria-hidden=\"true\">{LayoutProvider.HtmlEncode(link.Icon)}</span>";
+                : $"<span class=\"social-icon-text\" aria-hidden=\"true\">{LayoutProvider.HtmlEncode(link.Icon)}</span>";
 
             var tooltip = link.Title ?? link.Icon;
             var label = $"{tooltip} (opens in new tab)";

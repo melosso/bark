@@ -734,6 +734,13 @@ public static partial class LayoutProvider
         pre code {{
             padding: 0; background-color: transparent; border-radius: 0;
         }}
+        dt {{
+            font-weight: 700;
+        }}
+        dd {{
+            margin-bottom: .5rem;
+            margin-left: 0;
+        }}
         .content h1 code, .content h2 code, .content h3 code,
         .content h4 code, .content h5 code, .content h6 code {{
             background: none; padding: 0; border-radius: 0; font-size: inherit;
@@ -1132,6 +1139,9 @@ public static partial class LayoutProvider
         }}
         .social-links {{
             display: flex; align-items: center; gap: 0.25rem;
+        }}
+        .social-icon-text {{
+            font-size: 0.9rem;
         }}
         .sidebar-social-links {{
             display: none;

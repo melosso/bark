@@ -275,7 +275,7 @@ try
         var topNavHtml = NavigationHtmlRenderer.BuildTopNavHtml(config?.TopNav, path, basePath);
         var mobileTopNavHtml = NavigationHtmlRenderer.BuildMobileTopNavHtml(config?.TopNav, path, basePath);
 
-        var tocHtml = TocHtmlRenderer.BuildTocHtml(page.Headings);
+        var tocHtml = page.ShowToc ? TocHtmlRenderer.BuildTocHtml(page.Headings) : null;
 
         var crumbs = await docs.GetBreadcrumbsAsync(path, context.RequestAborted);
         var breadcrumbHtml = BreadcrumbHtmlRenderer.BuildBreadcrumbHtml(crumbs, page.Title, basePath);

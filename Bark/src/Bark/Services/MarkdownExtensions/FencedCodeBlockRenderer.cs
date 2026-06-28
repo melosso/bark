@@ -5,8 +5,8 @@ using Markdig.Syntax;
 
 namespace Bark.Services.MarkdownExtensions;
 
-/// <summary>Replaces Markdig's default <see cref="CodeBlockRenderer"/> with language wrappers, notation classes, copy button, and optional line numbers.</summary>
-public sealed class BarkCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) : HtmlObjectRenderer<CodeBlock>
+/// <summary>Replaces Markdig's default <see cref="FencedCodeBlockRenderer"/> with language wrappers, notation classes, copy button, and optional line numbers.</summary>
+public sealed class FencedCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter) : HtmlObjectRenderer<CodeBlock>
 {
     protected override void Write(HtmlRenderer renderer, CodeBlock obj)
     {

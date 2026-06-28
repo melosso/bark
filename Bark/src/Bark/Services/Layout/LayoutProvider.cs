@@ -8,7 +8,7 @@ public static partial class LayoutProvider
         string title,
         string content,
         string navigationHtml,
-        string tocHtml,
+        string? tocHtml,
         string breadcrumbHtml,
         string paginationHtml,
         string? themeCss = null,
@@ -56,13 +56,13 @@ public static partial class LayoutProvider
             <nav class=""breadcrumb"" aria-label=""Breadcrumb"">
                 {breadcrumbHtml}
             </nav>
-            <details class=""toc-inline"">
+            {(tocHtml is null ? "" : $@"<details class=""toc-inline"">
                 <summary>On this page</summary>
                 <ul class=""toc-list"">
                     {tocHtml}
                 </ul>
-            </details>";
-        var sidebarRightHtml = isHomePage ? "" : string.IsNullOrWhiteSpace(tocHtml)
+            </details>")}";
+        var sidebarRightHtml = isHomePage || tocHtml is null ? "" : string.IsNullOrWhiteSpace(tocHtml)
             ? $@"
         <aside class=""sidebar-right"" aria-label=""Page info"">
             <div class=""toc-title"">{HtmlEncode(title)}</div>
@@ -318,9 +318,21 @@ public static partial class LayoutProvider
             return url;
 
         if (url.StartsWith('/'))
+        {
+            if (HasBasePathPrefix(url, basePath))
+                return url;
             return $"{basePath}{url}";
+        }
 
         return url;
+    }
+
+    private static bool HasBasePathPrefix(string path, string basePath)
+    {
+        if (string.IsNullOrEmpty(basePath))
+            return false;
+        return path.StartsWith(basePath, StringComparison.Ordinal)
+            && (path.Length == basePath.Length || path[basePath.Length] == '/');
     }
 
     private static string BuildSocialMeta(string? canonicalUrl, string title, string? description, bool isHomePage)

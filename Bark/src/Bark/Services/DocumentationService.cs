@@ -212,7 +212,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
                 OriginalRelativePath: normalizedRelativePath,
                 Keywords: parsed.Keywords,
                 ShowPagination: parsed.ShowPagination,
-                Redirect: parsed.Redirect
+                Redirect: parsed.Redirect,
+                ShowToc: parsed.ShowToc
             );
 
             _pageCache[pagePath] = page;
