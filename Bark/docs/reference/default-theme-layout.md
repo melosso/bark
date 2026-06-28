@@ -14,7 +14,7 @@ Every page without `layout: home` in its front matter gets the doc layout:
 - Header nav bar (if `topNav` is configured).
 - Left sidebar (auto-generated, or from `nav`/`sidebar` config).
 - Breadcrumbs.
-- A collapsible "On this page" table of contents on mobile, plus a fixed right-hand TOC on desktop.
+- A collapsible "On this page" table of contents on mobile, plus a fixed right-hand TOC on desktop. Set `toc: false` in frontmatter to hide it on a specific page.
 - Your rendered Markdown content.
 - "Edit this page" link (if `editLink` is configured).
 - "Last updated" stamp (if enabled).

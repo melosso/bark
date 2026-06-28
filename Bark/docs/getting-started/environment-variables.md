@@ -5,43 +5,17 @@ description: Configuring Bark via environment variables for Docker and container
 
 # Environment Variables
 
-If you are running Bark inside a Docker container or deploying it through an orchestration platform, environment variables are often the most convenient way to pass configuration in. ASP.NET Core's built-in configuration system picks them up automatically, so no code changes are needed.
+When you are running Bark inside a Docker container or deploying through an orchestration platform, environment variables are often the most convenient way to pass configuration in. ASP.NET Core's built-in configuration system picks them up automatically, so no code changes or extra config files are needed on your end.
 
-## How the Mapping Works
+Every setting you would normally write in `appsettings.json` can be provided this way. For the full list of available keys, see [Site Config](/reference/site-config).
 
-ASP.NET Core translates environment variables into configuration keys by replacing double underscores (`__`) with the colon (`:`) used to separate nested sections. This means any setting you would normally write in `appsettings.json` can be provided as an environment variable instead.
+## How the mapping works
+
+ASP.NET Core translates environment variable names into configuration keys by replacing double underscores (`__`) with the colon (`:`) used to separate nested sections. This keeps the naming consistent with what you would write directly in `appsettings.json`.
 
 For example, `Docs:RootPath` becomes `Docs__RootPath`, and `Docs:Themes:PrimaryColor` becomes `Docs__Themes__PrimaryColor`.
 
-## `Docs` Settings
-
-| Environment variable | Equivalent `appsettings.json` key | Default |
-|---|---|---|
-| `Docs__RootPath` | `Docs:RootPath` | `docs` |
-| `Docs__DefaultPage` | `Docs:DefaultPage` | `index` |
-| `Docs__EnableHotReload` | `Docs:EnableHotReload` | `true` |
-| `Docs__BasePath` | `Docs:BasePath` | _(none)_ |
-
-## `Docs:Themes` Settings
-
-| Environment variable | Equivalent `appsettings.json` key |
-|---|---|
-| `Docs__Themes__BrandText` | `Docs:Themes:BrandText` |
-| `Docs__Themes__PrimaryColor` | `Docs:Themes:PrimaryColor` |
-| `Docs__Themes__BgColor` | `Docs:Themes:BgColor` |
-| `Docs__Themes__SidebarBg` | `Docs:Themes:SidebarBg` |
-| `Docs__Themes__TextColor` | `Docs:Themes:TextColor` |
-| `Docs__Themes__TextMuted` | `Docs:Themes:TextMuted` |
-| `Docs__Themes__BorderColor` | `Docs:Themes:BorderColor` |
-| `Docs__Themes__CodeBg` | `Docs:Themes:CodeBg` |
-| `Docs__Themes__AccentLight` | `Docs:Themes:AccentLight` |
-| `Docs__Themes__FontSans` | `Docs:Themes:FontSans` |
-| `Docs__Themes__FontMono` | `Docs:Themes:FontMono` |
-| `Docs__Themes__CustomCssUrl` | `Docs:Themes:CustomCssUrl` |
-| `Docs__Themes__DarkMode` | `Docs:Themes:DarkMode` |
-| `Docs__Themes__ShowScrollIndicator` | `Docs:Themes:ShowScrollIndicator` |
-
-## Server URL and Port
+## Server URL and port
 
 Kestrel's listening address is controlled by the standard `ASPNETCORE_URLS` variable:
 
@@ -49,13 +23,15 @@ Kestrel's listening address is controlled by the standard `ASPNETCORE_URLS` vari
 ASPNETCORE_URLS=http://+:8080
 ```
 
-You can specify multiple addresses separated by a semicolon:
+You can specify multiple addresses separated by a semicolon if your deployment needs to listen on more than one port:
 
 ```bash
 ASPNETCORE_URLS=http://+:8080;https://+:8443
 ```
 
-## Docker Examples
+## Examples
+
+Docker is a common deployment target, so the examples below show both a `docker run` one-liner and a Compose file. The same variables work in any environment that supports standard process environment variables.
 
 **`docker run`:**
 
@@ -85,5 +61,3 @@ services:
     volumes:
       - ./docs:/docs
 ```
-
-It is recommended to set `Docs__EnableHotReload` to `false` in production container deployments. Because your docs are typically baked into the image or mounted as a read-only volume at startup, the filesystem watcher has nothing meaningful to watch.

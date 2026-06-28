@@ -30,11 +30,12 @@ Bark reads frontmatter keys using camelCase (`lastUpdated`, not `last_updated`).
 | `keywords` | `string[]` | none | A list of keywords for the page. Emitted as `<meta name="keywords">` in the page head (capped at 20 entries) and also indexed by Bark's search at a higher weight than body text. |
 | `lastUpdated` | `bool` | inherits site-wide setting | Set to `false` to hide the "Last updated" stamp on this page, overriding the site-wide setting. See [Last Updated Timestamp](/reference/default-theme-last-updated). |
 | `pagination` | `bool` | `true` | Set to `false` to hide the previous and next page links at the bottom of this page. Useful for standalone landing pages or pages that do not fit naturally into a linear reading order. |
+| `toc` | `bool` | `true` | Set to `false` to hide the table of contents on this page. |
 | `redirect` | `string` | none | When set, Bark issues a redirect to the given URL instead of rendering the page. See [Redirects](#redirects) below. |
 | `date` | `string` (ISO 8601) | none | Content creation date. Overrides the file system timestamp for the "Last updated" display when `updated` is not also set. |
 | `updated` | `string` (ISO 8601) | none | Last-modified date. Takes priority over `date` and the file system timestamp for the "Last updated" display. |
 
-`title` and `description` work on every page. `layout`, `hero`, and `features` only apply when `layout: home` is set. `lastUpdated` and `pagination` only have a visible effect when their respective site-wide features are active.
+`title` and `description` work on every page. `layout`, `hero`, and `features` only apply when `layout: home` is set. `lastUpdated`, `pagination`, and `toc` only have a visible effect when their respective site-wide features are active.
 
 ::: tip
 Bark does not currently support a per-page `sidebar: false` toggle. Every page that resolves to a `.md` file receives a sidebar automatically. See [Sidebar](/reference/default-theme-sidebar) for options around structuring and scoping sidebar navigation.

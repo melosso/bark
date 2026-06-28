@@ -15,7 +15,8 @@
       "text": "More",
       "items": [
         { "text": "GitHub", "link": "https://github.com/melosso/bark" },
-        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" }
+        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" },
+        { "text": "Changelog", "link": "more/changelog" }
       ]
     }
   ],

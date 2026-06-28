@@ -175,6 +175,12 @@ WantedBy=multi-user.target
 
 Hot reload (the `FileSystemWatcher` on `docs/`) keeps working in this setup. You don't need to restart the service to publish a content change, only to ship a code change.
 
+## Deploying to Production
+
+We have ensured that Bark is secure for production environments when running without a reverse proxy. However, you should evaluate whether this setup meets your specific requirements.
+
+For production container deployments, it is recommended to set `Docs__EnableHotReload` to `false`. Since documentation is typically either baked directly into your image or provided as a read-only volume at startup, the filesystem watcher will not have any functional purpose.
+
 ## Sizing expectations
 
 Bark holds the entire rendered page set and the search index *in memory*. For a documentation site in the hundreds-of-pages range, that's a non-issue on essentially any environment. 

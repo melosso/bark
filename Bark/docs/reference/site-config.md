@@ -13,7 +13,7 @@ If you are looking for a narrative walkthrough of these settings rather than a f
 
 ## `appsettings.json`: `Docs`
 
-These settings apply at the host level. An app restart is needed after changing them because they shape how Bark boots, not how it renders. If you are running Bark in Docker, every field in this section can be provided as an environment variable instead. See [Environment Variables](/getting-started/environment-variables) for the naming convention.
+These settings apply at the host level and take effect at startup, so a restart is needed after changing them. If your deployment runs Bark in a container or through an orchestration platform, every field here can be provided as an environment variable instead. See [Environment Variables](/getting-started/environment-variables) for how the naming convention works.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -25,9 +25,9 @@ These settings apply at the host level. An app restart is needed after changing 
 
 ## Theming
 
-Bark offers two ways to apply your own theme, and they are designed to complement each other. The quickest path is to drop files into `wwwroot/theme/`: a `custom.css` file there is loaded after Bark's built-in styles and can override any variable or rule, a `custom.js` file is injected before the closing `</body>`, and a `theme.json` file provides CSS variable overrides in a structured format. These files are picked up at startup and do not require any configuration changes, which makes them convenient for a self-hosted deployment where you can edit the filesystem directly.
+There are two ways to apply your own theme, and they complement each other nicely. Dropping files into `wwwroot/theme/` is the quickest path: a `custom.css` file there is loaded after Bark's built-in styles, a `custom.js` file is injected before the closing `</body>`, and a `theme.json` file accepts CSS variable overrides in a structured format. These are picked up at startup without any configuration changes, which works well when you can edit the filesystem directly.
 
-For deployments where you want to track theme settings in version control alongside the rest of your infrastructure configuration, the `Docs:Themes` section of `appsettings.json` offers the same capabilities. When `Docs:Themes` is present, it takes full priority over `theme.json`. The two are not merged field by field.
+If you would rather track theme settings in version control alongside the rest of your infrastructure, the `Docs:Themes` section of `appsettings.json` offers the same options. When `Docs:Themes` is present it takes full priority over `theme.json`, so the two are not merged.
 
 See [Extending Themes](/getting-started/extending-themes) for a practical walkthrough of both approaches.
 
@@ -80,11 +80,7 @@ These settings shape how your site presents itself to readers, search engines, a
 
 ## `docs/config.json`: navigation
 
-Bark gives you three navigation building blocks, and you can use them in combination or independently depending on the shape of your documentation.
-
-`topNav` populates the horizontal bar across the top of the page, which works well for top-level sections or external links. `sidebar` lets you define a different sidebar for each section of your docs by mapping path prefixes to nav trees; the longest matching prefix wins, so a sidebar at `"/reference/"` takes over whenever the reader is anywhere under that path. `nav` is a simpler, legacy alternative that shows the same sidebar on every page, which is perfectly appropriate for smaller documentation sites that do not need path-scoped sidebars.
-
-When both `sidebar` and `nav` are present, `sidebar` takes priority for any page that matches one of its prefixes.
+There are three navigation building blocks you can combine depending on the shape of your documentation. `topNav` populates the horizontal bar at the top of the page, which works well for top-level sections or external links. `sidebar` lets you define a different sidebar for each section by mapping path prefixes to nav trees; the longest matching prefix wins. `nav` is a simpler alternative that shows the same sidebar on every page, which suits smaller sites that do not need path-scoped sidebars. When both `sidebar` and `nav` are present, `sidebar` takes priority for any page whose path it matches.
 
 | Option | Type | Description |
 |---|---|---|
@@ -202,10 +198,6 @@ When launching Bark directly from the terminal rather than through Docker or a p
 
 ## What Bark does not configure
 
-Bark keeps its site-wide configuration minimal on purpose. While you can manage basic [metadata](../site-metadata), [routing](/getting-started/routing/), and [theme settings](/getting-started/extending-themes/), the platform lacks complex build options, custom bundler integration, or pipeline lifecycle hooks. This is because Bark operates without a client-side bundler (like Vite, Webpack, or Parcel) or a multi-stage compilation process.
+Bark keeps its configuration surface intentionally small. There are no build pipeline options, bundler settings, or lifecycle hooks, because Bark runs without a client-side build step. Features like math rendering, syntax highlighting, and custom containers are part of the core and are always active.
 
-System capabilities like math support, syntax highlighting, and custom containers are baked directly into the core engine and are always active. Bark is engineered to deliver a standardized, high-performance site out of the box without requiring an intricate setup file.
-
-If your project demands custom asset pipelines, structural layout changes, or build-stage hooks, the recommended path is to modify the source code directly. Bark is intentionally designed to be forked and customized rather than bent into shape through configuration files.
-
---
+If you find yourself needing custom asset pipelines or structural layout changes, the recommended approach is to fork the source and modify it directly. Bark is designed to be a solid starting point you can adapt, not a platform you configure into a different shape through files alone.
