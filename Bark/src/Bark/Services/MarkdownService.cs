@@ -93,7 +93,8 @@ public sealed partial class MarkdownService
             frontMatter?.Description,
             headings,
             frontMatter?.Layout,
-            frontMatter?.LastUpdated ?? true);
+            frontMatter?.LastUpdated ?? true,
+            frontMatter?.Keywords is { Count: > 0 } kw ? kw.AsReadOnly() : null);
     }
 
     private static string RenderHomePage(FrontMatter frontMatter, string basePath)

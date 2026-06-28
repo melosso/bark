@@ -8,7 +8,9 @@ public sealed record DocumentationPage(
     DateTime? LastModified = null,
     IReadOnlyList<HeadingInfo> Headings = default!,
     string? Layout = null,
-    bool ShowLastUpdated = true
+    bool ShowLastUpdated = true,
+    string? OriginalRelativePath = null,
+    IReadOnlyList<string>? Keywords = null
 )
 {
     public DocumentationPage(
@@ -19,7 +21,9 @@ public sealed record DocumentationPage(
         DateTime? lastModified = null,
         IEnumerable<HeadingInfo>? headings = null,
         string? layout = null,
-        bool showLastUpdated = true
+        bool showLastUpdated = true,
+        string? originalRelativePath = null,
+        IReadOnlyList<string>? keywords = null
     ) : this(
         path,
         title,
@@ -28,6 +32,8 @@ public sealed record DocumentationPage(
         lastModified,
         (headings ?? Array.Empty<HeadingInfo>()).ToList().AsReadOnly(),
         layout,
-        showLastUpdated
+        showLastUpdated,
+        originalRelativePath,
+        keywords
     ) { }
 }

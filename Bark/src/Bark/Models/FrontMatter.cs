@@ -11,6 +11,8 @@ public sealed record FrontMatter
     public HeroFrontMatter? Hero { get; init; }
     public List<FeatureFrontMatter>? Features { get; init; }
 
+    public List<string>? Keywords { get; init; }
+
     /// <summary>Per-page override for <c>Config.LastUpdated</c>. <c>false</c> hides the
     /// "Last updated" stamp on this page even when the site-wide setting is on.</summary>
     public bool? LastUpdated { get; init; }

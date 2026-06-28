@@ -1,9 +1,11 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
+using System.Threading.RateLimiting;
 using Bark.Configuration;
 using Bark.Models;
 using Bark.Services;
@@ -81,6 +83,20 @@ try
 
     builder.Services.AddSingleton<Serilog.ILogger>(sp => Log.Logger);
 
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.AddPolicy("search-limit", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 30,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0
+                }));
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    });
+
     LogApplicationBanner();
 
     var app = builder.Build();
@@ -91,7 +107,9 @@ try
     if (basePath.Length > 0)
         app.UsePathBase(basePath);
 
-    app.Use(SecurityHeaders.Apply);
+    var customCspRaw = builder.Configuration["Docs:ContentSecurityPolicy"];
+    var customCsp = string.IsNullOrWhiteSpace(customCspRaw) ? null : customCspRaw;
+    app.UseSecurityHeaders(customCsp);
     app.UseResponseCompression();
 
     var defaultWebRoot = Path.Combine(AppContext.BaseDirectory, "wwwroot-default");
@@ -111,6 +129,7 @@ try
     }
 
     app.UseRouting();
+    app.UseRateLimiter();
 
     // Drop files at wwwroot/theme/custom.{css,js} and they're picked up at startup, no config edit needed. Does NOT support hot rloading.
     var themeDir = Path.Combine(app.Environment.WebRootPath, "theme");
@@ -133,7 +152,7 @@ try
 
         var results = docs.Search(q);
         return Results.Ok(results);
-    });
+    }).RequireRateLimiting("search-limit");
 
     app.MapGet("/robots.txt", (HttpContext context) =>
     {
@@ -224,7 +243,7 @@ try
 
         var tocHtml = TocHtmlRenderer.BuildTocHtml(page.Headings);
 
-        var crumbs = docs.GetBreadcrumbs(path);
+        var crumbs = await docs.GetBreadcrumbsAsync(path, context.RequestAborted);
         var breadcrumbHtml = BreadcrumbHtmlRenderer.BuildBreadcrumbHtml(crumbs, page.Title, basePath);
 
         var isHomePage = page.Layout == "home";
@@ -263,10 +282,22 @@ try
         const string editLinkIcon = "<svg class=\"edit-link-icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"currentColor\" aria-hidden=\"true\">" +
             "<path d=\"M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z\"/></svg>";
 
+        var editPath = page.OriginalRelativePath ?? $"{page.Path}.md";
+        var encodedEditPath = string.Join("/", editPath.Split('/').Select(Uri.EscapeDataString));
         var editLinkHtml = !isHomePage && config?.EditLink is { Pattern: { Length: > 0 } pattern } editLink
-            ? $"<a class=\"edit-link\" href=\"{LayoutProvider.HtmlEncode(pattern.Replace(":path", $"{page.Path}.md"))}\" " +
-              $"target=\"_blank\" rel=\"noopener noreferrer\">{editLinkIcon}{LayoutProvider.HtmlEncode(editLink.Text)}</a>"
+            ? $"<a class=\"edit-link\" href=\"{LayoutProvider.HtmlEncode(pattern.Replace(":path", encodedEditPath))}\" " +
+              $"target=\"_blank\" rel=\"noopener noreferrer nofollow\">{editLinkIcon}{LayoutProvider.HtmlEncode(editLink.Text)}</a>"
             : string.Empty;
+
+        var keywordsHtml = page.Keywords is { Count: > 0 } kw
+            ? $"<meta name=\"keywords\" content=\"{LayoutProvider.HtmlEncode(string.Join(", ", kw.Take(20)))}\">"
+            : string.Empty;
+
+        var pageSegment = page.Path == "index" ? string.Empty : $"{page.Path}/";
+        var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');
+        var canonicalUrl = $"{context.Request.Scheme}://{context.Request.Host}/{rawPath}";
+
+        var nonce = context.Items["csp-nonce"] as string ?? string.Empty;
 
         var fullHtml = LayoutProvider.GetLayout(
             title: PageTitleRenderer.ComputeTitle(page.Title, config),
@@ -293,7 +324,10 @@ try
             editLinkHtml: editLinkHtml,
             basePath: basePath,
             lang: config?.Lang ?? "en",
-            headTagsHtml: HeadTagHtmlRenderer.BuildHeadTagsHtml(config?.Head)
+            headTagsHtml: HeadTagHtmlRenderer.BuildHeadTagsHtml(config?.Head),
+            keywordsHtml: keywordsHtml,
+            canonicalUrl: canonicalUrl,
+            nonce: nonce
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";

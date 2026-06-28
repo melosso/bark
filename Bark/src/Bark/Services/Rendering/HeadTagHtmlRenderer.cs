@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Encodings.Web;
 using Bark.Models;
 
 namespace Bark.Services.Rendering;
@@ -14,7 +15,11 @@ public static class HeadTagHtmlRenderer
     {
         if (tags is null or { Count: 0 }) return string.Empty;
 
-        var sb = new StringBuilder();
+        // Lets pre-allocate capacity to avoid array resizing
+        var sb = new StringBuilder(512);
+        
+        using var writer = new StringWriter(sb);
+
         foreach (var tag in tags)
         {
             if (string.IsNullOrWhiteSpace(tag.Tag)) continue;
@@ -24,8 +29,13 @@ public static class HeadTagHtmlRenderer
             if (tag.Attrs is { Count: > 0 } attrs)
             {
                 foreach (var (key, value) in attrs)
-                    sb.Append(' ').Append(key).Append("=\"")
-                      .Append(System.Net.WebUtility.HtmlEncode(value)).Append('"');
+                {
+                    sb.Append(' ').Append(key).Append("=\"");
+
+                    HtmlEncoder.Default.Encode(writer, value);
+                    
+                    sb.Append('"');
+                }
             }
 
             if (VoidElements.Contains(tag.Tag))
@@ -36,11 +46,26 @@ public static class HeadTagHtmlRenderer
             {
                 sb.Append('>');
                 if (tag.Content is not null)
-                    sb.Append(tag.Content);
+                {
+                    if (IsRawElement(tag.Tag))
+                    {
+                        sb.Append(tag.Content);
+                    }
+                    else
+                    {
+                        HtmlEncoder.Default.Encode(writer, tag.Content);
+                    }
+                }
                 sb.Append("</").Append(tag.Tag).AppendLine(">");
             }
         }
 
         return sb.ToString();
+    }
+
+    private static bool IsRawElement(string tag)
+    {
+        return tag.Equals("script", StringComparison.OrdinalIgnoreCase) || 
+               tag.Equals("style", StringComparison.OrdinalIgnoreCase);
     }
 }

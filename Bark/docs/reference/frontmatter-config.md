@@ -23,6 +23,7 @@ description: appsettings.json options, docs/config.json, and theming
 | `layout` | `string` | none | Set to `home` to render a hero and features grid instead of standard docs chrome. See [homepage](default-theme-home-page). |
 | `hero` | `object` | none | Hero content. Only used when `layout: home`. |
 | `features` | `array` | none | Feature cards. Only used when `layout: home`. |
+| `keywords` | `string[]` | none | A list of keywords for the page. Emitted as `<meta name="keywords">` in the page head (capped at 20 entries) and also indexed by Bark's search at a higher weight than body text. |
 | `lastUpdated` | `bool` | none | Set to `false` to hide the "Last updated" stamp on this page, overriding the site-wide setting. See [Last Updated Timestamp](default-theme-last-updated). |
 
 `title` and `description` work everywhere. `layout`, `hero`, and `features` only do anything on a page that sets `layout: home`. `lastUpdated` only matters when the site-wide toggle is on.

@@ -24,6 +24,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
     private readonly SearchIndex _searchIndex = new();
     private NavigationNode? _navigation;
     private Config? _docsConfig;
+    private Dictionary<string, string> _navTitleLookup = new();
     private string? _lastContentHash;
     private readonly SemaphoreSlim _buildLock = new(1, 1);
     private readonly Channel<FileSystemEventArgs> _fileChannel =
@@ -206,7 +207,9 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
                 LastModified: lastModified,
                 Headings: parsed.Headings,
                 Layout: parsed.Layout,
-                ShowLastUpdated: parsed.ShowLastUpdated
+                ShowLastUpdated: parsed.ShowLastUpdated,
+                OriginalRelativePath: relativePath.Replace('\\', '/'),
+                Keywords: parsed.Keywords
             );
 
             _pageCache[pagePath] = page;
@@ -219,12 +222,12 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
 
         var contentHash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput.ToString())));
 
-        // FileSystemWatcher fires spurious events on some filesystems; only bump BuildVersion
-        // (which the client polls and reloads on) when content actually changed.
+        // Prevent unnecessary client reloads from spurious file events by verifying content changes!
         if (contentHash == _lastContentHash)
         {
             _navigation = BuildNavigation(docsPath, pages);
             _searchIndex.Build(pages);
+            _navTitleLookup = navTitlesByPath;
             _docsConfig = config;
             _logger.LogDebug("Rebuilt documentation but content is unchanged, skipping version bump");
             return;
@@ -233,6 +236,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _lastContentHash = contentHash;
         _navigation = BuildNavigation(docsPath, pages);
         _searchIndex.Build(pages);
+        _navTitleLookup = navTitlesByPath;
         _docsConfig = config;
         BuildVersion++;
         _logger.LogInformation("Built documentation with {PageCount} pages", pages.Count);
@@ -293,16 +297,14 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         }
     }
 
-    public async Task<DocumentationPage?> GetPageAsync(string path, CancellationToken cancellationToken = default)
+    public ValueTask<DocumentationPage?> GetPageAsync(string path, CancellationToken cancellationToken = default)
     {
         path = path.Trim('/').ToLowerInvariant();
         if (string.IsNullOrEmpty(path))
             path = _options.DefaultPage ?? "index";
 
-        if (_pageCache.TryGetValue(path, out var page))
-            return page;
-
-        return null;
+        _pageCache.TryGetValue(path, out var page);
+        return ValueTask.FromResult(page);
     }
 
     public async Task<IReadOnlyList<DocumentationPage>> GetAllPagesAsync(CancellationToken cancellationToken = default)
@@ -323,7 +325,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         return _searchIndex.Search(query);
     }
 
-    public IReadOnlyList<BreadcrumbItem> GetBreadcrumbs(string path)
+    public async Task<IReadOnlyList<BreadcrumbItem>> GetBreadcrumbsAsync(string path, CancellationToken cancellationToken = default)
     {
         path = path.Trim('/').ToLowerInvariant();
         var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries)
@@ -331,22 +333,31 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             .ToArray();
         var crumbs = new List<BreadcrumbItem> { new("Home", "/") };
 
-        var accumulated = "";
-        foreach (var segment in segments)
+        await _buildLock.WaitAsync(cancellationToken);
+        try
         {
-            accumulated = string.IsNullOrEmpty(accumulated) ? segment : $"{accumulated}/{segment}";
+            var navTitles = _navTitleLookup;
+            var accumulated = "";
+            foreach (var segment in segments)
+            {
+                accumulated = string.IsNullOrEmpty(accumulated) ? segment : $"{accumulated}/{segment}";
 
-            if (_pageCache.TryGetValue(accumulated, out var page))
-            {
-                crumbs.Add(new BreadcrumbItem(page.Title, $"/{accumulated}"));
+                if (_pageCache.TryGetValue(accumulated, out var page))
+                    crumbs.Add(new BreadcrumbItem(page.Title, $"/{accumulated}"));
+                else if (navTitles.TryGetValue(accumulated, out var navTitle))
+                    crumbs.Add(new BreadcrumbItem(navTitle, null));
+                else
+                {
+                    var title = segment.Replace('-', ' ').Replace('_', ' ');
+                    if (title.Length > 0)
+                        title = char.ToUpperInvariant(title[0]) + title[1..];
+                    crumbs.Add(new BreadcrumbItem(title, null));
+                }
             }
-            else
-            {
-                var title = segment.Replace('-', ' ').Replace('_', ' ');
-                if (title.Length > 0)
-                    title = char.ToUpperInvariant(title[0]) + title[1..];
-                crumbs.Add(new BreadcrumbItem(title, null));
-            }
+        }
+        finally
+        {
+            _buildLock.Release();
         }
 
         return crumbs;
@@ -363,7 +374,21 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             foreach (var entries in sidebar.Values)
                 CollectNavTitles(entries, lookup);
 
+        if (config?.TopNav is { } topNav)
+            foreach (var item in topNav)
+                CollectTopNavTitles(item, lookup);
+
         return lookup;
+    }
+
+    private static void CollectTopNavTitles(TopNavItem item, Dictionary<string, string> lookup)
+    {
+        if (!string.IsNullOrEmpty(item.Link) && !string.IsNullOrEmpty(item.Text))
+            lookup[item.Link.Trim('/').ToLowerInvariant()] = item.Text;
+
+        if (item.Items is { Count: > 0 } children)
+            foreach (var child in children)
+                CollectTopNavTitles(child, lookup);
     }
 
     private static void CollectNavTitles(List<NavEntry> entries, Dictionary<string, string> lookup)

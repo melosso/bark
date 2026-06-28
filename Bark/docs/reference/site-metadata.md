@@ -65,9 +65,37 @@ The `lang` field sets the `lang` attribute on the root `<html>` element. It defa
 
 Language tag values follow the [BCP 47 standard](https://www.ietf.org/rfc/bcp/bcp47.txt). Common values include `"en"`, `"fr"`, `"de"`, `"ja"`, `"zh-CN"`, and `"pt-BR"`.
 
+## Automatic Canonical and Social Meta
+
+Bark automatically emits a canonical link and Open Graph / Twitter Card tags on every page. You do not need to configure any of these manually.
+
+The canonical URL is derived from the request scheme, host, and page path. A page at `/getting-started/installation/` on `https://docs.example.com` produces:
+
+```html
+<link rel="canonical" href="https://docs.example.com/getting-started/installation/">
+```
+
+Open Graph and Twitter Card tags are generated from the same canonical URL and the page's own `title` and `description` values:
+
+```html
+<meta property="og:type" content="article">
+<meta property="og:title" content="Installation">
+<meta property="og:url" content="https://docs.example.com/getting-started/installation/">
+<meta property="og:description" content="How to install Bark.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Installation">
+<meta name="twitter:description" content="How to install Bark.">
+```
+
+The home page (`/`) uses `og:type` of `website`; all other pages use `article`. The description tags are omitted when the page has no description.
+
+::: info
+Because Bark generates canonical and Open Graph tags from the live request, they reflect the correct URL automatically and do not require any configuration. If you add matching tags via the `head` array in `config.json`, the manually added tags appear alongside the auto-generated ones, not instead of them. It is recommended to leave canonical and basic Open Graph coverage to Bark and use `head` for site-name, structured data, or additional OG fields such as `og:image`.
+:::
+
 ## Extra Head Tags
 
-For anything that falls outside the fields above, the `head` array lets you inject arbitrary tags into `<head>` on every page. This is particularly useful for Open Graph metadata, canonical links, structured data, or any third-party initialization snippets.
+For anything that falls outside the fields above, the `head` array lets you inject arbitrary tags into `<head>` on every page. This is particularly useful for structured data, site-name Open Graph metadata, or any third-party initialization snippets.
 
 Each entry in the array is an object with three fields:
 
@@ -77,13 +105,13 @@ Each entry in the array is an object with three fields:
 | `attrs` | `Record<string, string>?` | Attribute key-value pairs. Values are HTML-encoded automatically. |
 | `content` | `string?` | Inner HTML for tags that wrap content, such as `<script>` or `<style>`. Void elements like `<meta>` and `<link>` do not use this field. |
 
-Here is a practical example that adds Open Graph metadata and a structured data block:
+Here is a practical example that adds supplementary Open Graph fields and a structured data block:
 
 ```json
 {
   "head": [
-    { "tag": "meta", "attrs": { "property": "og:type", "content": "website" } },
     { "tag": "meta", "attrs": { "property": "og:site_name", "content": "Bark" } },
+    { "tag": "meta", "attrs": { "property": "og:image", "content": "https://bark.example.com/og-image.png" } },
     {
       "tag": "script",
       "attrs": { "type": "application/ld+json" },
@@ -108,8 +136,14 @@ All entries in `head` are added to every page on your site. For per-page metadat
   "description": "A fast, lightweight documentation server for ASP.NET Core.",
   "lang": "en",
   "head": [
-    { "tag": "meta", "attrs": { "property": "og:type", "content": "website" } },
-    { "tag": "link", "attrs": { "rel": "canonical", "href": "https://bark.example.com" } }
+    { "tag": "meta", "attrs": { "property": "og:site_name", "content": "Bark" } },
+    {
+      "tag": "script",
+      "attrs": { "type": "application/ld+json" },
+      "content": "{\"@context\":\"https://schema.org\",\"@type\":\"WebSite\",\"name\":\"Bark\"}"
+    }
   ]
 }
 ```
+
+Bark generates the canonical link, `og:title`, `og:url`, `og:description`, `og:type`, `twitter:card`, and `twitter:title` / `twitter:description` automatically on every page, so those are intentionally absent from this example. The `head` array is for fields Bark does not cover on its own.
