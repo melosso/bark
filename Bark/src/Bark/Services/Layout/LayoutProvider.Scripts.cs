@@ -469,6 +469,21 @@ public static partial class LayoutProvider
                 window.mermaid.initialize({{ theme: mermaidIsDark ? 'dark' : 'default' }});
                 window.mermaid.run();
             }}
+
+            document.querySelectorAll('.top-nav-item.has-dropdown').forEach(function(item) {{
+                var btn = item.querySelector('.top-nav-link[aria-expanded]');
+                if (!btn) return;
+                item.addEventListener('focusin', function() {{
+                    btn.setAttribute('aria-expanded', 'true');
+                }});
+                item.addEventListener('focusout', function() {{
+                    setTimeout(function() {{
+                        if (!item.matches(':focus-within')) btn.setAttribute('aria-expanded', 'false');
+                    }}, 0);
+                }});
+                item.addEventListener('mouseenter', function() {{ btn.setAttribute('aria-expanded', 'true'); }});
+                item.addEventListener('mouseleave', function() {{ btn.setAttribute('aria-expanded', 'false'); }});
+            }});
         }});
     </script>
 ";

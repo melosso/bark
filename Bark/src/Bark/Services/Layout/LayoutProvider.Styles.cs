@@ -30,6 +30,8 @@ public static partial class LayoutProvider
             --code-button-bg: var(--bg-color);
             --code-button-border: var(--border);
             --code-button-hover: var(--accent);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.3);
         }}
         {darkModeMediaQuery}
         * {{
@@ -69,14 +71,6 @@ public static partial class LayoutProvider
         }}
         .no-theme-transition, .no-theme-transition * {{
             transition: none !important;
-        }}
-        @media (prefers-reduced-motion: reduce) {{
-            *, *::before, *::after {{
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
-            }}
         }}
         :root {{
             --topbar-height: 57px;
@@ -141,7 +135,7 @@ public static partial class LayoutProvider
         .top-nav-dropdown-menu {{
             display: none; position: absolute; top: 100%; left: 0; min-width: 180px;
             background-color: var(--bg-color); border: 1px solid var(--border); border-radius: 8px;
-            padding: 0.4rem; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); z-index: 1003;
+            padding: 0.4rem; box-shadow: var(--shadow-md); z-index: 1003;
         }}
         .top-nav-item.has-dropdown:hover .top-nav-dropdown-menu,
         .top-nav-item.has-dropdown:focus-within .top-nav-dropdown-menu {{
@@ -275,7 +269,7 @@ public static partial class LayoutProvider
         .search-modal {{
             width: 100%; max-width: 720px; max-height: 80vh;
             background-color: var(--bg-color); border: 1px solid var(--border); border-radius: 12px;
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-lg);
             display: flex; flex-direction: column; overflow: hidden;
             transform: translateY(-12px) scale(0.98);
             transition: transform 0.15s ease;
@@ -395,7 +389,7 @@ public static partial class LayoutProvider
             display: block; padding: 0.55rem 0.8rem; line-height: 1.4;
             color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
             border-radius: 6px; margin-left: -0.8rem;
-            transition: all 0.15s ease;
+            transition: color 0.15s ease, background-color 0.15s ease;
         }}
         .nav-item a:hover {{
             color: var(--text-color); background-color: var(--nav-hover-bg);
@@ -802,9 +796,9 @@ public static partial class LayoutProvider
             background-color: var(--shiki-dark-bg);
         }}
         @media (prefers-color-scheme: dark) {{
-            :root:not([data-theme=""light""]) .tab-icon {{ filter: invert(1); }}
+            :root:not([data-theme=""light""]) .tab-icon {{ filter: brightness(0) invert(1); }}
         }}
-        :root[data-theme=""dark""] .tab-icon {{ filter: invert(1); }}
+        :root[data-theme=""dark""] .tab-icon {{ filter: brightness(0) invert(1); }}
         .content .line {{
             display: inline-block;
             width: 100%;
@@ -826,10 +820,10 @@ public static partial class LayoutProvider
             padding: 0 1.25rem;
         }}
         .content .line.diff.add {{
-            background-color: rgba(46, 160, 67, 0.15);
+            background-color: color-mix(in srgb, var(--alert-tip) 15%, transparent);
         }}
         .content .line.diff.remove {{
-            background-color: rgba(248, 81, 73, 0.15);
+            background-color: color-mix(in srgb, var(--alert-caution) 15%, transparent);
             opacity: 0.7;
         }}
         .content div[class^=""language-""].has-focused-lines .line {{
@@ -1179,6 +1173,10 @@ public static partial class LayoutProvider
                 width: 44px;
                 height: 44px;
             }}
+            .theme-toggle {{
+                height: 44px;
+                border-radius: 22px;
+            }}
             .nav-item a, .toc-item a {{
                 min-height: 44px; display: flex; align-items: center;
             }}
@@ -1205,8 +1203,16 @@ public static partial class LayoutProvider
             .toc-inline summary {{
                 cursor: pointer; font-size: 0.8rem; font-weight: 600;
                 text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);
-                padding: 0.5rem 0;
+                padding: 0.5rem 0; list-style: none;
+                display: flex; align-items: center; justify-content: space-between;
             }}
+            .toc-inline summary::-webkit-details-marker {{ display: none; }}
+            .toc-inline summary::after {{
+                content: ""; display: inline-block; width: 6px; height: 6px; flex-shrink: 0;
+                border-right: 2px solid var(--text-muted); border-bottom: 2px solid var(--text-muted);
+                transform: rotate(-45deg); transition: transform 0.2s ease;
+            }}
+            .toc-inline[open] summary::after {{ transform: rotate(45deg); }}
             .toc-inline .toc-list {{
                 padding-bottom: 0.5rem;
             }}
@@ -1286,6 +1292,7 @@ public static partial class LayoutProvider
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
             }}
         }}
 </style>

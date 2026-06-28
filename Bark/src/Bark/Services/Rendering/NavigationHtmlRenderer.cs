@@ -150,7 +150,7 @@ public static class NavigationHtmlRenderer
             else
             {
                 html.AppendLine("<div class=\"top-nav-item has-dropdown\">");
-                html.AppendLine($"<button type=\"button\" class=\"top-nav-link\">{LayoutProvider.HtmlEncode(item.Text)} " +
+                html.AppendLine($"<button type=\"button\" class=\"top-nav-link\" aria-expanded=\"false\" aria-haspopup=\"true\">{LayoutProvider.HtmlEncode(item.Text)} " +
                     "<svg class=\"top-nav-chevron\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></button>");
                 html.AppendLine("<div class=\"top-nav-dropdown-menu\">");
                 foreach (var child in children)

@@ -88,6 +88,8 @@ public static partial class LayoutProvider
 
         const string darkVars = @"
                 color-scheme: dark;
+                --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+                --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
                 --bg-color: #0b0b0b;
                 --sidebar-bg: #121212;
                 --text-color: #e5e5e5;
