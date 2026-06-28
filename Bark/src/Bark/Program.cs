@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -201,6 +202,10 @@ try
         return Results.Content(sb.ToString(), "application/xml", Encoding.UTF8);
     });
 
+    // Stable nonce per ETag value: same content version → same nonce → 304 and cached HTML stay coherent.
+    // ETag already folds in BuildVersion, so a content rebuild rotates to a fresh nonce automatically.
+    var pageNonces = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
+
     app.MapGet("/{**path}", async (string? path, DocumentationService docs, MarkdownService markdown, HttpContext context) =>
     {
         var isRootRequest = path == null || path == "" || path == "/";
@@ -229,6 +234,12 @@ try
         var etag = Convert.ToBase64String(SHA256.HashData(etagInput)).TrimEnd('=');
         context.Response.Headers.ETag = $"\"{etag}\"";
         context.Response.Headers.CacheControl = "no-cache";
+
+        // Stable nonce keyed by ETag: 304 responses carry the same nonce as the cached 200 body.
+        var nonce = pageNonces.GetOrAdd(etag,
+            _ => Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)));
+        context.Response.Headers.ContentSecurityPolicy =
+            SecurityHeaders.BuildNonceCsp(customCsp ?? SecurityHeaders.DefaultCsp, nonce);
 
         if (context.Request.Headers.IfNoneMatch.ToString() == $"\"{etag}\"")
         {
@@ -296,8 +307,6 @@ try
         var pageSegment = page.Path == "index" ? string.Empty : $"{page.Path}/";
         var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');
         var canonicalUrl = $"{context.Request.Scheme}://{context.Request.Host}/{rawPath}";
-
-        var nonce = context.Items["csp-nonce"] as string ?? string.Empty;
 
         var fullHtml = LayoutProvider.GetLayout(
             title: PageTitleRenderer.ComputeTitle(page.Title, config),

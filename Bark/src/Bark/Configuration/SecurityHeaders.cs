@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Builder;
 
 namespace Bark.Configuration;
@@ -19,16 +18,10 @@ public static class SecurityHeaders
 
     public static Task Apply(HttpContext context, Func<Task> next, string contentSecurityPolicy)
     {
-        var nonceBytes = RandomNumberGenerator.GetBytes(16);
-        var nonce = Convert.ToBase64String(nonceBytes);
-        context.Items["csp-nonce"] = nonce;
-
-        var csp = contentSecurityPolicy.Replace("'unsafe-inline'", $"'nonce-{nonce}'");
-
         context.Response.Headers.XContentTypeOptions = "nosniff";
         context.Response.Headers.XFrameOptions = "DENY";
         context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-        context.Response.Headers.ContentSecurityPolicy = csp;
+        context.Response.Headers.ContentSecurityPolicy = contentSecurityPolicy;
         context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()";
 
         if (context.Request.IsHttps)
@@ -36,6 +29,9 @@ public static class SecurityHeaders
 
         return next();
     }
+
+    public static string BuildNonceCsp(string baseCsp, string nonce) =>
+        baseCsp.Replace("'unsafe-inline'", $"'nonce-{nonce}'");
 }
 
 public static class SecurityHeadersExtensions

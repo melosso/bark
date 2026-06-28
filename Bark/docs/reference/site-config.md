@@ -5,7 +5,9 @@ description: Full reference for appsettings.json and docs/config.json
 
 # Site Config
 
-Bark draws from two separate configuration files, and understanding why helps you decide where a setting belongs. `appsettings.json` is for deployment-level concerns: where your Markdown files live, whether hot-reload is on, and what base path the server sits at. `docs/config.json` lives alongside your content and controls everything your readers see, from the site name and navigation structure to the footer and social links. That distinction means you can check `config.json` into the same repository as your docs and deploy the server without touching it.
+Bark draws from two separate configuration files, and understanding why helps you decide where a setting belongs.
+
+ `appsettings.json` is for deployment-level concerns: where your Markdown files live, whether hot-reload is on, and what base path the server sits at. `docs/config.json` lives alongside your content and controls everything your readers see, from the site name and navigation structure to the footer and social links. That distinction means you can check `config.json` into the same repository as your docs and deploy the server without touching it.
 
 If you are looking for a narrative walkthrough of these settings rather than a field-by-field reference, [Configuration](/getting-started/configuration) walks through the most common setups step by step.
 
