@@ -231,7 +231,8 @@ try
         var brandImage = config?.BrandImage;
         var combinedThemeCss = themeCss + customCssLink + customJsScript;
 
-        var socialLinksHtml = SocialLinksHtmlRenderer.BuildSocialLinksHtml(config?.SocialLinks);
+        var iconsDir = Path.Combine(app.Environment.WebRootPath, "icons");
+        var socialLinksHtml = SocialLinksHtmlRenderer.BuildSocialLinksHtml(config?.SocialLinks, iconsDir);
         var footerHtml = config?.Footer is { } footer
             ? $"<div class=\"content-footer\">{markdown.ToHtml(footer)}</div>"
             : string.Empty;
