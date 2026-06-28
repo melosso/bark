@@ -59,7 +59,13 @@ Your folder layout becomes your site's navigation and URLs automatically. The ex
 
 ## What's next
 
+Start configuring your site:
+
 - [Configuration](../configuration): `config.json` options, themes, and branding.
-- [Using Markdown](../markdown): every Markdown extension Bark supports, with live examples.
 - [Routing](../routing): how file paths map to URLs.
 - [Deploy](../deploy): Docker, IIS, Linux, or building from source, plus the production defaults Bark ships with.
+
+If you've already got that setup, continue reading about:
+
+- [Using Markdown](../markdown): every Markdown extension Bark supports, with live examples.
+- [Frontmatter](/reference/frontmatter-config/): how to add metadata to your Markdown pages

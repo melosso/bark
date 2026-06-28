@@ -231,6 +231,17 @@ Four types, same colors as the alert blocks above: `info` (blue), `tip` (green, 
 Always close the tag: `<Badge type="tip">text</Badge>`. A self-closing `<Badge text="x" />` looks reasonable but breaks, HTML has no XML-style self-close for unknown elements, so it silently swallows the rest of the paragraph as its content instead of rendering a badge.
 :::
 
+## Definition lists 
+
+A definition list pairs terms with their meanings. Use a colon `:` followed by a space to mark each definition.
+
+Term 1
+:   Definition of term 1.
+
+Term 2
+:   Definition of term 2.
+:   Another definition of term 2.
+
 ## Math
 
 Inline: $E = mc^2$
@@ -240,6 +251,12 @@ Block:
 $$
 \sum_{i=1}^{n} i = \frac{n(n+1)}{2}
 $$
+
+## Citations
+
+Wrap your text in double quotes `""` to create a citation element:
+
+""The Art of Computer Programming""
 
 ## Standard Markdown
 

@@ -5,7 +5,7 @@ description: Every field you can set in a page's YAML frontmatter
 
 # Frontmatter Config
 
-Every Markdown file accepts an optional YAML frontmatter block at the top. Bark falls back to sensible defaults for anything you skip, so a minimal file with no frontmatter at all is completely valid and a reasonable starting point.
+Frontmatter is [widely used](https://www.markdownlang.com/advanced/frontmatter.html){target="_blank" rel="noopener"} and documented way to add metadata to your Markdown documents. Every Markdown file accepts an optional YAML frontmatter block at the top. Bark falls back to sensible defaults for anything you skip, so a minimal file with no frontmatter at all is completely valid and a reasonable starting point.
 
 ```yaml
 ---

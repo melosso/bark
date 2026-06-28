@@ -32,18 +32,18 @@ Browse to `http://localhost:8080`.
 
 ## Option B: Windows / IIS
 
-1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases).
+1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"}.
 2. Extract it to your site folder (for example `C:\inetpub\bark`).
 3. In IIS, create a site (or app) pointing at that folder, with the **No Managed Code** .NET CLR version. Bark hosts itself via the ASP.NET Core Module, it doesn't need the CLR to load anything.
 4. The zip already includes a `web.config` wired for in-process hosting. No manual edits needed.
-5. Install the [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) on the server. This gives IIS the ASP.NET Core Module.
+5. Install the [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/10.0){target="_blank" rel="noopener"} on the server. This gives IIS the ASP.NET Core Module.
 6. Start the site and browse to it.
 
 ## Option C: Linux release zip
 
 A self-contained Linux x64 build (`*-Linux_x64.zip`) ships alongside every release. This is a convenient option if you prefer running the binary directly without Docker.
 
-1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/melosso/bark/releases).
+1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"}.
 2. Extract it to your server (for example `/srv/bark`):
 
 ```bash
@@ -87,7 +87,7 @@ cd publish
 dotnet Bark.dll
 ```
 
-You need the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) installed to publish. The published output still needs the .NET runtime on the target machine unless you add `--self-contained true -r <rid>`.
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0){target="_blank" rel="noopener"} installed to publish. The published output still needs the .NET runtime on the target machine unless you add `--self-contained true -r <rid>`.
 
 If you're actively developing Bark's own source rather than running it, `dotnet watch --project src/Bark` from a clone gives you C#-side hot reload too.
 
@@ -151,7 +151,7 @@ server {
 
 Building from source and running `dotnet Bark.dll` directly uses whatever port `ASPNETCORE_URLS` or your launch profile configures instead of 8080. Adjust `proxy_pass` to match.
 
-If you're behind a reverse proxy, configure [Forwarded Headers Middleware](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer) so Bark sees the real client scheme/host. `robots.txt` and `sitemap.xml` both build absolute URLs from the incoming request, so getting this right matters for SEO correctness, not just logging.
+If you're behind a reverse proxy, configure [Forwarded Headers Middleware](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer){target="_blank" rel="noopener"} so Bark sees the real client scheme/host. `robots.txt` and `sitemap.xml` both build absolute URLs from the incoming request, so getting this right matters for SEO correctness, not just logging.
 
 ## Running as a service (source builds)
 
