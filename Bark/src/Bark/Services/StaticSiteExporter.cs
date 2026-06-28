@@ -21,10 +21,15 @@ public static class StaticSiteExporter
 
         Directory.CreateDirectory(outputDir);
 
+        var originPrefix = address.TrimEnd('/');
+        var publicPrefix = string.IsNullOrEmpty(baseUrl) ? null : baseUrl.TrimEnd('/');
+
         foreach (var page in pages)
         {
             var requestPath = page.Path == "index" ? "/" : $"/{page.Path}";
             var html = await client.GetStringAsync(requestPath, cancellationToken);
+            if (publicPrefix is not null)
+                html = html.Replace(originPrefix, publicPrefix);
             var targetFile = page.Path == "index"
                 ? Path.Combine(outputDir, "index.html")
                 : Path.Combine(outputDir, page.Path, "index.html");
@@ -35,10 +40,8 @@ public static class StaticSiteExporter
         foreach (var extra in new[] { "robots.txt", "llms.txt", "sitemap.xml" })
         {
             var content = await client.GetStringAsync($"/{extra}", cancellationToken);
-            // These bodies embed the loopback origin as their "absolute" base URL; swap it for
-            // the real public origin so the exported files are correct once deployed.
-            if (!string.IsNullOrEmpty(baseUrl))
-                content = content.Replace(address.TrimEnd('/'), baseUrl.TrimEnd('/'));
+            if (publicPrefix is not null)
+                content = content.Replace(originPrefix, publicPrefix);
             await File.WriteAllTextAsync(Path.Combine(outputDir, extra), content, cancellationToken);
         }
 
