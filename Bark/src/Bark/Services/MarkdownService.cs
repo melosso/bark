@@ -82,6 +82,7 @@ public sealed partial class MarkdownService
         }
 
         var html = UnescapeBraces(AddHeadingAnchors(Markdown.ToHtml(markdown, _pipeline)));
+        html = PrefixBodyContent(html, _basePath);
 
         if (frontMatter?.Layout == "home")
             html = RenderHomePage(frontMatter, _basePath) + html;
@@ -218,7 +219,7 @@ public sealed partial class MarkdownService
     }
 
     public string ToHtml(string markdown) =>
-        UnescapeBraces(Markdown.ToHtml(markdown, _pipeline));
+        PrefixBodyContent(UnescapeBraces(Markdown.ToHtml(markdown, _pipeline)), _basePath);
 
     [GeneratedRegex(@"``[^`\n]*``|`[^`\n]*`")]
     private static partial Regex InlineCodeSpanRegex();
@@ -229,6 +230,19 @@ public sealed partial class MarkdownService
 
     private static string UnescapeBraces(string html) =>
         html.Replace(BARK_LCB, "{").Replace(BARK_RCB, "}");
+
+    // Body content links/images: rewrite root-relative href/src to include basePath.
+    private static string PrefixBodyContent(string html, string basePath)
+    {
+        if (string.IsNullOrEmpty(basePath))
+            return html;
+
+        return BodyContentUrlRegex().Replace(html, m =>
+            $"{m.Groups[1].Value}=\"{basePath}{m.Groups[2].Value}\"");
+    }
+
+    [GeneratedRegex(@"(href|src)=""(/(?!/)[^""]*)""")]
+    private static partial Regex BodyContentUrlRegex();
 
     // Frontmatter hero/feature links: root-relative, needs same basePath treatment as chrome links.
     private static string PrefixInternalLink(string path, string basePath)
