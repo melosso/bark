@@ -4,6 +4,7 @@ public static partial class LayoutProvider
 {
     private static string GetStyles(string darkModeMediaQuery) => $@"    <style>
         :root {{
+            color-scheme: light;
             --bg-color: #fafafa;
             --sidebar-bg: #f4f4f4;
             --text-color: #1a1a1a;
@@ -47,6 +48,7 @@ public static partial class LayoutProvider
             color: var(--text-color);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }}
         #scroll-indicator {{
             position: fixed; top: 0; left: 0; height: 3px;

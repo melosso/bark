@@ -84,6 +84,7 @@ public static partial class LayoutProvider
             : $@"<div class=""page-meta""><div class=""page-meta-left"">{editLinkBlock}</div><div class=""page-meta-right"">{lastUpdatedBlock}</div></div>";
 
         const string darkVars = @"
+                color-scheme: dark;
                 --bg-color: #0b0b0b;
                 --sidebar-bg: #121212;
                 --text-color: #e5e5e5;
@@ -108,7 +109,7 @@ public static partial class LayoutProvider
             : "";
 
         var themeInitScript = enableDarkMode
-            ? @"<script>(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>"
+            ? @"<script>(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>"
             : "";
 
         var themeToggleHtml = enableDarkMode
