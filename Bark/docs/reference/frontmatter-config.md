@@ -28,8 +28,9 @@ description: appsettings.json options, docs/config.json, and theming
 
 `title` and `description` work everywhere. `layout`, `hero`, and `features` only do anything on a page that sets `layout: home`. `lastUpdated` only matters when the site-wide toggle is on.
 
-> [!NOTE]  
-> Bark doesn't currently support per-page `prev`/`next` overrides or a `sidebar: false` toggle. Pagination always derives from your nav order, and every page that resolves to a `.md` file gets a sidebar. See [Prev / Next Links](default-theme-prev-next-links) for the workaround.
+::: tip
+Bark doesn't currently support per-page `prev`/`next` overrides or a `sidebar: false` toggle. Pagination always derives from your nav order, and every page that resolves to a `.md` file gets a sidebar. See [Prev / Next Links](default-theme-prev-next-links) for the workaround.
+:::
 
 ## Title fallback order
 
@@ -39,4 +40,4 @@ When `title` is missing, Bark picks one in this order:
 2. If the file is `index.md`, the parent folder name instead.
 3. If `config.json`'s `nav`/`sidebar` configures a title for this page's path, that title wins over both of the above.
 
-Front matter always wins when it's set. Run `dotnet test --filter "FullyQualifiedName~DocumentationServiceTests"` if you want to see the exact fallback behavior covered by tests.
+If frontmatter is set, it overrides any other logic.
