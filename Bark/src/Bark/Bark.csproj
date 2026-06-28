@@ -23,6 +23,13 @@
     <EmbeddedResource Include="wwwroot/js/katex.min.js" />
   </ItemGroup>
 
+  <Target Name="CopyWwwrootToOutput" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <_WwwrootFiles Include="wwwroot/**/*" Exclude="wwwroot/js/katex.min.js" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_WwwrootFiles)" DestinationFolder="$(TargetDir)wwwroot\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
 
 
 </Project>
