@@ -29,7 +29,10 @@ public static partial class LayoutProvider
         bool showScrollIndicator = true,
         string basePath = "",
         string lang = "en",
-        string? headTagsHtml = null)
+        string? headTagsHtml = null,
+        string? keywordsHtml = null,
+        string? canonicalUrl = null,
+        string? nonce = null)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -108,8 +111,9 @@ public static partial class LayoutProvider
         }}"
             : "";
 
+        var nonceAttr = nonce is { Length: > 0 } ? $" nonce=\"{nonce}\"" : "";
         var themeInitScript = enableDarkMode
-            ? @"<script>(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>"
+            ? "<script" + nonceAttr + ">(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>"
             : "";
 
         var themeToggleHtml = enableDarkMode
@@ -121,19 +125,33 @@ public static partial class LayoutProvider
             </button>"
             : "";
 
+        var colorSchemeMeta = enableDarkMode
+            ? "<meta name=\"color-scheme\" content=\"light dark\">"
+            : "<meta name=\"color-scheme\" content=\"light\">";
+
+        var canonicalLink = canonicalUrl is { Length: > 0 }
+            ? $"<link rel=\"canonical\" href=\"{HtmlEncode(canonicalUrl)}\">"
+            : string.Empty;
+
+        var socialMeta = BuildSocialMeta(canonicalUrl, title, description, isHomePage);
+
         return $@"
 <!DOCTYPE html>
 <html lang=""{HtmlEncode(lang)}"">
 <head>
     <meta charset=""UTF-8"">
+    {themeInitScript}
+    {colorSchemeMeta}
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>{HtmlEncode(title)}</title>
     {descriptionHtml}
+    {keywordsHtml}
+    {canonicalLink}
+    {socialMeta}
     {faviconHtml}
     {headTagsHtml}
-    {themeInitScript}
     {themeCss}
-    {GetStyles(darkModeMediaQuery)}
+    {GetStyles(darkModeMediaQuery, nonce)}
     <link rel=""stylesheet"" href=""{basePath}/css/katex.min.css"">
     <script defer src=""{basePath}/js/mermaid.min.js""></script>
 </head>
@@ -212,7 +230,7 @@ public static partial class LayoutProvider
         </main>
         {sidebarRightHtml}
     </div>
-    {GetScripts(enableLiveReload, buildVersion, basePath)}
+    {GetScripts(enableLiveReload, buildVersion, basePath, nonce)}
 </body>
 </html>";
     }
@@ -304,6 +322,27 @@ public static partial class LayoutProvider
 
         return url;
     }
+
+    private static string BuildSocialMeta(string? canonicalUrl, string title, string? description, bool isHomePage)
+    {
+        if (string.IsNullOrEmpty(canonicalUrl)) return string.Empty;
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"    <meta property=\"og:type\" content=\"{(isHomePage ? "website" : "article")}\">");
+        sb.AppendLine($"    <meta property=\"og:title\" content=\"{HtmlEncode(title)}\">");
+        sb.AppendLine($"    <meta property=\"og:url\" content=\"{HtmlEncode(canonicalUrl)}\">");
+        if (!string.IsNullOrEmpty(description))
+        {
+            sb.AppendLine($"    <meta property=\"og:description\" content=\"{HtmlEncode(description)}\">");
+            sb.AppendLine($"    <meta name=\"twitter:description\" content=\"{HtmlEncode(description)}\">");
+        }
+        sb.AppendLine("    <meta name=\"twitter:card\" content=\"summary\">");
+        sb.AppendLine($"    <meta name=\"twitter:title\" content=\"{HtmlEncode(title)}\">");
+        return sb.ToString();
+    }
+
+    private static string GetNonceAttr(string? nonce) =>
+        nonce is { Length: > 0 } ? $" nonce=\"{nonce}\"" : string.Empty;
 
     private static string BuildFaviconLink(string? favicon, string basePath = "")
     {

@@ -109,7 +109,7 @@ public sealed class DocumentationServiceTests : IDisposable
         await CreateTestFiles();
         await _service.StartAsync(CancellationToken.None);
 
-        var crumbs = _service.GetBreadcrumbs("getting-started/installation");
+        var crumbs = await _service.GetBreadcrumbsAsync("getting-started/installation");
         Assert.Equal(3, crumbs.Count);
         Assert.Equal("Home", crumbs[0].Title);
         Assert.Equal("Getting started", crumbs[1].Title);
@@ -122,7 +122,7 @@ public sealed class DocumentationServiceTests : IDisposable
         await CreateTestFiles();
         await _service.StartAsync(CancellationToken.None);
 
-        var crumbs = _service.GetBreadcrumbs("getting-started/installation");
+        var crumbs = await _service.GetBreadcrumbsAsync("getting-started/installation");
         Assert.Null(crumbs[1].Path); // "getting-started" has no index page
         Assert.Equal("/getting-started/installation", crumbs[2].Path);
     }
@@ -133,9 +133,38 @@ public sealed class DocumentationServiceTests : IDisposable
         await CreateTestFiles();
         await _service.StartAsync(CancellationToken.None);
 
-        var crumbs = _service.GetBreadcrumbs("index");
+        var crumbs = await _service.GetBreadcrumbsAsync("index");
         Assert.Single(crumbs);
         Assert.Equal("Home", crumbs[0].Title);
+    }
+
+    [Fact]
+    public async Task GetBreadcrumbsAsync_TopNavPath_UsesNavLabel()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "config.json"),
+            """{"topNav":[{"text":"Reference","link":"/reference/"},{"text":"Guides","items":[{"text":"Getting Started","link":"/guide/"}]}]}""");
+        await _service.StartAsync(CancellationToken.None);
+
+        var crumbs = await _service.GetBreadcrumbsAsync("reference/api");
+
+        Assert.Equal(3, crumbs.Count);
+        Assert.Equal("Reference", crumbs[1].Title);
+        Assert.Null(crumbs[1].Path); // top-nav segment has no page — no link
+    }
+
+    [Fact]
+    public async Task GetBreadcrumbsAsync_TopNavDropdownChild_UsesNavLabel()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "config.json"),
+            """{"topNav":[{"text":"Guides","items":[{"text":"Getting Started","link":"/guide/"}]}]}""");
+        await _service.StartAsync(CancellationToken.None);
+
+        var crumbs = await _service.GetBreadcrumbsAsync("guide/intro");
+
+        Assert.Equal(3, crumbs.Count);
+        Assert.Equal("Getting Started", crumbs[1].Title);
     }
 
     [Fact]
@@ -218,5 +247,68 @@ public sealed class DocumentationServiceTests : IDisposable
         var page = await _service.GetPageAsync("getting-started/routing");
         Assert.NotNull(page);
         Assert.Equal("Custom Routing Title", page!.Title);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithPaginationFalse_ShowPaginationFalse()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\ntitle: Installation\npagination: false\n---\n\n# Installation Guide\n\nHow to install.\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.False(page!.ShowPagination);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithoutPagination_ShowPaginationTrue()
+    {
+        await CreateTestFiles();
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.True(page!.ShowPagination);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithRedirect_ReturnsRedirect()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\nredirect: /guide/setup\n---\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.Equal("/guide/setup", page!.Redirect);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithFrontmatterDate_UsesItForLastModified()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\ntitle: Installation\ndate: 2025-03-01\n---\n\n# Installation Guide\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.Equal(new DateTime(2025, 3, 1), page!.LastModified);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithFrontmatterUpdated_OverridesFileMtime()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\ntitle: Installation\ndate: 2025-01-01\nupdated: 2025-06-28\n---\n\n# Installation Guide\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.Equal(new DateTime(2025, 6, 28), page!.LastModified);
     }
 }

@@ -7,7 +7,11 @@ public sealed record MarkdownParseResult(
     string? Description,
     List<HeadingInfo> Headings,
     string? Layout,
-    bool ShowLastUpdated)
+    bool ShowLastUpdated,
+    IReadOnlyList<string>? Keywords = null,
+    bool ShowPagination = true,
+    string? Redirect = null,
+    DateTime? FrontmatterDate = null)
 {
     public void Deconstruct(out string html, out string? title, out string? description, out List<HeadingInfo> headings)
     {

@@ -40,10 +40,13 @@ curl "http://localhost:5000/api/search?q=hot+reload"
 |---|---|
 | Title | 10 |
 | Description | 5 |
+| Keywords (frontmatter) | 4 |
 | Heading | 3 |
 | Body text | 1 |
 
 The index is an in-memory inverted index, rebuilt in full (not incrementally) every time the docs rebuild.
+
+This endpoint is rate-limited to 30 requests per minute per IP address. Requests over that threshold receive a `429 Too Many Requests` response.
 
 ## `GET /api/build-version`
 

@@ -5,7 +5,7 @@ description: How Bark derives the pagination links at the bottom of each page
 
 # Pagination
 
-Bark renders a "previous page" and "next page" link at the bottom of every document page, derived entirely from your navigation order. You don't write these by hand, nor can you adjust the logic of these from the Markdown files.
+Bark renders a "previous page" and "next page" link at the bottom of every document page, derived entirely from your navigation order. You do not write these links by hand. The order comes from your `config.json` structure, or from the auto-generated navigation tree when no configuration file is present.
 
 ## How the order is determined
 
@@ -19,12 +19,20 @@ Without configuration, Bark flattens your sidebar (or auto-generated navigation 
 
 ## Link text
 
-The link text is the target page's title (front matter `title`, or its filename/nav-configured fallback, the same resolution order as everywhere else). There's no separate "pagination label" distinct from the page's actual title.
+The link text is the target page's title (front matter `title`, or its filename/nav-configured fallback, the same resolution order as everywhere else). There's no separate "pagination label" distinct from the page's actual title configured by [Frontmatter](/reference/frontmatter-config).
 
-::: note
-Bark doesn't currently support per-page `prev`/`next` overrides or a `false` value to suppress one side. If a page's auto-derived neighbor is wrong for your structure, fix it by reordering your `sidebar` config instead. That's the only lever available today.
-:::
+## Disabling per page
+
+If a particular page does not fit naturally into a linear reading sequence, you can hide its pagination links by setting `pagination: false` in the page's frontmatter. Changelog entries, standalone landing pages, and reference tables are common candidates for this.
+
+```yaml
+---
+pagination: false
+---
+```
+
+Only the links on that page are affected. The page itself still participates in the broader nav order, so adjacent pages continue to link to and from it normally.
 
 ## Home pages
 
-`layout: home` pages never show pagination. See [Layout](default-theme-layout).
+Pages configured with `layout: home` never show pagination regardless of any other setting. See [Layout](/reference/default-theme-layout).

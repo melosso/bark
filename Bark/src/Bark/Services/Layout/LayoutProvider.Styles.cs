@@ -2,7 +2,7 @@ namespace Bark.Services.Layout;
 
 public static partial class LayoutProvider
 {
-    private static string GetStyles(string darkModeMediaQuery) => $@"    <style>
+    private static string GetStyles(string darkModeMediaQuery, string? nonce = null) => $@"    <style{GetNonceAttr(nonce)}>
         :root {{
             color-scheme: light;
             --bg-color: #fafafa;
@@ -1262,6 +1262,13 @@ public static partial class LayoutProvider
                 display: flex; flex-wrap: wrap; gap: 0.25rem;
                 padding: 1.25rem 0 0.25rem;
                 border-top: 1px solid var(--border);
+            }}
+        }}
+        @media (prefers-reduced-motion: reduce) {{
+            *, *::before, *::after {{
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }}
         }}
 </style>

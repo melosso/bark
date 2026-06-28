@@ -22,9 +22,16 @@ public static class SecurityHeaders
         context.Response.Headers.XFrameOptions = "DENY";
         context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
         context.Response.Headers.ContentSecurityPolicy = contentSecurityPolicy;
+        context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()";
+
+        if (context.Request.IsHttps)
+            context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
 
         return next();
     }
+
+    public static string BuildNonceCsp(string baseCsp, string nonce) =>
+        baseCsp.Replace("'unsafe-inline'", $"'nonce-{nonce}'");
 }
 
 public static class SecurityHeadersExtensions

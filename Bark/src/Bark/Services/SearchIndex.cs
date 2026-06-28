@@ -30,11 +30,15 @@ public sealed partial class SearchIndex
         var descTerms = page.Description is { Length: > 0 } ? Tokenize(page.Description) : [];
         var headingTerms = page.Headings.SelectMany(h => Tokenize(h.Text));
         var bodyTerms = Tokenize(GetPlainText(page.HtmlContent));
+        var keywordTerms = page.Keywords is { Count: > 0 } kw
+            ? new HashSet<string>(kw.SelectMany(k => Tokenize(k)), StringComparer.OrdinalIgnoreCase)
+            : [];
 
         var allTerms = new HashSet<string>(titleTerms, StringComparer.OrdinalIgnoreCase);
         allTerms.UnionWith(descTerms);
         allTerms.UnionWith(headingTerms);
         allTerms.UnionWith(bodyTerms);
+        allTerms.UnionWith(keywordTerms);
 
         foreach (var term in allTerms)
         {
@@ -43,6 +47,8 @@ public sealed partial class SearchIndex
                 score += 10;
             if (descTerms.Contains(term, StringComparer.OrdinalIgnoreCase))
                 score += 5;
+            if (keywordTerms.Contains(term))
+                score += 4;
             if (headingTerms.Any(t => string.Equals(t, term, StringComparison.OrdinalIgnoreCase)))
                 score += 3;
             if (bodyTerms.Contains(term, StringComparer.OrdinalIgnoreCase))

@@ -8,7 +8,11 @@ public sealed record DocumentationPage(
     DateTime? LastModified = null,
     IReadOnlyList<HeadingInfo> Headings = default!,
     string? Layout = null,
-    bool ShowLastUpdated = true
+    bool ShowLastUpdated = true,
+    string? OriginalRelativePath = null,
+    IReadOnlyList<string>? Keywords = null,
+    bool ShowPagination = true,
+    string? Redirect = null
 )
 {
     public DocumentationPage(
@@ -19,7 +23,11 @@ public sealed record DocumentationPage(
         DateTime? lastModified = null,
         IEnumerable<HeadingInfo>? headings = null,
         string? layout = null,
-        bool showLastUpdated = true
+        bool showLastUpdated = true,
+        string? originalRelativePath = null,
+        IReadOnlyList<string>? keywords = null,
+        bool showPagination = true,
+        string? redirect = null
     ) : this(
         path,
         title,
@@ -28,6 +36,10 @@ public sealed record DocumentationPage(
         lastModified,
         (headings ?? Array.Empty<HeadingInfo>()).ToList().AsReadOnly(),
         layout,
-        showLastUpdated
+        showLastUpdated,
+        originalRelativePath,
+        keywords,
+        showPagination,
+        redirect
     ) { }
 }

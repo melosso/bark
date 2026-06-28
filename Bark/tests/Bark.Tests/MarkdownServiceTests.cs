@@ -1,7 +1,20 @@
+using Microsoft.Extensions.Logging;
 using Bark.Services;
 using Bark.Services.MarkdownExtensions;
 
 namespace Bark.Tests;
+
+/// <summary>Captures log calls for assertion in tests that need to verify logging behavior.</summary>
+file sealed class CapturingLogger<T> : ILogger<T>
+{
+    public List<(LogLevel Level, string Message)> Entries { get; } = [];
+
+    IDisposable? ILogger.BeginScope<TState>(TState state) => null;
+    bool ILogger.IsEnabled(LogLevel logLevel) => true;
+
+    void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
+        Entries.Add((logLevel, formatter(state, exception)));
+}
 
 public sealed class MarkdownServiceTests
 {
@@ -201,5 +214,103 @@ $$
     {
         var result = MarkdownService.Slugify("");
         Assert.Equal("", result);
+    }
+
+    [Fact]
+    public void Parse_PaginationFalse_ShowPaginationFalse()
+    {
+        var md = "---\npagination: false\n---\n\n# Content\n";
+        var result = _service.Parse(md);
+        Assert.False(result.ShowPagination);
+    }
+
+    [Fact]
+    public void Parse_NoPaginationField_ShowPaginationTrue()
+    {
+        var md = "---\ntitle: Test\n---\n\n# Content\n";
+        var result = _service.Parse(md);
+        Assert.True(result.ShowPagination);
+    }
+
+    [Fact]
+    public void Parse_WithRedirect_SetsRedirect()
+    {
+        var md = "---\nredirect: /guide/getting-started\n---\n";
+        var result = _service.Parse(md);
+        Assert.Equal("/guide/getting-started", result.Redirect);
+    }
+
+    [Fact]
+    public void Parse_WithAbsoluteRedirect_SetsRedirect()
+    {
+        var md = "---\nredirect: https://example.com/new-page\n---\n";
+        var result = _service.Parse(md);
+        Assert.Equal("https://example.com/new-page", result.Redirect);
+    }
+
+    [Fact]
+    public void Parse_NoRedirect_RedirectIsNull()
+    {
+        var md = "---\ntitle: Test\n---\n\n# Content\n";
+        var result = _service.Parse(md);
+        Assert.Null(result.Redirect);
+    }
+
+    [Fact]
+    public void Parse_WithDate_SetsFrontmatterDate()
+    {
+        var md = "---\ndate: 2025-03-01\n---\n\n# Content\n";
+        var result = _service.Parse(md);
+        Assert.Equal(new DateTime(2025, 3, 1), result.FrontmatterDate);
+    }
+
+    [Fact]
+    public void Parse_WithUpdated_SetsFrontmatterDate()
+    {
+        var md = "---\nupdated: 2025-06-28\n---\n\n# Content\n";
+        var result = _service.Parse(md);
+        Assert.Equal(new DateTime(2025, 6, 28), result.FrontmatterDate);
+    }
+
+    [Fact]
+    public void Parse_WithBothDateAndUpdated_UpdatedTakesPriority()
+    {
+        var md = "---\ndate: 2025-01-01\nupdated: 2025-06-28\n---\n\n# Content\n";
+        var result = _service.Parse(md);
+        Assert.Equal(new DateTime(2025, 6, 28), result.FrontmatterDate);
+    }
+
+    [Fact]
+    public void Parse_NoDateFields_FrontmatterDateIsNull()
+    {
+        var md = "---\ntitle: Test\n---\n\n# Content\n";
+        var result = _service.Parse(md);
+        Assert.Null(result.FrontmatterDate);
+    }
+
+    [Fact]
+    public void Parse_MalformedFrontMatter_LogsWarning()
+    {
+        var logger = new CapturingLogger<MarkdownService>();
+        var service = new MarkdownService(logger: logger);
+        var md = "---\ninvalid: : : yaml\n---\n\n# Content\n";
+
+        service.Parse(md, filePath: "docs/test.md");
+
+        Assert.Single(logger.Entries);
+        Assert.Equal(LogLevel.Warning, logger.Entries[0].Level);
+        Assert.Contains("docs/test.md", logger.Entries[0].Message);
+    }
+
+    [Fact]
+    public void Parse_MalformedFrontMatter_StillReturnsHtml()
+    {
+        var logger = new CapturingLogger<MarkdownService>();
+        var service = new MarkdownService(logger: logger);
+        var md = "---\ninvalid: : : yaml\n---\n\n# Content after bad frontmatter\n";
+
+        var result = service.Parse(md);
+
+        Assert.Contains("Content after bad frontmatter", result.Html);
     }
 }
