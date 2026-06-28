@@ -8,6 +8,7 @@ public static class SecurityHeaders
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline'; " +
         "style-src 'self' 'unsafe-inline'; " +
+        "style-src-attr 'unsafe-inline'; " +
         "img-src 'self' data:; " +
         "font-src 'self' data:; " +
         "connect-src 'self'; " +
@@ -30,8 +31,19 @@ public static class SecurityHeaders
         return next();
     }
 
-    public static string BuildNonceCsp(string baseCsp, string nonce) =>
-        baseCsp.Replace("'unsafe-inline'", $"'nonce-{nonce}'");
+    public static string BuildNonceCsp(string baseCsp, string nonce)
+    {
+        var noncePart = $"'nonce-{nonce}'";
+        var directives = baseCsp.Split(';');
+        for (var i = 0; i < directives.Length; i++)
+        {
+            var trimmed = directives[i].TrimStart();
+            if ((trimmed.StartsWith("script-src ") || (trimmed.StartsWith("style-src ") && !trimmed.StartsWith("style-src-attr")))
+                && trimmed.Contains("'unsafe-inline'"))
+                directives[i] = directives[i].Replace("'unsafe-inline'", noncePart);
+        }
+        return string.Join(";", directives);
+    }
 }
 
 public static class SecurityHeadersExtensions
