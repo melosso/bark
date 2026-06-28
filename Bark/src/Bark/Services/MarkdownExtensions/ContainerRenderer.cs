@@ -139,7 +139,7 @@ public sealed partial class ContainerRenderer : HtmlObjectRenderer<CustomContain
 
         var iconBase = IsRootRelative(_icons.BaseUrl) ? PrefixBasePath(_icons.BaseUrl) : _icons.BaseUrl;
         var src = System.Net.WebUtility.HtmlEncode($"{iconBase}/{slug}.{_icons.Format}");
-        return $"<img src=\"{src}\" class=\"tab-icon\" alt=\"\" aria-hidden=\"true\" loading=\"lazy\" onerror=\"this.remove()\">";
+        return $"<img src=\"{src}\" class=\"tab-icon\" alt=\"\" aria-hidden=\"true\" loading=\"lazy\">";
     }
 
     private static bool IsRootRelative(string url) =>

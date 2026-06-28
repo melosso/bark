@@ -113,7 +113,7 @@ public static partial class LayoutProvider
 
         var nonceAttr = nonce is { Length: > 0 } ? $" nonce=\"{nonce}\"" : "";
         var themeInitScript = enableDarkMode
-            ? "<script" + nonceAttr + ">(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>"
+            ? "<script" + nonceAttr + ">(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('no-theme-transition');requestAnimationFrame(function(){requestAnimationFrame(function(){document.documentElement.classList.remove('no-theme-transition');});});}catch(e){}})();</script>"
             : "";
 
         var themeToggleHtml = enableDarkMode

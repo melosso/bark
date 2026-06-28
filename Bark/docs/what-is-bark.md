@@ -15,9 +15,9 @@ Just want to try it out? Skip to the [Quickstart](../getting-started/getting-sta
 
 ## Why Bark exists
 
-Most documentation tools are static site generators. You write Markdown, run a build, and the build creates a folder of HTML files you then deploy somewhere. That's a fine workflow, but it puts a build pipeline between you editing a page and someone reading it.
+Most documentation tools are static site generators. You write Markdown, run a build, and that build creates a folder of HTML files you then deploy somewhere. That is a fine workflow, but it puts a build pipeline between you editing a page and someone reading it.
 
-Bark skips that step. It reads your Markdown and renders the site in memory when it starts, and again whenever a file changes. Save a file, and the running site updates right away. There's nothing to build and nothing to deploy other than Bark itself.
+Bark skips that step, as it reads your Markdown and renders the site in memory when it starts, and again whenever a file changes. Save a file, and the running site updates right away. There is nothing to build and nothing to deploy other than Bark itself.
 
 ## Bark vs. wikis
 

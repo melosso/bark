@@ -3,6 +3,17 @@ namespace Bark.Services.Layout;
 public static partial class LayoutProvider
 {
     private static string GetScripts(bool enableLiveReload, long buildVersion, string basePath, string? nonce = null) => $@"    <script{GetNonceAttr(nonce)}>
+        document.addEventListener('error', function(e) {{
+            if (e.target && e.target.classList && e.target.classList.contains('tab-icon')) e.target.remove();
+        }}, true);
+        window.addEventListener('pageshow', function(e) {{
+            if (e.persisted) {{
+                try {{
+                    var t = localStorage.getItem('bark-theme');
+                    if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+                }} catch (_) {{}}
+            }}
+        }});
         document.addEventListener('DOMContentLoaded', function() {{
             var headings = document.querySelectorAll('.content h1, .content h2, .content h3, .content h4');
             var tocItems = document.querySelectorAll('.toc-item');

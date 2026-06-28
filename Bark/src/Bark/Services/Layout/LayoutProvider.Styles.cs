@@ -67,6 +67,9 @@ public static partial class LayoutProvider
         .skip-link:focus {{
             left: 0;
         }}
+        .no-theme-transition, .no-theme-transition * {{
+            transition: none !important;
+        }}
         @media (prefers-reduced-motion: reduce) {{
             *, *::before, *::after {{
                 animation-duration: 0.01ms !important;
@@ -798,6 +801,10 @@ public static partial class LayoutProvider
         :root[data-theme=""dark""] .shiki {{
             background-color: var(--shiki-dark-bg);
         }}
+        @media (prefers-color-scheme: dark) {{
+            :root:not([data-theme=""light""]) .tab-icon {{ filter: invert(1); }}
+        }}
+        :root[data-theme=""dark""] .tab-icon {{ filter: invert(1); }}
         .content .line {{
             display: inline-block;
             width: 100%;

@@ -9,6 +9,7 @@ public static class SecurityHeaders
         "script-src 'self' 'unsafe-inline'; " +
         "style-src 'self' 'unsafe-inline'; " +
         "style-src-attr 'unsafe-inline'; " +
+        "style-src-elem 'self' 'unsafe-inline'; " +
         "img-src 'self' data:; " +
         "font-src 'self' data:; " +
         "connect-src 'self'; " +
