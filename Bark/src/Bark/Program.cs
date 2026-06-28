@@ -114,7 +114,7 @@ try
 
     // Drop files at wwwroot/theme/custom.{css,js} and they're picked up at startup, no config edit needed. Does NOT support hot rloading.
     var themeDir = Path.Combine(app.Environment.WebRootPath, "theme");
-    Directory.CreateDirectory(themeDir);
+    try { Directory.CreateDirectory(themeDir); } catch (IOException) { }
     var autoCustomCssUrl = File.Exists(Path.Combine(themeDir, "custom.css")) ? $"{basePath}/theme/custom.css" : null;
     var autoCustomJsUrl = File.Exists(Path.Combine(themeDir, "custom.js")) ? $"{basePath}/theme/custom.js" : null;
 
@@ -249,7 +249,9 @@ try
         var combinedThemeCss = themeCss + customCssLink + customJsScript;
 
         var iconsDir = Path.Combine(app.Environment.WebRootPath, "icons");
-        var socialLinksHtml = SocialLinksHtmlRenderer.BuildSocialLinksHtml(config?.SocialLinks, iconsDir);
+        var defaultIconsDir = Path.Combine(AppContext.BaseDirectory, "wwwroot-default", "icons");
+        var fallbackIconsDir = Directory.Exists(defaultIconsDir) ? defaultIconsDir : null;
+        var socialLinksHtml = await SocialLinksHtmlRenderer.BuildSocialLinksHtmlAsync(config?.SocialLinks, iconsDir, fallbackIconsDir);
         var footerHtml = config?.Footer is { } footer
             ? $"<div class=\"content-footer\">{markdown.ToHtml(footer)}</div>"
             : string.Empty;

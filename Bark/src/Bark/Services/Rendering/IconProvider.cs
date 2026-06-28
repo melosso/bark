@@ -1,29 +1,33 @@
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
 namespace Bark.Services.Rendering;
 
 public static partial class IconProvider
 {
-    private static readonly Dictionary<string, string?> _cache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, string?> _cache = new(StringComparer.OrdinalIgnoreCase);
 
-    public static string InlineSvg(string iconName, string iconsDir)
+    public static async ValueTask<string> InlineSvgAsync(string iconName, string primaryDir, string? fallbackDir = null)
     {
         if (_cache.TryGetValue(iconName, out var cached))
             return cached ?? string.Empty;
 
         var slug = Slugify(iconName);
-        var filePath = Path.Combine(iconsDir, $"{slug}.svg");
+        var filePath = Path.Combine(primaryDir, $"{slug}.svg");
+
+        if (!File.Exists(filePath) && fallbackDir != null)
+            filePath = Path.Combine(fallbackDir, $"{slug}.svg");
 
         if (!File.Exists(filePath))
         {
-            _cache[iconName] = null;
+            _cache.TryAdd(iconName, null);
             return string.Empty;
         }
 
-        var svg = File.ReadAllText(filePath);
+        var svg = await File.ReadAllTextAsync(filePath);
         svg = StripFillAttr().Replace(svg, "");
         svg = svg.Replace("<svg", "<svg fill=\"currentColor\" aria-hidden=\"true\"");
-        _cache[iconName] = svg;
+        _cache.TryAdd(iconName, svg);
         return svg;
     }
 

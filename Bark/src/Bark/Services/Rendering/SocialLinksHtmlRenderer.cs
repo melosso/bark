@@ -6,7 +6,7 @@ namespace Bark.Services.Rendering;
 
 public static class SocialLinksHtmlRenderer
 {
-    public static string BuildSocialLinksHtml(List<SocialLink>? links, string iconsDir)
+    public static async ValueTask<string> BuildSocialLinksHtmlAsync(IReadOnlyList<SocialLink>? links, string primaryIconsDir, string? fallbackIconsDir = null)
     {
         if (links is not { Count: > 0 }) return string.Empty;
 
@@ -14,7 +14,7 @@ public static class SocialLinksHtmlRenderer
         html.AppendLine("<div class=\"social-links\">");
         foreach (var link in links)
         {
-            var iconSvg = IconProvider.InlineSvg(link.Icon, iconsDir);
+            var iconSvg = await IconProvider.InlineSvgAsync(link.Icon, primaryIconsDir, fallbackIconsDir);
             var icon = iconSvg.Length > 0
                 ? iconSvg
                 : $"<span style=\"font-size:0.9rem\" aria-hidden=\"true\">{LayoutProvider.HtmlEncode(link.Icon)}</span>";
