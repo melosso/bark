@@ -55,7 +55,8 @@ try
     builder.Services.AddSingleton(sp => new MarkdownService(
         sp.GetRequiredService<ISyntaxHighlighter>(), basePath,
         sp.GetRequiredService<CodeGroupIconOptions>(),
-        sp.GetRequiredService<MathRenderer>()));
+        sp.GetRequiredService<MathRenderer>(),
+        sp.GetRequiredService<ILogger<MarkdownService>>()));
     builder.Services.AddSingleton<DocumentationService>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<DocumentationService>());
 
@@ -228,6 +229,28 @@ try
             return;
         }
 
+        if (page.Redirect is { Length: > 0 } redirectTarget)
+        {
+            var isAbsolute = redirectTarget.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                || redirectTarget.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+            string resolvedRedirect;
+            if (isAbsolute)
+            {
+                resolvedRedirect = redirectTarget;
+            }
+            else
+            {
+                var trimmed = redirectTarget.Trim('/');
+                resolvedRedirect = trimmed.Length == 0
+                    ? (basePath.Length == 0 ? "/" : $"{basePath}/")
+                    : (basePath.Length == 0 ? $"/{trimmed}/" : $"{basePath}/{trimmed}/");
+            }
+
+            context.Response.Redirect(resolvedRedirect, permanent: false);
+            return;
+        }
+
         // Folds inn the BuildVersion (not limited to this page's own HTML) so content edits don't touch this page's content still invalidate its cached ETag.
         var responseBytes = Encoding.UTF8.GetBytes(page.HtmlContent);
         var etagInput = Encoding.UTF8.GetBytes(docs.BuildVersion + ":").Concat(responseBytes).ToArray();
@@ -259,7 +282,7 @@ try
 
         var isHomePage = page.Layout == "home";
         var paginationHtml = string.Empty;
-        if (!isHomePage)
+        if (!isHomePage && page.ShowPagination)
         {
             var orderedPaths = NavigationHtmlRenderer.GetOrderedPaths(nav, config, path).Where(p => p != null && p != "index").ToList();
             var currentIndex = orderedPaths.IndexOf(path);

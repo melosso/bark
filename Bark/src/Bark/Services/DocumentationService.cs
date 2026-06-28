@@ -194,10 +194,11 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             if (navTitlesByPath.TryGetValue(pagePath, out var navTitle))
                 defaultTitle = navTitle;
 
-            var parsed = _markdown.Parse(content, defaultTitle);
+            var normalizedRelativePath = relativePath.Replace('\\', '/');
+            var parsed = _markdown.Parse(content, defaultTitle, filePath: normalizedRelativePath);
 
             var html = WrapTables(parsed.Html);
-            var lastModified = File.GetLastWriteTimeUtc(file);
+            var lastModified = parsed.FrontmatterDate ?? File.GetLastWriteTimeUtc(file);
 
             var page = new DocumentationPage(
                 Path: pagePath,
@@ -208,8 +209,10 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
                 Headings: parsed.Headings,
                 Layout: parsed.Layout,
                 ShowLastUpdated: parsed.ShowLastUpdated,
-                OriginalRelativePath: relativePath.Replace('\\', '/'),
-                Keywords: parsed.Keywords
+                OriginalRelativePath: normalizedRelativePath,
+                Keywords: parsed.Keywords,
+                ShowPagination: parsed.ShowPagination,
+                Redirect: parsed.Redirect
             );
 
             _pageCache[pagePath] = page;

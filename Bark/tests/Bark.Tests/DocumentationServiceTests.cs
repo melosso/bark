@@ -248,4 +248,67 @@ public sealed class DocumentationServiceTests : IDisposable
         Assert.NotNull(page);
         Assert.Equal("Custom Routing Title", page!.Title);
     }
+
+    [Fact]
+    public async Task StartAsync_PageWithPaginationFalse_ShowPaginationFalse()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\ntitle: Installation\npagination: false\n---\n\n# Installation Guide\n\nHow to install.\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.False(page!.ShowPagination);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithoutPagination_ShowPaginationTrue()
+    {
+        await CreateTestFiles();
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.True(page!.ShowPagination);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithRedirect_ReturnsRedirect()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\nredirect: /guide/setup\n---\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.Equal("/guide/setup", page!.Redirect);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithFrontmatterDate_UsesItForLastModified()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\ntitle: Installation\ndate: 2025-03-01\n---\n\n# Installation Guide\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.Equal(new DateTime(2025, 3, 1), page!.LastModified);
+    }
+
+    [Fact]
+    public async Task StartAsync_PageWithFrontmatterUpdated_OverridesFileMtime()
+    {
+        await CreateTestFiles();
+        await File.WriteAllTextAsync(Path.Combine(_tempDir, "getting-started", "installation.md"),
+            "---\ntitle: Installation\ndate: 2025-01-01\nupdated: 2025-06-28\n---\n\n# Installation Guide\n");
+        await _service.StartAsync(CancellationToken.None);
+
+        var page = await _service.GetPageAsync("getting-started/installation");
+        Assert.NotNull(page);
+        Assert.Equal(new DateTime(2025, 6, 28), page!.LastModified);
+    }
 }

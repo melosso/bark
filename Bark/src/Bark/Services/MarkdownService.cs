@@ -21,14 +21,17 @@ public sealed partial class MarkdownService
     private readonly MarkdownPipeline _pipeline;
     private readonly IDeserializer _yamlDeserializer;
     private readonly string _basePath;
+    private readonly ILogger<MarkdownService>? _logger;
 
     public MarkdownService(
         ISyntaxHighlighter? syntaxHighlighter = null,
         string basePath = "",
         CodeGroupIconOptions? codeGroupIcons = null,
-        MathRenderer? mathRenderer = null)
+        MathRenderer? mathRenderer = null,
+        ILogger<MarkdownService>? logger = null)
     {
         _basePath = basePath;
+        _logger = logger;
         _pipeline = new MarkdownPipelineBuilder()
             .UseAbbreviations()
             .UseAlertBlocks()
@@ -60,12 +63,13 @@ public sealed partial class MarkdownService
 
     public MarkdownParseResult Parse(
         string markdown,
-        string? defaultTitle = null)
+        string? defaultTitle = null,
+        string? filePath = null)
     {
         markdown = EscapeBracesInCodeSpans(markdown);
         var document = Markdown.Parse(markdown, _pipeline);
 
-        var frontMatter = ParseFrontMatter(document);
+        var frontMatter = ParseFrontMatter(document, filePath);
 
         var headings = new List<HeadingInfo>();
         foreach (var block in document.Descendants())
@@ -94,7 +98,10 @@ public sealed partial class MarkdownService
             headings,
             frontMatter?.Layout,
             frontMatter?.LastUpdated ?? true,
-            frontMatter?.Keywords is { Count: > 0 } kw ? kw.AsReadOnly() : null);
+            frontMatter?.Keywords is { Count: > 0 } kw ? kw.AsReadOnly() : null,
+            frontMatter?.Pagination ?? true,
+            frontMatter?.Redirect,
+            frontMatter?.Updated ?? frontMatter?.Date);
     }
 
     private static string RenderHomePage(FrontMatter frontMatter, string basePath)
@@ -182,7 +189,7 @@ public sealed partial class MarkdownService
     [GeneratedRegex(@"<[^>]*>")]
     private static partial Regex TagRegex();
 
-    private FrontMatter? ParseFrontMatter(MarkdownDocument document)
+    private FrontMatter? ParseFrontMatter(MarkdownDocument document, string? filePath = null)
     {
         if (document.FirstOrDefault() is not YamlFrontMatterBlock yamlBlock)
             return null;
@@ -195,8 +202,9 @@ public sealed partial class MarkdownService
         {
             return _yamlDeserializer.Deserialize<FrontMatter>(yaml);
         }
-        catch (YamlException)
+        catch (YamlException ex)
         {
+            _logger?.LogWarning(ex, "Malformed YAML frontmatter in {FilePath} — frontmatter will be ignored", filePath ?? "(unknown)");
             return null;
         }
     }
