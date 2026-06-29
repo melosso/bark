@@ -1,6 +1,7 @@
 ---
 title: Changelog
 description: A reference page to the changelog of Bark
+pagination: false
 toc: false
 ---
 

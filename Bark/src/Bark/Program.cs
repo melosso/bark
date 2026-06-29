@@ -359,7 +359,9 @@ try
             headTagsHtml: HeadTagHtmlRenderer.BuildHeadTagsHtml(config?.Head),
             keywordsHtml: keywordsHtml,
             canonicalUrl: canonicalUrl,
-            nonce: nonce
+            nonce: nonce,
+            hasMath: page.HtmlContent.Contains("class=\"katex\"", StringComparison.Ordinal),
+            hasMermaid: page.HtmlContent.Contains("class=\"mermaid\"", StringComparison.Ordinal)
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";
