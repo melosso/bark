@@ -306,10 +306,6 @@ public sealed partial class MarkdownService
             && (path.Length == basePath.Length || path[basePath.Length] == '/');
     }
 
-    // Escapes only HTML-unsafe chars; leaves Unicode (including emoji) as raw UTF-8.
-    private static string EscapeIconText(string text) =>
-        text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
-
     public static string Slugify(string text)
     {
         if (string.IsNullOrEmpty(text))
