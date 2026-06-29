@@ -188,7 +188,16 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             if (defaultTitle.Equals("index", StringComparison.OrdinalIgnoreCase))
             {
                 var dir = Path.GetDirectoryName(relativePath);
-                defaultTitle = !string.IsNullOrEmpty(dir) ? Path.GetFileName(dir) : "Home";
+                if (!string.IsNullOrEmpty(dir))
+                {
+                    var dirName = Path.GetFileName(dir)!;
+                    var spaced = dirName.Replace('-', ' ').Replace('_', ' ');
+                    defaultTitle = spaced.Length > 0 ? char.ToUpperInvariant(spaced[0]) + spaced[1..] : dirName;
+                }
+                else
+                {
+                    defaultTitle = "Home";
+                }
             }
 
             if (navTitlesByPath.TryGetValue(pagePath, out var navTitle))

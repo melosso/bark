@@ -52,12 +52,22 @@ An array of cards rendered in a responsive grid below the hero.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `icon` | `string` | no | An emoji or short text shown above the title. |
+| `icon` | `string` | no | An emoji, short text, inline SVG string (`<svg>...</svg>`), or image URL shown above the title. Paths starting with `/` or `http(s)://` render as `<img>` tags; inline SVG strings are rendered directly. |
+| `iconImage` | `FeatureIconConfig` | no | A themed icon object for separate light and dark variants. Takes priority over `icon` when both are set. |
 | `title` | `string` | yes | Card heading. |
 | `details` | `string` | yes | Card body text. |
 | `link` | `string` | no | If set, the whole card becomes a link. |
 
+**`FeatureIconConfig`**
+
+| Field | Type | Description |
+|---|---|---|
+| `src` | `string?` | A single image URL used in both light and dark mode. |
+| `light` | `string?` | Image URL shown in light mode. Pair with `dark` for full theming. |
+| `dark` | `string?` | Image URL shown in dark mode. Pair with `light` for full theming. |
+| `alt` | `string?` | Alt text for the image. Defaults to an empty string, treating the icon as decorative. |
+
 > [!NOTE]  
-> As of now, `hero.image` and `features[].icon` only accept plain strings, so you cannot use the light/dark themeable image objects here. Also, there is no `markdownStyles` toggle available.
+> `hero.image` accepts a URL or a single emoji/character and does not currently support the `iconImage` format.
 
 Content written below the front matter (regular Markdown) still renders, directly beneath the features grid. Use it for a short paragraph or an extra call-to-action that doesn't fit the hero/features shape.

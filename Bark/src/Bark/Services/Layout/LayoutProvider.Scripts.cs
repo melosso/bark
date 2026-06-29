@@ -479,6 +479,30 @@ public static partial class LayoutProvider
                 window.mermaid.run();
             }}
 
+            var pageControlsToggle = document.querySelector('.page-controls-toggle');
+            var pageControlsMenu = document.querySelector('.page-controls-menu');
+            if (pageControlsToggle && pageControlsMenu) {{
+                function closePageControls() {{
+                    pageControlsMenu.hidden = true;
+                    pageControlsToggle.setAttribute('aria-expanded', 'false');
+                }}
+                pageControlsToggle.addEventListener('click', function(e) {{
+                    e.stopPropagation();
+                    var isOpen = !pageControlsMenu.hidden;
+                    if (isOpen) {{ closePageControls(); }} else {{
+                        pageControlsMenu.hidden = false;
+                        pageControlsToggle.setAttribute('aria-expanded', 'true');
+                    }}
+                }});
+                document.addEventListener('click', function(e) {{
+                    if (!pageControlsMenu.hidden && !pageControlsMenu.contains(e.target))
+                        closePageControls();
+                }});
+                document.addEventListener('keydown', function(e) {{
+                    if (e.key === 'Escape' && !pageControlsMenu.hidden) closePageControls();
+                }});
+            }}
+
             document.querySelectorAll('.top-nav-item.has-dropdown').forEach(function(item) {{
                 var btn = item.querySelector('.top-nav-link[aria-expanded]');
                 if (!btn) return;

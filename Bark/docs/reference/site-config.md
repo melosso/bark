@@ -7,7 +7,10 @@ description: Full reference for appsettings.json and docs/config.json
 
 Bark draws from two separate configuration files, and understanding why helps you decide where a setting belongs.
 
- `appsettings.json` is for deployment-level concerns: where your Markdown files live, whether hot-reload is on, and what base path the server sits at. `docs/config.json` lives alongside your content and controls everything your readers see, from the site name and navigation structure to the footer and social links. That distinction means you can check `config.json` into the same repository as your docs and deploy the server without touching it.
+1. **Environment settings.** Found in  `appsettings.json` or your [.env](/getting-started/environment-variables) file is for deployment-level concerns: where your Markdown files live, whether hot-reload is on, and what base path the server sits at. 
+2. **Site configuration.** Found in `docs/config.json` lives alongside your content and controls everything your readers see, from the site name and navigation structure to the footer and social links.
+
+That distinction means you can check `config.json` into the same repository as your docs and deploy the server without touching it.
 
 If you are looking for a narrative walkthrough of these settings rather than a field-by-field reference, [Configuration](/getting-started/configuration) walks through the most common setups step by step.
 
@@ -23,7 +26,9 @@ These settings apply at the host level and take effect at startup, so a restart 
 | `BasePath` | `string?` | `null` | Prefix every internal link, theme asset URL, and API call with this path segment. This is the setting to reach for when Bark is not served from the domain root, for example a GitHub Pages project page at `you.github.io/your-repo/` or a reverse proxy mounting Bark under `/docs`. A CLI `--base-path` flag overrides this value at runtime, which is how [static export](/getting-started/deploy#option-e-static-export-github-pages-etc) adjusts it without requiring a config edit. |
 | `ContentSecurityPolicy` | `string?` | `null` | A custom `Content-Security-Policy` header value. When provided, this replaces Bark's built-in default entirely rather than extending it. It is recommended to leave this unset unless you have a specific reason to override the default policy, such as allowing an external font host. Bark's default policy disallows inline scripts and styles that do not carry its per-request nonce, restricts every fetch directive to `'self'`, and disables framing. |
 
-## Theming
+## `appsettings.json`: `Docs:Themes`
+
+**About Theming**
 
 There are two ways to apply your own theme, and they complement each other nicely. Dropping files into `wwwroot/theme/` is the quickest path: a `custom.css` file there is loaded after Bark's built-in styles, a `custom.js` file is injected before the closing `</body>`, and a `theme.json` file accepts CSS variable overrides in a structured format. These are picked up at startup without any configuration changes, which works well when you can edit the filesystem directly.
 
@@ -31,7 +36,7 @@ If you would rather track theme settings in version control alongside the rest o
 
 See [Extending Themes](/getting-started/extending-themes) for a practical walkthrough of both approaches.
 
-## `appsettings.json`: `Docs:Themes`
+**Configuration**
 
 Every field here is optional. Each one is either a CSS variable override or a theme feature toggle, and anything you leave unset simply falls back to Bark's default palette and behavior. The same fields, written in camelCase, are accepted in `wwwroot/theme/theme.json` if you prefer the filesystem approach.
 
@@ -69,6 +74,7 @@ These settings shape how your site presents itself to readers, search engines, a
 | `favicon` | `string?` | A URL or path to an icon file, or a single emoji character to use as an inline SVG favicon. |
 | `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" timestamp. Off by default. When enabled, the date shown for each page comes from the file's last-modified time on disk unless the page sets `date` or `updated` in its frontmatter, which takes priority. See [Last Updated Timestamp](../default-theme-last-updated) and [Frontmatter Config](/reference/frontmatter-config#dates). |
 | `editLink` | `EditLinkConfig?` | "Edit this page" link displayed near the pagination footer. See [Edit Link](../default-theme-edit-link). |
+| `pageControls` | `PageControlsConfig?` | Per-page action menu shown in the breadcrumb bar. When configured, a small button appears that opens a dropdown with actions like downloading the page's Markdown source or opening it in an external editor. |
 
 **`HeadTag`**
 
@@ -113,6 +119,20 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
 |---|---|---|
 | `pattern` | `string` | URL template with a `:path` placeholder, which Bark replaces with the file's path relative to your docs root, preserving original casing. |
 | `text` | `string` | Link label. Defaults to `"Edit this page"`. |
+
+**`PageControlsConfig`**
+
+| Field | Type | Description |
+|---|---|---|
+| `downloadMarkdown` | `bool` | When `true`, the menu includes a "Download markdown" link that serves the raw `.md` source for the current page via `GET /raw/{path}`. |
+| `openInEditor` | `OpenInEditorConfig?` | When set, the menu includes a link that opens the current page's source file in an external editor using a deep-link URL. |
+
+**`OpenInEditorConfig`**
+
+| Field | Type | Description |
+|---|---|---|
+| `template` | `string` | URL template with a `{path}` placeholder, replaced by the page's `.md` path relative to the docs root. For example, `"vscode://file/{path}"` opens the file in VS Code, and `"vscodium://file/{path}"` opens it in VSCodium. |
+| `label` | `string` | Menu item label. Defaults to `"Open in editor"`. |
 
 **Full example**, matching the structure used throughout this documentation site:
 
@@ -172,7 +192,14 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
   "socialLinks": [
     { "icon": "github", "url": "https://github.com/melosso/bark", "title": "GitHub" },
     { "icon": "mastodon", "url": "https://fosstodon.org/@example", "title": "Mastodon" }
-  ]
+  ],
+  "pageControls": {
+    "downloadMarkdown": true,
+    "openInEditor": {
+      "template": "vscode://file/{path}",
+      "label": "Open in VS Code"
+    }
+  }
 }
 ```
 

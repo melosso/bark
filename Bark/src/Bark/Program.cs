@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -147,6 +146,23 @@ try
         return Results.Ok(new { version = docs.BuildVersion });
     });
 
+    app.MapGet("/raw/{**path}", async (string? path, DocumentationService docs, HttpContext context) =>
+    {
+        path = (path ?? "").Trim('/').ToLowerInvariant();
+        var page = await docs.GetPageAsync(path, context.RequestAborted);
+        if (page?.OriginalRelativePath is not { } relPath)
+            return Results.NotFound();
+
+        var docsRoot = Path.GetFullPath(docsOptions.RootPath);
+        var filePath = Path.GetFullPath(Path.Combine(docsRoot, relPath.Replace('/', Path.DirectorySeparatorChar)));
+        if (!filePath.StartsWith(docsRoot, StringComparison.Ordinal) || !File.Exists(filePath))
+            return Results.NotFound();
+
+        var filename = Path.GetFileName(relPath);
+        context.Response.Headers.ContentDisposition = $"attachment; filename=\"{filename}\"";
+        return Results.File(filePath, "text/markdown; charset=utf-8");
+    }).RequireRateLimiting("search-limit");
+
     app.MapGet("/api/search", (string? q, DocumentationService docs) =>
     {
         if (string.IsNullOrWhiteSpace(q) || q.Length < 2)
@@ -203,9 +219,9 @@ try
         return Results.Content(sb.ToString(), "application/xml", Encoding.UTF8);
     });
 
-    // Stable nonce per ETag value: same content version → same nonce → 304 and cached HTML stay coherent.
-    // ETag already folds in BuildVersion, so a content rebuild rotates to a fresh nonce automatically.
-    var pageNonces = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
+    // ETag-based nonce: persists across restarts and updates automatically when content changes
+    static string NonceFromETag(string etag) =>
+        Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(etag)), 0, 16);
 
     app.MapGet("/{**path}", async (string? path, DocumentationService docs, MarkdownService markdown, HttpContext context) =>
     {
@@ -258,9 +274,7 @@ try
         context.Response.Headers.ETag = $"\"{etag}\"";
         context.Response.Headers.CacheControl = "no-cache";
 
-        // Stable nonce keyed by ETag: 304 responses carry the same nonce as the cached 200 body.
-        var nonce = pageNonces.GetOrAdd(etag,
-            _ => Convert.ToBase64String(RandomNumberGenerator.GetBytes(16)));
+        var nonce = NonceFromETag(etag);
         context.Response.Headers.ContentSecurityPolicy =
             SecurityHeaders.BuildNonceCsp(customCsp ?? SecurityHeaders.DefaultCsp, nonce);
 
@@ -327,6 +341,10 @@ try
             ? $"<meta name=\"keywords\" content=\"{LayoutProvider.HtmlEncode(string.Join(", ", kw.Take(20)))}\">"
             : string.Empty;
 
+        var pageControlsHtml = !isHomePage
+            ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, basePath)
+            : string.Empty;
+
         var pageSegment = page.Path == "index" ? string.Empty : $"{page.Path}/";
         var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');
         var canonicalUrl = $"{context.Request.Scheme}://{context.Request.Host}/{rawPath}";
@@ -361,7 +379,8 @@ try
             canonicalUrl: canonicalUrl,
             nonce: nonce,
             hasMath: page.HtmlContent.Contains("class=\"katex\"", StringComparison.Ordinal),
-            hasMermaid: page.HtmlContent.Contains("class=\"mermaid\"", StringComparison.Ordinal)
+            hasMermaid: page.HtmlContent.Contains("class=\"mermaid\"", StringComparison.Ordinal),
+            pageControlsHtml: pageControlsHtml
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";

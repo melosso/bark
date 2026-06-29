@@ -34,7 +34,8 @@ public static partial class LayoutProvider
         string? canonicalUrl = null,
         string? nonce = null,
         bool hasMath = false,
-        bool hasMermaid = false)
+        bool hasMermaid = false,
+        string? pageControlsHtml = null)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -57,6 +58,7 @@ public static partial class LayoutProvider
         var breadcrumbAndTocHtml = isHomePage ? "" : $@"
             <nav class=""breadcrumb"" aria-label=""Breadcrumb"">
                 {breadcrumbHtml}
+                {pageControlsHtml}
             </nav>
             {(tocHtml is null ? "" : $@"<details class=""toc-inline"">
                 <summary>On this page</summary>

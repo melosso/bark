@@ -572,6 +572,25 @@ public static partial class LayoutProvider
             font-size: 1.75rem;
             margin-bottom: 0.75rem;
         }}
+        .bark-feature-icon img {{ 
+            width: 1.75rem; height: 1.75rem; object-fit: contain; 
+        }}
+        .bark-feature-icon svg {{   
+            width: 1.75rem; height: 1.75rem; 
+        }}
+        .bark-icon-dark {{ 
+            display: none; 
+        }}
+        @media (prefers-color-scheme: dark) {{
+            :root:not([data-theme=""light""]) .bark-icon-light {{ display: none; }}
+            :root:not([data-theme=""light""]) .bark-icon-dark  {{ display: inline; }}
+        }}
+        :root[data-theme=""dark""] .bark-icon-light {{ 
+            display: none; 
+        }}
+        :root[data-theme=""dark""] .bark-icon-dark  {{ 
+            display: inline; 
+        }}
         .bark-feature-title {{
             font-size: 1.05rem;
             font-weight: 600;
@@ -581,6 +600,33 @@ public static partial class LayoutProvider
             font-size: 0.875rem;
             color: var(--text-muted);
             line-height: 1.5;
+        }}
+        .page-controls {{ 
+            position: relative; margin-left: auto; flex-shrink: 0; 
+        }}
+        .page-controls-toggle {{ 
+            color: var(--text-muted); 
+        }}
+        .page-controls-toggle:hover {{ 
+            color: var(--text-color); 
+        }}
+        .page-controls-menu {{
+            position: absolute; top: calc(100% + 4px); right: 0; z-index: 200;
+            background: var(--sidebar-bg); border: 1px solid var(--border);
+            border-radius: 6px; box-shadow: var(--shadow-md);
+            min-width: 10rem; padding: 0.25rem 0;
+            display: flex; flex-direction: column;
+        }}
+        .page-controls-menu[hidden] {{ 
+            display: none; 
+        }}
+        .page-controls-item {{
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.4rem 0.75rem; font-size: 0.875rem;
+            color: var(--text-color); text-decoration: none; white-space: nowrap;
+        }}
+        .page-controls-item:hover {{ 
+            background: var(--accent-light); color: var(--accent); 
         }}
         .page-meta {{
             display: flex; justify-content: space-between; align-items: center; gap: 1rem;

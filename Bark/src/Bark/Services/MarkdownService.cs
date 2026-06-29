@@ -158,8 +158,7 @@ public sealed partial class MarkdownService
                     ? $"<a class=\"bark-feature\" href=\"{WebUtility.HtmlEncode(PrefixInternalLink(feature.Link!, basePath))}\">"
                     : "<div class=\"bark-feature\">");
 
-                if (!string.IsNullOrWhiteSpace(feature.Icon))
-                    sb.Append("<div class=\"bark-feature-icon\">").Append(EscapeIconText(feature.Icon)).Append("</div>");
+                AppendFeatureIcon(sb, feature, basePath);
                 if (!string.IsNullOrWhiteSpace(feature.Title))
                     sb.Append("<h2 class=\"bark-feature-title\">").Append(WebUtility.HtmlEncode(feature.Title)).Append("</h2>");
                 if (!string.IsNullOrWhiteSpace(feature.Details))
@@ -172,6 +171,39 @@ public sealed partial class MarkdownService
 
         sb.Append("</div>");
         return sb.ToString();
+    }
+
+    private static void AppendFeatureIcon(StringBuilder sb, Models.FeatureFrontMatter feature, string basePath)
+    {
+        if (feature.IconImage is { } cfg)
+        {
+            var alt = WebUtility.HtmlEncode(cfg.Alt ?? "");
+            sb.Append("<div class=\"bark-feature-icon\">");
+            if (!string.IsNullOrEmpty(cfg.Light) && !string.IsNullOrEmpty(cfg.Dark))
+            {
+                sb.Append($"<img class=\"bark-icon-light\" src=\"{WebUtility.HtmlEncode(PrefixInternalAsset(cfg.Light, basePath))}\" alt=\"{alt}\" aria-hidden=\"true\">")
+                  .Append($"<img class=\"bark-icon-dark\" src=\"{WebUtility.HtmlEncode(PrefixInternalAsset(cfg.Dark, basePath))}\" alt=\"{alt}\" aria-hidden=\"true\">");
+            }
+            else if (!string.IsNullOrEmpty(cfg.Src))
+            {
+                sb.Append($"<img src=\"{WebUtility.HtmlEncode(PrefixInternalAsset(cfg.Src, basePath))}\" alt=\"{alt}\" aria-hidden=\"true\">");
+            }
+            sb.Append("</div>");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(feature.Icon))
+            return;
+
+        sb.Append("<div class=\"bark-feature-icon\">");
+        var icon = feature.Icon.TrimStart();
+        if (icon.StartsWith("<svg", StringComparison.OrdinalIgnoreCase))
+            sb.Append(icon);
+        else if (icon.StartsWith('/') || icon.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || icon.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            sb.Append($"<img src=\"{WebUtility.HtmlEncode(PrefixInternalAsset(icon, basePath))}\" alt=\"\" aria-hidden=\"true\">");
+        else
+            sb.Append(EscapeIconText(icon));
+        sb.Append("</div>");
     }
 
     private static string AddHeadingAnchors(string html) =>

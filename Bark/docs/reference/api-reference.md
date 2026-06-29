@@ -24,6 +24,18 @@ What happens on each request:
 
 Unknown paths return a 404 page rather than an exception.
 
+## `GET /raw/{path}`
+
+Returns the raw Markdown source for the given documentation page as a file download. This is what the [page controls](/reference/site-config#pagecontrolsconfig) "Download markdown" action links to.
+
+```bash
+curl -O http://localhost:5000/raw/getting-started/getting-started
+```
+
+The path follows the same normalization rules as the page route: case-insensitive, no trailing slash needed. If the path does not match a known page, the endpoint returns `404 Not Modified`.
+
+This endpoint is rate-limited to 30 requests per minute per IP address, the same policy as `/api/search`.
+
 ## `GET /api/search`
 
 Returns a JSON array of search results, ranked by a weighted score.
