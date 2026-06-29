@@ -402,6 +402,7 @@ public static partial class LayoutProvider
 
                 var copyBtn = document.createElement('button');
                 copyBtn.textContent = 'Copy';
+                copyBtn.setAttribute('aria-label', 'Copy code');
                 copyBtn.addEventListener('click', function() {{
                     var code = pre.querySelector('code');
                     var text = code ? code.textContent : pre.textContent;
@@ -423,6 +424,7 @@ public static partial class LayoutProvider
 
                 var downloadBtn = document.createElement('button');
                 downloadBtn.textContent = 'Download';
+                downloadBtn.setAttribute('aria-label', 'Download code');
                 downloadBtn.addEventListener('click', function() {{
                     var code = pre.querySelector('code');
                     var text = code ? code.textContent : pre.textContent;

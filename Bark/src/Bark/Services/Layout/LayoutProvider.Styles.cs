@@ -62,12 +62,15 @@ public static partial class LayoutProvider
             outline-offset: 2px;
         }}
         .skip-link {{
-            position: absolute; left: -9999px; top: 0; z-index: 1100;
+            position: absolute; top: 0; left: 0; z-index: 1100;
+            width: 1px; height: 1px; overflow: hidden;
+            clip-path: inset(50%); white-space: nowrap;
             background: var(--accent); color: #fff; padding: 0.75rem 1.25rem;
             border-radius: 0 0 6px 0; text-decoration: none; font-size: 0.9rem;
         }}
         .skip-link:focus {{
-            left: 0;
+            width: auto; height: auto; overflow: visible;
+            clip-path: none; white-space: normal;
         }}
         .no-theme-transition, .no-theme-transition * {{
             transition: none !important;
@@ -469,9 +472,13 @@ public static partial class LayoutProvider
             margin-top: 0.75rem;
         }}
         .sidebar-link a {{
-            display: block; padding: 0.45rem 0.8rem; line-height: 1.4;
-            color: var(--text-muted); text-decoration: none; font-size: 0.875rem;
-            border-radius: 6px; transition: all 0.15s ease;
+            display: block; 
+            padding: 0.45rem 0.8rem; 
+            line-height: 1.4;
+            color: var(--text-muted); 
+            text-decoration: none; font-size: 0.875rem;
+            border-radius: 6px; 
+            transition: color 0.15s ease, background-color 0.15s ease;
         }}
         .sidebar-link a:hover {{
             color: var(--text-color);
@@ -884,6 +891,12 @@ public static partial class LayoutProvider
             cursor: pointer;
             margin: 0 0 0.5rem;
         }}
+        .content details.custom-block:not([open]) {{
+            padding-bottom: 0;
+        }}
+        .content details.custom-block:not([open]) summary {{
+            margin-bottom: 0;
+        }}
         /* code-group tabs */
         .content .bark-code-group {{
             margin: 1.5rem 0;
@@ -1230,6 +1243,15 @@ public static partial class LayoutProvider
             .main-container {{
                 padding: 2rem 1.5rem;
             }}
+            .bark-hero-name {{ 
+                font-size: 2rem; 
+            }}
+            .bark-hero-text {{ 
+                font-size: 1.4rem; 
+            }}
+            .bark-hero-tagline {{ 
+                font-size: 1rem; 
+            }}
             .menu-toggle {{
                 display: inline-flex;
             }}
@@ -1257,7 +1279,7 @@ public static partial class LayoutProvider
             }}
             .sidebar-left {{
                 position: fixed; top: var(--topbar-height); left: 0;
-                height: calc(100vh - var(--topbar-height)); width: 280px;
+                height: calc(100dvh - var(--topbar-height)); width: 280px;
                 max-width: 85vw; z-index: 1003;
                 transform: translateX(-100%);
                 transition: transform 0.2s ease;
