@@ -400,31 +400,38 @@ public static partial class LayoutProvider
                 var buttons = document.createElement('div');
                 buttons.className = 'code-block-buttons';
 
+                var iconCopy = '<svg xmlns=""http://www.w3.org/2000/svg"" width=""17"" height=""17"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><rect width=""14"" height=""14"" x=""8"" y=""8"" rx=""2"" ry=""2""/><path d=""M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2""/></svg>';
+                var iconCheck = '<svg xmlns=""http://www.w3.org/2000/svg"" width=""17"" height=""17"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2.5"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M20 6 9 17l-5-5""/></svg>';
+                var iconX = '<svg xmlns=""http://www.w3.org/2000/svg"" width=""17"" height=""17"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M18 6 6 18""/><path d=""m6 6 12 12""/></svg>';
                 var copyBtn = document.createElement('button');
-                copyBtn.textContent = 'Copy';
+                copyBtn.innerHTML = iconCopy;
                 copyBtn.setAttribute('aria-label', 'Copy code');
+                copyBtn.setAttribute('title', 'Copy code');
                 copyBtn.addEventListener('click', function() {{
                     var code = pre.querySelector('code');
                     var text = code ? code.textContent : pre.textContent;
                     navigator.clipboard.writeText(text).then(function() {{
-                        copyBtn.textContent = 'Copied!';
+                        copyBtn.innerHTML = iconCheck;
                         copyBtn.classList.add('copied');
                         setTimeout(function() {{
-                            copyBtn.textContent = 'Copy';
+                            copyBtn.innerHTML = iconCopy;
                             copyBtn.classList.remove('copied');
                         }}, 2000);
                     }})['catch'](function() {{
-                        copyBtn.textContent = 'Failed';
+                        copyBtn.innerHTML = iconX;
+                        copyBtn.classList.add('failed');
                         setTimeout(function() {{
-                            copyBtn.textContent = 'Copy';
+                            copyBtn.innerHTML = iconCopy;
+                            copyBtn.classList.remove('failed');
                         }}, 2000);
                     }});
                 }});
                 buttons.appendChild(copyBtn);
 
                 var downloadBtn = document.createElement('button');
-                downloadBtn.textContent = 'Download';
+                downloadBtn.innerHTML = '<svg xmlns=""http://www.w3.org/2000/svg"" width=""17"" height=""17"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4""/><polyline points=""7 10 12 15 17 10""/><line x1=""12"" x2=""12"" y1=""3"" y2=""15""/></svg>';
                 downloadBtn.setAttribute('aria-label', 'Download code');
+                downloadBtn.setAttribute('title', 'Download code');
                 downloadBtn.addEventListener('click', function() {{
                     var code = pre.querySelector('code');
                     var text = code ? code.textContent : pre.textContent;
