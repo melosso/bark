@@ -970,16 +970,22 @@ public static partial class LayoutProvider
         }}
         .code-block-buttons button {{
             background: var(--code-button-bg); border: 1px solid var(--code-button-border);
-            border-radius: 4px; padding: 0.25rem 0.5rem;
-            font-size: 0.7rem; color: var(--text-muted); cursor: pointer;
-            font-family: var(--font-sans); line-height: 1.4;
+            border-radius: 6px; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); cursor: pointer; flex-shrink: 0;
             transition: color 0.15s ease, border-color 0.15s ease;
+        }}
+        .code-block-buttons button svg {{
+            display: block; pointer-events: none;
         }}
         .code-block-buttons button:hover {{
             color: var(--code-button-hover); border-color: var(--code-button-hover);
         }}
         .code-block-buttons button.copied {{
             color: var(--code-button-hover); border-color: var(--code-button-hover);
+        }}
+        .code-block-buttons button.failed {{
+            opacity: 0.5;
         }}
         .markdown-alert {{
             padding: 0.75rem 1rem; margin: 1.5rem 0;

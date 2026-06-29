@@ -38,7 +38,11 @@ A relative link like `./configuration` also works, but resolves against the page
 
 ## Using a base path
 
-Links and images in your page body aren't rewritten for `BasePath`. If you run Bark behind a base path (a GitHub Pages project page, a reverse-proxy subpath), write that prefix into the link yourself: `/docs/getting-started/configuration` instead of `/getting-started/configuration`. Only structured front matter fields (`hero.image`, hero/feature links) get the prefix added automatically. See [Asset Handling](../assets#base-path) for the same caveat applied to images.
+Some Bark deployments run under a subdirectory prefix rather than at the root of a domain. A GitHub Pages project site is a common example, where your content lives at `username.github.io/your-repo/` instead of `username.github.io/`. Configuring that `/your-repo` segment as a base path tells Bark where to expect incoming requests and where to point generated links.
+
+When a base path is configured, Bark automatically adjusts structured front matter fields such as `hero.image` and any hero or feature action links. Links and images written directly inside your page body, however, are passed through untouched. If your site runs under a base path, it is a good idea to include that prefix yourself when writing body links. For example, with a base path of `/docs`, write `/docs/getting-started/configuration` rather than just `/getting-started/configuration`.
+
+The same consideration applies to images embedded in your content. See [Asset Handling](../assets#base-path) for a detailed look at how images behave in subdirectory deployments.
 
 ## What happens on a request
 
