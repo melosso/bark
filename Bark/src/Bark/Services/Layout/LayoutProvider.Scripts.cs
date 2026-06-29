@@ -501,6 +501,34 @@ public static partial class LayoutProvider
                 document.addEventListener('keydown', function(e) {{
                     if (e.key === 'Escape' && !pageControlsMenu.hidden) closePageControls();
                 }});
+
+                var copiedHtml = '<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true"" width=""14"" height=""14""><polyline points=""20 6 9 17 4 12""/></svg>Copied!';
+                function showCopied(btn, savedHtml) {{
+                    btn.innerHTML = copiedHtml;
+                    closePageControls();
+                    setTimeout(function() {{ btn.innerHTML = savedHtml; }}, 2000);
+                }}
+
+                pageControlsMenu.querySelectorAll('[data-copy-url]').forEach(function(btn) {{
+                    btn.addEventListener('click', function() {{
+                        var savedHtml = btn.innerHTML;
+                        fetch(btn.getAttribute('data-copy-url'))
+                            .then(function(r) {{ return r.text(); }})
+                            .then(function(text) {{ return navigator.clipboard.writeText(text); }})
+                            .then(function() {{ showCopied(btn, savedHtml); }})
+                            ['catch'](function() {{}});
+                    }});
+                }});
+
+                pageControlsMenu.querySelectorAll('[data-copy-value]').forEach(function(btn) {{
+                    btn.addEventListener('click', function() {{
+                        var savedHtml = btn.innerHTML;
+                        var value = new URL(btn.getAttribute('data-copy-value'), window.location.href).href;
+                        navigator.clipboard.writeText(value)
+                            .then(function() {{ showCopied(btn, savedHtml); }})
+                            ['catch'](function() {{}});
+                    }});
+                }});
             }}
 
             document.querySelectorAll('.top-nav-item.has-dropdown').forEach(function(item) {{

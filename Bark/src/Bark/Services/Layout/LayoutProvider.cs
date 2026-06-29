@@ -35,7 +35,8 @@ public static partial class LayoutProvider
         string? nonce = null,
         bool hasMath = false,
         bool hasMermaid = false,
-        string? pageControlsHtml = null)
+        string? pageControlsHtml = null,
+        string? rssDiscoveryHtml = null)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -154,6 +155,7 @@ public static partial class LayoutProvider
     {keywordsHtml}
     {canonicalLink}
     {socialMeta}
+    {rssDiscoveryHtml}
     {faviconHtml}
     {headTagsHtml}
     {themeCss}

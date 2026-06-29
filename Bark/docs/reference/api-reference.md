@@ -26,13 +26,15 @@ Unknown paths return a 404 page rather than an exception.
 
 ## `GET /raw/{path}`
 
-Returns the raw Markdown source for the given documentation page as a file download. This is what the [page controls](/reference/site-config#pagecontrolsconfig) "Download markdown" action links to.
+Returns the raw Markdown source for the given documentation page. This is what the [page controls](/reference/site-config#pagecontrolsconfig) "Copy page" and "View as Markdown" actions use.
 
 ```bash
 curl -O http://localhost:5000/raw/getting-started/getting-started
 ```
 
-The path follows the same normalization rules as the page route: case-insensitive, no trailing slash needed. If the path does not match a known page, the endpoint returns `404 Not Modified`.
+By default the response is served as a file download (`Content-Disposition: attachment`). Adding `?view=true` changes that to an inline `text/plain` response, which is what "View as Markdown" uses to open the source in a new tab without triggering a download.
+
+The path follows the same normalization rules as the page route: case-insensitive, no trailing slash needed. If the path does not match a known page, the endpoint returns `404 Not Found`.
 
 This endpoint is rate-limited to 30 requests per minute per IP address, the same policy as `/api/search`.
 
@@ -69,6 +71,16 @@ Returns an integer that increments every time the docs content actually changes,
 ```
 
 The dev-mode hot-reload script polls this endpoint and reloads the browser when it sees a new value. You probably won't call this directly, but it's there if you want to build your own "content changed" hook.
+
+## `GET /feed.xml`
+
+Returns an RSS 2.0 feed of the 20 most recently modified pages, sorted by last-modified date. The feed title, description, and base URL are derived from your `docs/config.json` settings.
+
+```bash
+curl http://localhost:5000/feed.xml
+```
+
+This endpoint is rate-limited to 30 requests per minute per IP address. RSS readers that poll hourly or daily are well within this limit.
 
 ## `GET /sitemap.xml`
 

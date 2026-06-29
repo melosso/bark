@@ -124,15 +124,16 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
 
 | Field | Type | Description |
 |---|---|---|
-| `downloadMarkdown` | `bool` | When `true`, the menu includes a "Download markdown" link that serves the raw `.md` source for the current page via `GET /raw/{path}`. |
-| `openInEditor` | `OpenInEditorConfig?` | When set, the menu includes a link that opens the current page's source file in an external editor using a deep-link URL. |
+| `downloadMarkdown` | `bool` | When `true`, the menu gains two actions: **Copy page** copies the raw Markdown source to your clipboard, and **View as Markdown** opens the same source inline in a new tab via `GET /raw/{path}?view=true`. |
+| `subscribeRss` | `bool` | When `true`, the menu includes a **Copy RSS feed URL** action that copies the absolute feed URL to your clipboard. Bark also injects a `<link rel="alternate" type="application/rss+xml">` tag into every page's `<head>`, so RSS reader browser extensions can discover and subscribe to the feed automatically. |
+| `editLink` | `PageControlsEditLinkConfig?` | When set, adds an entry at the bottom of the menu that links to the page's source using the top-level `editLink.pattern`. The label and icon are configured here independently from the `editLink` footer link. |
 
-**`OpenInEditorConfig`**
+**`PageControlsEditLinkConfig`**
 
 | Field | Type | Description |
 |---|---|---|
-| `template` | `string` | URL template with a `{path}` placeholder, replaced by the page's `.md` path relative to the docs root. For example, `"vscode://file/{path}"` opens the file in VS Code, and `"vscodium://file/{path}"` opens it in VSCodium. |
-| `label` | `string` | Menu item label. Defaults to `"Open in editor"`. |
+| `label` | `string` | Menu item label. Defaults to `"Edit this page"`. |
+| `icon` | `string?` | Named icon to display alongside the label. Accepts the same icon names as `socialLinks`, for example `"github"`. Falls back to a generic external-link icon when omitted. |
 
 **Full example**, matching the structure used throughout this documentation site:
 
@@ -195,9 +196,10 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
   ],
   "pageControls": {
     "downloadMarkdown": true,
-    "openInEditor": {
-      "template": "vscode://file/{path}",
-      "label": "Open in VS Code"
+    "subscribeRss": true,
+    "editLink": {
+      "label": "Edit on GitHub",
+      "icon": "github"
     }
   }
 }
@@ -225,6 +227,8 @@ When launching Bark directly from the terminal rather than through Docker or a p
 
 ## What Bark does not configure
 
-Bark keeps its configuration surface intentionally small. There are no build pipeline options, bundler settings, or lifecycle hooks, because Bark runs without a client-side build step. Features like math rendering, syntax highlighting, and custom containers are part of the core and are always active.
+Bark keeps its configuration surface intentionally small. There are no build pipeline options, bundler settings, or lifecycle hooks, because Bark runs without a client-side build step. 
 
-If you find yourself needing custom asset pipelines or structural layout changes, the recommended approach is to fork the source and modify it directly. Bark is designed to be a solid starting point you can adapt, not a platform you configure into a different shape through files alone.
+Features like math rendering, syntax highlighting, and custom containers are part of the core and are always active.
+
+If you find yourself needing custom asset pipelines or structural layout changes, the recommended approach is to fork the source and modify it directly. Feel free to contribute by opening an issue in our open source [repository](https://github.com/melosso/bark/issues).

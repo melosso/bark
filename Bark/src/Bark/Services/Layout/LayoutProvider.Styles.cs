@@ -625,8 +625,14 @@ public static partial class LayoutProvider
             padding: 0.4rem 0.75rem; font-size: 0.875rem;
             color: var(--text-color); text-decoration: none; white-space: nowrap;
         }}
-        .page-controls-item:hover {{ 
-            background: var(--accent-light); color: var(--accent); 
+        .page-controls-item svg {{ 
+            width: 14px; height: 14px; flex-shrink: 0; 
+        }}
+        .page-controls-item:hover {{
+            background: var(--accent-light); color: var(--accent);
+        }}
+        .page-controls-divider {{
+            height: 1px; background: var(--border); margin: 0.25rem 0;
         }}
         .page-meta {{
             display: flex; justify-content: space-between; align-items: center; gap: 1rem;

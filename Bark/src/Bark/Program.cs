@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.RateLimiting;
@@ -38,6 +39,7 @@ try
     builder.Services.AddSingleton(docsOptions);
 
     var basePath = NormalizeBasePath(cliArgs.BasePath ?? docsOptions.BasePath);
+    var docsRootAbsolute = Path.GetFullPath(docsOptions.RootPath).Replace(Path.DirectorySeparatorChar, '/');
 
     // appsettings.json's Docs:Themes wins if present; theme.json is the file-only alternative.
     var themeOptions = builder.Configuration.GetSection("Docs:Themes").Get<ThemeOptions>()
@@ -146,9 +148,11 @@ try
         return Results.Ok(new { version = docs.BuildVersion });
     });
 
-    app.MapGet("/raw/{**path}", async (string? path, DocumentationService docs, HttpContext context) =>
+    app.MapGet("/raw/{**path}", async (string? path, bool? view, DocumentationService docs, HttpContext context) =>
     {
         path = (path ?? "").Trim('/').ToLowerInvariant();
+        if (path.EndsWith(".md", StringComparison.Ordinal))
+            path = path[..^3];
         var page = await docs.GetPageAsync(path, context.RequestAborted);
         if (page?.OriginalRelativePath is not { } relPath)
             return Results.NotFound();
@@ -157,6 +161,9 @@ try
         var filePath = Path.GetFullPath(Path.Combine(docsRoot, relPath.Replace('/', Path.DirectorySeparatorChar)));
         if (!filePath.StartsWith(docsRoot, StringComparison.Ordinal) || !File.Exists(filePath))
             return Results.NotFound();
+
+        if (view == true)
+            return Results.File(filePath, "text/plain; charset=utf-8");
 
         var filename = Path.GetFileName(relPath);
         context.Response.Headers.ContentDisposition = $"attachment; filename=\"{filename}\"";
@@ -218,6 +225,56 @@ try
         sb.AppendLine("</urlset>");
         return Results.Content(sb.ToString(), "application/xml", Encoding.UTF8);
     });
+
+    app.MapGet("/feed.xml", async (DocumentationService docs, HttpContext context) =>
+    {
+        var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+        var pages = await docs.GetAllPagesAsync(context.RequestAborted);
+        var config = docs.SiteConfig;
+
+        var feedTitle = WebUtility.HtmlEncode(config?.Brand ?? config?.Title ?? "Bark");
+        var feedDesc = WebUtility.HtmlEncode(config?.Description ?? feedTitle);
+        var feedLink = $"{baseUrl}{basePath}/";
+        var feedDate = DateTime.UtcNow.ToString("R");
+
+        var recentPages = pages
+            .Where(p => p.Layout != "home")
+            .OrderByDescending(p => p.LastModified ?? DateTime.MinValue)
+            .Take(20);
+
+        var sb = new StringBuilder();
+        sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        sb.AppendLine("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">");
+        sb.AppendLine("  <channel>");
+        sb.AppendLine($"    <title>{feedTitle}</title>");
+        sb.AppendLine($"    <link>{feedLink}</link>");
+        sb.AppendLine($"    <description>{feedDesc}</description>");
+        sb.AppendLine($"    <lastBuildDate>{feedDate}</lastBuildDate>");
+        sb.AppendLine($"    <atom:link href=\"{baseUrl}{basePath}/feed.xml\" rel=\"self\" type=\"application/rss+xml\"/>");
+
+        foreach (var page in recentPages)
+        {
+            var pageUrl = page.Path == "index"
+                ? $"{baseUrl}{basePath}/"
+                : $"{baseUrl}{basePath}/{page.Path}/";
+            var title = WebUtility.HtmlEncode(page.Title);
+            var desc = WebUtility.HtmlEncode(page.Description ?? string.Empty);
+            var pubDate = (page.LastModified ?? DateTime.UtcNow).ToUniversalTime().ToString("R");
+
+            sb.AppendLine("    <item>");
+            sb.AppendLine($"      <title>{title}</title>");
+            sb.AppendLine($"      <link>{pageUrl}</link>");
+            sb.AppendLine($"      <guid isPermaLink=\"true\">{pageUrl}</guid>");
+            if (!string.IsNullOrEmpty(page.Description))
+                sb.AppendLine($"      <description>{desc}</description>");
+            sb.AppendLine($"      <pubDate>{pubDate}</pubDate>");
+            sb.AppendLine("    </item>");
+        }
+
+        sb.AppendLine("  </channel>");
+        sb.AppendLine("</rss>");
+        return Results.Content(sb.ToString(), "application/rss+xml", Encoding.UTF8);
+    }).RequireRateLimiting("search-limit");
 
     // ETag-based nonce: persists across restarts and updates automatically when content changes
     static string NonceFromETag(string etag) =>
@@ -341,9 +398,18 @@ try
             ? $"<meta name=\"keywords\" content=\"{LayoutProvider.HtmlEncode(string.Join(", ", kw.Take(20)))}\">"
             : string.Empty;
 
+        var pageControlsEditIcon = !isHomePage && config?.PageControls?.EditLink?.Icon is { Length: > 0 } pcIconName
+            ? await IconProvider.InlineSvgAsync(pcIconName, iconsDir, fallbackIconsDir)
+            : null;
+        var isLocalRequest = context.Connection.RemoteIpAddress is { } remoteIp && IPAddress.IsLoopback(remoteIp);
         var pageControlsHtml = !isHomePage
-            ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, basePath)
+            ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, config?.EditLink, basePath, docsRootAbsolute, pageControlsEditIcon, isLocalRequest)
             : string.Empty;
+
+        var feedUrl = $"{context.Request.Scheme}://{context.Request.Host}{basePath}/feed.xml";
+        var rssDiscoveryHtml = config?.PageControls?.SubscribeRss == true
+            ? $"<link rel=\"alternate\" type=\"application/rss+xml\" title=\"{LayoutProvider.HtmlEncode(config.Brand ?? config.Title ?? "RSS Feed")}\" href=\"{LayoutProvider.HtmlEncode(feedUrl)}\">"
+            : null;
 
         var pageSegment = page.Path == "index" ? string.Empty : $"{page.Path}/";
         var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');
@@ -380,7 +446,8 @@ try
             nonce: nonce,
             hasMath: page.HtmlContent.Contains("class=\"katex\"", StringComparison.Ordinal),
             hasMermaid: page.HtmlContent.Contains("class=\"mermaid\"", StringComparison.Ordinal),
-            pageControlsHtml: pageControlsHtml
+            pageControlsHtml: pageControlsHtml,
+            rssDiscoveryHtml: rssDiscoveryHtml
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";

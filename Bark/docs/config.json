@@ -88,6 +88,15 @@
     "text": "Edit this page on GitHub"
   },
   "pageControls": {
-    "downloadMarkdown": true
+    "downloadMarkdown": true,
+    "subscribeRss": true,
+    "openInEditor": [                                                                                                                                                                                  
+      { "template": "vscode://file/{docsRoot}/{path}", "label": "Open in VSCode (Dev only)" },                                                                                                                   
+      { "template": "vscodium://file/{docsRoot}/{path}", "label": "Open in VSCodium (Dev only)" }                                                                                                                 
+    ],
+    "editLink": {
+      "label": "Edit on GitHub",
+      "icon": "github"
+    }
   }
 }

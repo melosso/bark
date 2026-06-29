@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using Bark.Configuration;
 using Bark.Models;
+using Bark.Services.Rendering;
 
 namespace Bark.Services;
 
@@ -158,6 +159,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
 
     private async Task BuildAsync(CancellationToken cancellationToken)
     {
+        IconProvider.ClearCache();
         var docsPath = Path.GetFullPath(_options.RootPath);
         if (!Directory.Exists(docsPath))
         {
