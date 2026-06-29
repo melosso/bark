@@ -51,7 +51,7 @@ Use the real language id (`csharp`, not `c#`); the shorthand doesn't work the sa
 Add `[filename]` to the fence info string to show a title bar instead of the language badge:
 
 ````md
-```json [./appsettings.json]
+```json [src/appsettings.json]
 {
     "Hello": "world"
 }
@@ -60,7 +60,7 @@ Add `[filename]` to the fence info string to show a title bar instead of the lan
 
 Renders as:
 
-```json [./appsettings.json]
+```json [src/appsettings.json]
 {
     "Hello": "world"
 }
