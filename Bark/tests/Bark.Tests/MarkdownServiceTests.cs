@@ -329,4 +329,36 @@ $$
 
         Assert.Contains("Content after bad frontmatter", result.Html);
     }
+
+    [Fact]
+    public void Parse_MarkdownDescription_StripsToPlainText()
+    {
+        var md = "---\ndescription: See [Redirects](#redirects) for details\n---\n\n# Content\n";
+
+        var result = _service.Parse(md);
+
+        Assert.Equal("See Redirects for details", result.Description);
+    }
+
+    [Fact]
+    public void Parse_BoldDescriptionMarkdown_StripsFormatting()
+    {
+        var md = "---\ndescription: \"**Important** feature overview\"\n---\n\n# Content\n";
+
+        var result = _service.Parse(md);
+
+        Assert.Equal("Important feature overview", result.Description);
+    }
+
+    [Fact]
+    public void ToPlainText_LinkMarkdown_ReturnsLinkText()
+    {
+        Assert.Equal("Redirects", MarkdownService.ToPlainText("[Redirects](#redirects)"));
+    }
+
+    [Fact]
+    public void ToPlainText_BoldMarkdown_ReturnsPlainText()
+    {
+        Assert.Equal("hello world", MarkdownService.ToPlainText("**hello** world"));
+    }
 }

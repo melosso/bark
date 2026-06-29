@@ -95,7 +95,7 @@ public sealed partial class MarkdownService
         return new MarkdownParseResult(
             html,
             frontMatter?.Title ?? defaultTitle,
-            frontMatter?.Description,
+            frontMatter?.Description is { Length: > 0 } d ? ToPlainText(d) : null,
             headings,
             frontMatter?.Layout,
             frontMatter?.LastUpdated ?? true,
@@ -282,6 +282,16 @@ public sealed partial class MarkdownService
             return path;
 
         return $"{basePath}{path}";
+    }
+
+    // Renders inline markdown to plain text: strips links/bold/italic/code tags so
+    // frontmatter descriptions are searchable and safe for <meta name="description">.
+    private static readonly MarkdownPipeline _plainTextPipeline = new MarkdownPipelineBuilder().Build();
+
+    public static string ToPlainText(string markdown)
+    {
+        var html = Markdown.ToHtml(markdown, _plainTextPipeline);
+        return WebUtility.HtmlDecode(TagRegex().Replace(html, string.Empty)).Trim();
     }
 
     private static bool PrefixHasBasePath(string path, string basePath)

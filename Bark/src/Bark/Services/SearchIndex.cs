@@ -86,7 +86,8 @@ public sealed partial class SearchIndex
                 if (!_pages.TryGetValue(path, out var page))
                     continue;
 
-                var excerpt = GetExcerpt(page.HtmlContent, term);
+                var excerpt = GetExcerpt(page.HtmlContent, term)
+                    ?? (page.Description is { Length: > 0 } ? GetExcerpt(page.Description, term) : null);
                 if (scores.TryGetValue(path, out var existing))
                     scores[path] = (existing.Score + termScore, existing.Excerpt ?? excerpt);
                 else
