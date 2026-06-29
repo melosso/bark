@@ -486,37 +486,69 @@ public static partial class LayoutProvider
                     pageControlsMenu.hidden = true;
                     pageControlsToggle.setAttribute('aria-expanded', 'false');
                 }}
+                function openPageControls() {{
+                    pageControlsMenu.hidden = false;
+                    pageControlsToggle.setAttribute('aria-expanded', 'true');
+                    var rect = pageControlsMenu.getBoundingClientRect();
+                    if (rect.left < 8) {{
+                        pageControlsMenu.style.right = 'auto';
+                        pageControlsMenu.style.left = '0';
+                    }} else {{
+                        pageControlsMenu.style.right = '';
+                        pageControlsMenu.style.left = '';
+                    }}
+                    var first = pageControlsMenu.querySelector('.page-controls-item');
+                    if (first) first.focus();
+                }}
                 pageControlsToggle.addEventListener('click', function(e) {{
                     e.stopPropagation();
-                    var isOpen = !pageControlsMenu.hidden;
-                    if (isOpen) {{ closePageControls(); }} else {{
-                        pageControlsMenu.hidden = false;
-                        pageControlsToggle.setAttribute('aria-expanded', 'true');
-                    }}
+                    if (!pageControlsMenu.hidden) {{ closePageControls(); }} else {{ openPageControls(); }}
                 }});
                 document.addEventListener('click', function(e) {{
                     if (!pageControlsMenu.hidden && !pageControlsMenu.contains(e.target))
                         closePageControls();
                 }});
                 document.addEventListener('keydown', function(e) {{
-                    if (e.key === 'Escape' && !pageControlsMenu.hidden) closePageControls();
+                    if (e.key === 'Escape' && !pageControlsMenu.hidden) {{ closePageControls(); pageControlsToggle.focus(); }}
+                }});
+                pageControlsMenu.addEventListener('keydown', function(e) {{
+                    var items = Array.prototype.slice.call(pageControlsMenu.querySelectorAll('.page-controls-item'));
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {{
+                        e.preventDefault();
+                        var idx = items.indexOf(document.activeElement);
+                        idx = e.key === 'ArrowDown' ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+                        items[idx].focus();
+                    }} else if (e.key === 'Enter' || e.key === ' ') {{
+                        var focused = document.activeElement;
+                        if (focused && pageControlsMenu.contains(focused) && !focused.href) {{
+                            e.preventDefault();
+                            focused.click();
+                        }}
+                    }}
                 }});
 
                 var copiedHtml = '<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true"" width=""14"" height=""14""><polyline points=""20 6 9 17 4 12""/></svg>Copied!';
+                var errorHtml = '<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true"" width=""14"" height=""14""><line x1=""18"" y1=""6"" x2=""6"" y2=""18""/><line x1=""6"" y1=""6"" x2=""18"" y2=""18""/></svg>Failed';
                 function showCopied(btn, savedHtml) {{
                     btn.innerHTML = copiedHtml;
-                    closePageControls();
+                    setTimeout(function() {{ closePageControls(); }}, 600);
+                    setTimeout(function() {{ btn.innerHTML = savedHtml; }}, 2000);
+                }}
+                function showError(btn, savedHtml) {{
+                    btn.innerHTML = errorHtml;
                     setTimeout(function() {{ btn.innerHTML = savedHtml; }}, 2000);
                 }}
 
                 pageControlsMenu.querySelectorAll('[data-copy-url]').forEach(function(btn) {{
                     btn.addEventListener('click', function() {{
+                        if (btn.classList.contains('loading')) return;
                         var savedHtml = btn.innerHTML;
+                        btn.classList.add('loading');
                         fetch(btn.getAttribute('data-copy-url'))
-                            .then(function(r) {{ return r.text(); }})
+                            .then(function(r) {{ if (!r.ok) throw new Error(); return r.text(); }})
                             .then(function(text) {{ return navigator.clipboard.writeText(text); }})
-                            .then(function() {{ showCopied(btn, savedHtml); }})
-                            ['catch'](function() {{}});
+                            .then(function() {{ btn.classList.remove('loading'); showCopied(btn, savedHtml); }})
+                            ['catch'](function() {{ btn.classList.remove('loading'); showError(btn, savedHtml); }});
                     }});
                 }});
 
@@ -526,7 +558,7 @@ public static partial class LayoutProvider
                         var value = new URL(btn.getAttribute('data-copy-value'), window.location.href).href;
                         navigator.clipboard.writeText(value)
                             .then(function() {{ showCopied(btn, savedHtml); }})
-                            ['catch'](function() {{}});
+                            ['catch'](function() {{ showError(btn, savedHtml); }});
                     }});
                 }});
             }}

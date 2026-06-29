@@ -162,12 +162,16 @@ try
         if (!filePath.StartsWith(docsRoot, StringComparison.Ordinal) || !File.Exists(filePath))
             return Results.NotFound();
 
+        var fileInfo = new FileInfo(filePath);
+        var lastModified = new DateTimeOffset(fileInfo.LastWriteTimeUtc);
+        var etag = new Microsoft.Net.Http.Headers.EntityTagHeaderValue($"\"{fileInfo.LastWriteTimeUtc.Ticks:x}\"");
+
         if (view == true)
-            return Results.File(filePath, "text/plain; charset=utf-8");
+            return Results.File(filePath, "text/plain; charset=utf-8", lastModified: lastModified, entityTag: etag);
 
         var filename = Path.GetFileName(relPath);
         context.Response.Headers.ContentDisposition = $"attachment; filename=\"{filename}\"";
-        return Results.File(filePath, "text/markdown; charset=utf-8");
+        return Results.File(filePath, "text/markdown; charset=utf-8", lastModified: lastModified, entityTag: etag);
     }).RequireRateLimiting("search-limit");
 
     app.MapGet("/api/search", (string? q, DocumentationService docs) =>
@@ -244,7 +248,7 @@ try
 
         var sb = new StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        sb.AppendLine("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">");
+        sb.AppendLine("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\">");
         sb.AppendLine("  <channel>");
         sb.AppendLine($"    <title>{feedTitle}</title>");
         sb.AppendLine($"    <link>{feedLink}</link>");
@@ -268,6 +272,7 @@ try
             if (!string.IsNullOrEmpty(page.Description))
                 sb.AppendLine($"      <description>{desc}</description>");
             sb.AppendLine($"      <pubDate>{pubDate}</pubDate>");
+            sb.AppendLine($"      <content:encoded><![CDATA[{page.HtmlContent.Replace("]]>", "]]]]><![CDATA[>")}]]></content:encoded>");
             sb.AppendLine("    </item>");
         }
 
@@ -407,9 +412,7 @@ try
             : string.Empty;
 
         var feedUrl = $"{context.Request.Scheme}://{context.Request.Host}{basePath}/feed.xml";
-        var rssDiscoveryHtml = config?.PageControls?.SubscribeRss == true
-            ? $"<link rel=\"alternate\" type=\"application/rss+xml\" title=\"{LayoutProvider.HtmlEncode(config.Brand ?? config.Title ?? "RSS Feed")}\" href=\"{LayoutProvider.HtmlEncode(feedUrl)}\">"
-            : null;
+        var rssDiscoveryHtml = $"<link rel=\"alternate\" type=\"application/rss+xml\" title=\"{LayoutProvider.HtmlEncode(config?.Brand ?? config?.Title ?? "RSS Feed")}\" href=\"{LayoutProvider.HtmlEncode(feedUrl)}\">";
 
         var pageSegment = page.Path == "index" ? string.Empty : $"{page.Path}/";
         var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');

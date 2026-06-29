@@ -624,13 +624,15 @@ public static partial class LayoutProvider
             display: flex; align-items: center; gap: 0.5rem;
             padding: 0.4rem 0.75rem; font-size: 0.875rem;
             color: var(--text-color); text-decoration: none; white-space: nowrap;
+            cursor: pointer;
         }}
-        .page-controls-item svg {{ 
-            width: 14px; height: 14px; flex-shrink: 0; 
+        .page-controls-item svg {{
+            width: 14px; height: 14px; flex-shrink: 0;
         }}
         .page-controls-item:hover {{
             background: var(--accent-light); color: var(--accent);
         }}
+        .page-controls-item.loading {{ opacity: 0.6; pointer-events: none; }}
         .page-controls-divider {{
             height: 1px; background: var(--border); margin: 0.25rem 0;
         }}
