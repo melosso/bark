@@ -361,4 +361,40 @@ $$
     {
         Assert.Equal("hello world", MarkdownService.ToPlainText("**hello** world"));
     }
+
+    [Fact]
+    public void Parse_HomePageFeatureWithEmojiIcon_RendersIconContent()
+    {
+        var md = """
+            ---
+            layout: home
+            features:
+              - icon: 📝
+                title: Test
+                details: Testing
+            ---
+            """;
+
+        var result = _service.Parse(md);
+
+        Assert.DoesNotContain("<div class=\"bark-feature-icon\"></div>", result.Html);
+        Assert.Contains("<div class=\"bark-feature-icon\">📝</div>", result.Html);
+    }
+
+    [Fact]
+    public void Parse_HomePageFeatureWithoutIcon_OmitsIconDiv()
+    {
+        var md = """
+            ---
+            layout: home
+            features:
+              - title: No icon
+                details: Testing
+            ---
+            """;
+
+        var result = _service.Parse(md);
+
+        Assert.DoesNotContain("bark-feature-icon", result.Html);
+    }
 }
