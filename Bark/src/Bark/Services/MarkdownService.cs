@@ -159,7 +159,7 @@ public sealed partial class MarkdownService
                     : "<div class=\"bark-feature\">");
 
                 if (!string.IsNullOrWhiteSpace(feature.Icon))
-                    sb.Append("<div class=\"bark-feature-icon\">").Append(WebUtility.HtmlEncode(feature.Icon)).Append("</div>");
+                    sb.Append("<div class=\"bark-feature-icon\">").Append(EscapeIconText(feature.Icon)).Append("</div>");
                 if (!string.IsNullOrWhiteSpace(feature.Title))
                     sb.Append("<h2 class=\"bark-feature-title\">").Append(WebUtility.HtmlEncode(feature.Title)).Append("</h2>");
                 if (!string.IsNullOrWhiteSpace(feature.Details))
@@ -291,6 +291,10 @@ public sealed partial class MarkdownService
         return path.StartsWith(basePath, StringComparison.Ordinal)
             && (path.Length == basePath.Length || path[basePath.Length] == '/');
     }
+
+    // Escapes only HTML-unsafe chars; leaves Unicode (including emoji) as raw UTF-8.
+    private static string EscapeIconText(string text) =>
+        text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 
     public static string Slugify(string text)
     {

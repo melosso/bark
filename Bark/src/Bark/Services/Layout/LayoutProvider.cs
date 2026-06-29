@@ -32,7 +32,9 @@ public static partial class LayoutProvider
         string? headTagsHtml = null,
         string? keywordsHtml = null,
         string? canonicalUrl = null,
-        string? nonce = null)
+        string? nonce = null,
+        bool hasMath = false,
+        bool hasMermaid = false)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -154,8 +156,8 @@ public static partial class LayoutProvider
     {headTagsHtml}
     {themeCss}
     {GetStyles(darkModeMediaQuery, nonce)}
-    <link rel=""stylesheet"" href=""{basePath}/css/katex.min.css"">
-    <script defer src=""{basePath}/js/mermaid.min.js""></script>
+    {(hasMath ? $"<link rel=\"stylesheet\" href=\"{basePath}/css/katex.min.css\">" : "")}
+    {(hasMermaid ? $"<script defer src=\"{basePath}/js/mermaid.min.js\"></script>" : "")}
 </head>
 <body>
     <a href=""#main-content"" class=""skip-link"">Skip to content</a>
@@ -240,11 +242,24 @@ public static partial class LayoutProvider
     public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "", string lang = "en")
     {
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
+        // Build outside the interpolated block so JS/CSS braces don't need escaping.
+        const string darkVars = "--bg-color:#0b0b0b;--text-color:#e5e5e5;--text-muted:#a0a0a0;--accent:#6b8e74";
+        const string themeInit = "<script>(function(){" +
+            "try{var t=localStorage.getItem('bark-theme');" +
+            "if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);" +
+            "else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');" +
+            "}catch(e){}" +
+            "})()</script>";
+        const string darkCss = "@media (prefers-color-scheme: dark) {" +
+            ":root:not([data-theme=\"light\"]) {" + darkVars + "}" +
+            "}" +
+            ":root[data-theme=\"dark\"] {" + darkVars + "}";
         return $@"
 <!DOCTYPE html>
 <html lang=""{htmlEncode(lang)}"">
 <head>
     <meta charset=""UTF-8"">
+    {themeInit}
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Page Not Found</title>
     <style>
@@ -255,14 +270,7 @@ public static partial class LayoutProvider
             --accent: #2e4a36;
             --font-sans: system-ui, -apple-system, BlinkMacSystemFont, ""Segoe UI"", Roboto, sans-serif;
         }}
-        @media (prefers-color-scheme: dark) {{
-            :root {{
-                --bg-color: #0b0b0b;
-                --text-color: #e5e5e5;
-                --text-muted: #a0a0a0;
-                --accent: #6b8e74;
-            }}
-        }}
+        {darkCss}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
             font-family: var(--font-sans);
