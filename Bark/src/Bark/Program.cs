@@ -239,22 +239,28 @@ try
         var feedTitle = WebUtility.HtmlEncode(config?.Brand ?? config?.Title ?? "Bark");
         var feedDesc = WebUtility.HtmlEncode(config?.Description ?? feedTitle);
         var feedLink = $"{baseUrl}{basePath}/";
-        var feedDate = DateTime.UtcNow.ToString("R");
+        var feedLang = WebUtility.HtmlEncode(config?.Lang ?? "en");
 
         var recentPages = pages
             .Where(p => p.Layout != "home")
             .OrderByDescending(p => p.LastModified ?? DateTime.MinValue)
-            .Take(20);
+            .Take(20)
+            .ToList();
+
+        var lastBuildDate = recentPages.Count > 0 && recentPages[0].LastModified.HasValue
+            ? recentPages[0].LastModified!.Value.ToUniversalTime().ToString("R")
+            : DateTime.UtcNow.ToString("R");
 
         var sb = new StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        sb.AppendLine("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\">");
+        sb.AppendLine("<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">");
         sb.AppendLine("  <channel>");
         sb.AppendLine($"    <title>{feedTitle}</title>");
         sb.AppendLine($"    <link>{feedLink}</link>");
         sb.AppendLine($"    <description>{feedDesc}</description>");
-        sb.AppendLine($"    <lastBuildDate>{feedDate}</lastBuildDate>");
-        sb.AppendLine($"    <atom:link href=\"{baseUrl}{basePath}/feed.xml\" rel=\"self\" type=\"application/rss+xml\"/>");
+        sb.AppendLine($"    <language>{feedLang}</language>");
+        sb.AppendLine($"    <lastBuildDate>{lastBuildDate}</lastBuildDate>");
+        sb.AppendLine($"    <atom:link href=\"{WebUtility.HtmlEncode($"{baseUrl}{basePath}/feed.xml")}\" rel=\"self\" type=\"application/rss+xml\"/>");
 
         foreach (var page in recentPages)
         {
@@ -262,17 +268,18 @@ try
                 ? $"{baseUrl}{basePath}/"
                 : $"{baseUrl}{basePath}/{page.Path}/";
             var title = WebUtility.HtmlEncode(page.Title);
-            var desc = WebUtility.HtmlEncode(page.Description ?? string.Empty);
-            var pubDate = (page.LastModified ?? DateTime.UtcNow).ToUniversalTime().ToString("R");
+            var excerpt = page.Description is { Length: > 0 }
+                ? WebUtility.HtmlEncode(page.Description)
+                : WebUtility.HtmlEncode(RssHelper.PlainTextExcerpt(page.HtmlContent, 200));
 
             sb.AppendLine("    <item>");
             sb.AppendLine($"      <title>{title}</title>");
-            sb.AppendLine($"      <link>{pageUrl}</link>");
-            sb.AppendLine($"      <guid isPermaLink=\"true\">{pageUrl}</guid>");
-            if (!string.IsNullOrEmpty(page.Description))
-                sb.AppendLine($"      <description>{desc}</description>");
-            sb.AppendLine($"      <pubDate>{pubDate}</pubDate>");
-            sb.AppendLine($"      <content:encoded><![CDATA[{page.HtmlContent.Replace("]]>", "]]]]><![CDATA[>")}]]></content:encoded>");
+            sb.AppendLine($"      <link>{WebUtility.HtmlEncode(pageUrl)}</link>");
+            sb.AppendLine($"      <guid isPermaLink=\"true\">{WebUtility.HtmlEncode(pageUrl)}</guid>");
+            if (!string.IsNullOrEmpty(excerpt))
+                sb.AppendLine($"      <description>{excerpt}</description>");
+            if (page.LastModified.HasValue)
+                sb.AppendLine($"      <pubDate>{page.LastModified.Value.ToUniversalTime():R}</pubDate>");
             sb.AppendLine("    </item>");
         }
 
@@ -543,4 +550,20 @@ void LogApplicationBanner()
     Log.Information("");
     Log.Information("Bark - Your fast documentation server built on .NET");
     Log.Information("");
+}
+
+static partial class RssHelper
+{
+    [System.Text.RegularExpressions.GeneratedRegex("<[^>]*>")]
+    private static partial System.Text.RegularExpressions.Regex HtmlTagRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\s+")]
+    private static partial System.Text.RegularExpressions.Regex WhitespaceRegex();
+
+    public static string PlainTextExcerpt(string html, int maxLength)
+    {
+        var text = HtmlTagRegex().Replace(html, " ");
+        text = System.Net.WebUtility.HtmlDecode(WhitespaceRegex().Replace(text, " ").Trim());
+        return text.Length <= maxLength ? text : text[..maxLength].TrimEnd() + "…";
+    }
 }
