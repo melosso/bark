@@ -77,6 +77,8 @@ public static partial class LayoutProvider
         }}
         :root {{
             --topbar-height: 57px;
+            --promo-bg: var(--accent-light);
+            --promo-text: var(--accent);
         }}
         /* z-index scale: sidebar-overlay 1001 < topbar 1002 < mobile drawer 1003 < skip-link 1100
            < scroll-indicator 1101, so the indicator stays visible above the opaque topbar. */
@@ -95,6 +97,45 @@ public static partial class LayoutProvider
             width: 18px;
             height: 18px;
         }}
+        .promo-bar {{
+            display: grid; grid-template-rows: 1fr;
+            background-color: var(--promo-bg); color: var(--promo-text);
+            box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--promo-text) 14%, transparent);
+            font-size: 0.875rem; line-height: 1.4; text-align: center;
+            transition: grid-template-rows 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease-out;
+        }}
+        .promo-bar-inner {{
+            position: relative; overflow: hidden; min-height: 0;
+            display: flex; align-items: center; justify-content: center;
+        }}
+        .promo-bar-content {{ padding: 0.5rem 3rem; }}
+        .promo-bar-content p {{ margin: 0; display: inline; }}
+        .promo-bar-content a {{
+            color: inherit; text-decoration: underline;
+            text-underline-offset: 2px; font-weight: 600;
+        }}
+        .promo-bar-content a:hover {{ text-decoration-thickness: 2px; }}
+        .promo-bar-content code {{
+            background-color: color-mix(in srgb, var(--promo-text) 16%, transparent);
+            color: inherit; padding: 0.1em 0.35em; border-radius: 4px;
+            font-family: var(--font-mono); font-size: 0.85em;
+        }}
+        .promo-bar-close {{
+            position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%);
+            color: inherit; opacity: 0.75;
+            transition: opacity 0.15s ease, background-color 0.15s ease;
+        }}
+        .promo-bar-close:hover {{
+            color: inherit; opacity: 1;
+            background-color: color-mix(in srgb, var(--promo-text) 15%, transparent);
+        }}
+        .promo-bar-close:focus-visible {{
+            outline-color: var(--promo-text); opacity: 1;
+        }}
+        .promo-bar.promo-bar-hiding {{
+            grid-template-rows: 0fr; opacity: 0;
+        }}
+        .promo-dismissed .promo-bar {{ display: none; }}
         .topbar {{
             display: flex; align-items: center; justify-content: space-between;
             height: var(--topbar-height); padding: 0 1.5rem;

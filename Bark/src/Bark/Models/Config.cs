@@ -13,6 +13,9 @@ public class Config
     public string? Footer { get; set; }
     public string? Favicon { get; set; }
 
+    /// <summary>Markdown for a dismissible announcement bar above the header; null disables it</summary>
+    public string? Promo { get; set; }
+
     /// <summary>Flat sidebar. Superseded by <see cref="Sidebar"/> when present.</summary>
     public List<NavEntry>? Nav { get; set; }
 

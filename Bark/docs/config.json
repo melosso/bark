@@ -6,6 +6,7 @@
   "brandImage": "/brand-image.svg",
   "favicon": "🌳",
   "lastUpdated": true,
+  "promo": "**Big news!** Version 0.1.0 is out now! Check out the [release notes](https://github.com/melosso/bark/releases).",
   "footer": "Built with Bark · [AGPL-3.0](https://github.com/melosso/bark/blob/main/LICENSE)",
   "topNav": [
     { "text": "Home", "link": "/" },

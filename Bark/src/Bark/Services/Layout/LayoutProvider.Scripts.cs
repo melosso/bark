@@ -563,6 +563,21 @@ public static partial class LayoutProvider
                 }});
             }}
 
+            var promoBar = document.getElementById('promo-bar');
+            var promoClose = document.getElementById('promo-bar-close');
+            if (promoBar && promoClose) {{
+                promoClose.addEventListener('click', function() {{
+                    try {{ localStorage.setItem('bark-promo-dismissed', promoBar.getAttribute('data-promo-id') || '1'); }} catch (_) {{}}
+                    var removed = false;
+                    var removeBar = function() {{ if (!removed) {{ removed = true; promoBar.remove(); }} }};
+                    promoBar.addEventListener('transitionend', function(e) {{
+                        if (e.propertyName === 'grid-template-rows') removeBar();
+                    }});
+                    setTimeout(removeBar, 400);
+                    promoBar.classList.add('promo-bar-hiding');
+                }});
+            }}
+
             document.querySelectorAll('.top-nav-item.has-dropdown').forEach(function(item) {{
                 var btn = item.querySelector('.top-nav-link[aria-expanded]');
                 if (!btn) return;

@@ -36,7 +36,8 @@ public static partial class LayoutProvider
         bool hasMath = false,
         bool hasMermaid = false,
         string? pageControlsHtml = null,
-        string? rssDiscoveryHtml = null)
+        string? rssDiscoveryHtml = null,
+        string? promoBarHtml = null)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -107,7 +108,8 @@ public static partial class LayoutProvider
                 --alert-tip: #3fb950;
                 --alert-important: #a371f7;
                 --alert-warning: #d4a72c;
-                --alert-caution: #f85149;";
+                --alert-caution: #f85149;
+                --promo-text: #dfe6e1;";
 
         var darkModeMediaQuery = enableDarkMode
             ? $@"@media (prefers-color-scheme: dark) {{
@@ -165,6 +167,7 @@ public static partial class LayoutProvider
 </head>
 <body>
     <a href=""#main-content"" class=""skip-link"">Skip to content</a>
+    {promoBarHtml}
     {scrollIndicatorHtml}
     <header class=""topbar"">
         <div class=""topbar-left"">
