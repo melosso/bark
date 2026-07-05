@@ -1,6 +1,4 @@
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -21,11 +19,22 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
     private FileSystemWatcher? _configWatcher;
     private readonly CancellationTokenSource _shutdownCts = new();
 
-    private readonly ConcurrentDictionary<string, DocumentationPage> _pageCache = new();
-    private readonly SearchIndex _searchIndex = new();
-    private NavigationNode? _navigation;
-    private Config? _docsConfig;
-    private Dictionary<string, string> _navTitleLookup = new();
+    // All read state lives in one immutable snapshot swapped atomically after a full build; readers never see half-built state
+    private sealed record ContentSnapshot(
+        IReadOnlyDictionary<string, DocumentationPage> Pages,
+        NavigationNode Navigation,
+        IReadOnlyDictionary<string, string> NavTitles,
+        Config? Config,
+        SearchIndex SearchIndex);
+
+    private static readonly ContentSnapshot EmptySnapshot = new(
+        ImmutableDictionary<string, DocumentationPage>.Empty,
+        new NavigationNode("Root", null, Array.Empty<NavigationNode>()),
+        ImmutableDictionary<string, string>.Empty,
+        null,
+        new SearchIndex());
+
+    private volatile ContentSnapshot _snapshot = EmptySnapshot;
     private string? _lastContentHash;
     private readonly SemaphoreSlim _buildLock = new(1, 1);
     private readonly Channel<FileSystemEventArgs> _fileChannel =
@@ -45,12 +54,12 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _logger = logger;
     }
 
-    public Config? SiteConfig => _docsConfig;
+    public Config? SiteConfig => _snapshot.Config;
     public long BuildVersion { get; private set; }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await BuildAsync(cancellationToken);
+        await RebuildAsync(cancellationToken);
 
         if (_options.EnableHotReload)
         {
@@ -124,7 +133,18 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
 
                 while (_fileChannel.Reader.TryRead(out _)) { }
 
-                await RebuildAsync();
+                try
+                {
+                    await RebuildAsync(ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to rebuild documentation");
+                }
             }
         }
         catch (OperationCanceledException)
@@ -136,27 +156,20 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         }
     }
 
-    private async Task RebuildAsync()
+    private async Task RebuildAsync(CancellationToken cancellationToken)
     {
+        await _buildLock.WaitAsync(cancellationToken);
         try
         {
-            await _buildLock.WaitAsync();
-            try
-            {
-                _pageCache.Clear();
-                await BuildAsync(CancellationToken.None);
-            }
-            finally
-            {
-                _buildLock.Release();
-            }
+            await BuildAsync(cancellationToken);
         }
-        catch (Exception ex)
+        finally
         {
-            _logger.LogError(ex, "Failed to rebuild documentation");
+            _buildLock.Release();
         }
     }
 
+    // Caller must hold _buildLock; builds a complete snapshot off to the side, then swaps it in
     private async Task BuildAsync(CancellationToken cancellationToken)
     {
         IconProvider.ClearCache();
@@ -174,6 +187,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         // Sorted for deterministic hashing, regardless of FS enumeration order.
         var allFiles = Directory.GetFiles(docsPath, "*.md", SearchOption.AllDirectories).Order().ToArray();
         var pages = new List<DocumentationPage>();
+        var pageMap = new Dictionary<string, DocumentationPage>();
         var hashInput = new StringBuilder();
 
         foreach (var file in allFiles)
@@ -227,7 +241,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
                 ShowToc: parsed.ShowToc
             );
 
-            _pageCache[pagePath] = page;
+            pageMap[pagePath] = page;
             pages.Add(page);
         }
 
@@ -237,29 +251,33 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
 
         var contentHash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput.ToString())));
 
+        var searchIndex = new SearchIndex();
+        searchIndex.Build(pages);
+
+        var snapshot = new ContentSnapshot(
+            pageMap,
+            BuildNavigation(docsPath, pages),
+            navTitlesByPath,
+            config,
+            searchIndex);
+
+        _snapshot = snapshot;
+
         // Prevent unnecessary client reloads from spurious file events by verifying content changes!
         if (contentHash == _lastContentHash)
         {
-            _navigation = BuildNavigation(docsPath, pages);
-            _searchIndex.Build(pages);
-            _navTitleLookup = navTitlesByPath;
-            _docsConfig = config;
             _logger.LogDebug("Rebuilt documentation but content is unchanged, skipping version bump");
             return;
         }
 
         _lastContentHash = contentHash;
-        _navigation = BuildNavigation(docsPath, pages);
-        _searchIndex.Build(pages);
-        _navTitleLookup = navTitlesByPath;
-        _docsConfig = config;
         BuildVersion++;
         _logger.LogInformation("Built documentation with {PageCount} pages", pages.Count);
 
-        LogDeadLinks(pages);
+        LogDeadLinks(pages, pageMap);
     }
 
-    private void LogDeadLinks(List<DocumentationPage> pages)
+    private void LogDeadLinks(List<DocumentationPage> pages, Dictionary<string, DocumentationPage> pageMap)
     {
         var deadSources = new HashSet<string>();
         foreach (var page in pages)
@@ -271,7 +289,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
                     continue;
 
                 var resolved = ResolveHref(page.Path, href);
-                if (resolved.Length == 0 || _pageCache.ContainsKey(resolved))
+                if (resolved.Length == 0 || pageMap.ContainsKey(resolved))
                     continue;
 
                 deadSources.Add(page.Path);
@@ -365,17 +383,9 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         return new NavigationNode(title, null, children);
     }
 
-    public async Task<NavigationNode> GetNavigationAsync(CancellationToken cancellationToken = default)
+    public Task<NavigationNode> GetNavigationAsync(CancellationToken cancellationToken = default)
     {
-        await _buildLock.WaitAsync(cancellationToken);
-        try
-        {
-            return _navigation ?? new NavigationNode("Root", null, Array.Empty<NavigationNode>());
-        }
-        finally
-        {
-            _buildLock.Release();
-        }
+        return Task.FromResult(_snapshot.Navigation);
     }
 
     public ValueTask<DocumentationPage?> GetPageAsync(string path, CancellationToken cancellationToken = default)
@@ -384,29 +394,22 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         if (string.IsNullOrEmpty(path))
             path = _options.DefaultPage ?? "index";
 
-        _pageCache.TryGetValue(path, out var page);
+        _snapshot.Pages.TryGetValue(path, out var page);
         return ValueTask.FromResult(page);
     }
 
-    public async Task<IReadOnlyList<DocumentationPage>> GetAllPagesAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<DocumentationPage>> GetAllPagesAsync(CancellationToken cancellationToken = default)
     {
-        await _buildLock.WaitAsync(cancellationToken);
-        try
-        {
-            return _pageCache.Values.ToImmutableList();
-        }
-        finally
-        {
-            _buildLock.Release();
-        }
+        IReadOnlyList<DocumentationPage> pages = _snapshot.Pages.Values.ToImmutableList();
+        return Task.FromResult(pages);
     }
 
     public IReadOnlyList<SearchResult> Search(string query)
     {
-        return _searchIndex.Search(query);
+        return _snapshot.SearchIndex.Search(query);
     }
 
-    public async Task<IReadOnlyList<BreadcrumbItem>> GetBreadcrumbsAsync(string path, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<BreadcrumbItem>> GetBreadcrumbsAsync(string path, CancellationToken cancellationToken = default)
     {
         path = path.Trim('/').ToLowerInvariant();
         var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries)
@@ -414,34 +417,26 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             .ToArray();
         var crumbs = new List<BreadcrumbItem> { new("Home", "/") };
 
-        await _buildLock.WaitAsync(cancellationToken);
-        try
+        var snapshot = _snapshot;
+        var accumulated = "";
+        foreach (var segment in segments)
         {
-            var navTitles = _navTitleLookup;
-            var accumulated = "";
-            foreach (var segment in segments)
-            {
-                accumulated = string.IsNullOrEmpty(accumulated) ? segment : $"{accumulated}/{segment}";
+            accumulated = string.IsNullOrEmpty(accumulated) ? segment : $"{accumulated}/{segment}";
 
-                if (_pageCache.TryGetValue(accumulated, out var page))
-                    crumbs.Add(new BreadcrumbItem(page.Title, $"/{accumulated}"));
-                else if (navTitles.TryGetValue(accumulated, out var navTitle))
-                    crumbs.Add(new BreadcrumbItem(navTitle, null));
-                else
-                {
-                    var title = segment.Replace('-', ' ').Replace('_', ' ');
-                    if (title.Length > 0)
-                        title = char.ToUpperInvariant(title[0]) + title[1..];
-                    crumbs.Add(new BreadcrumbItem(title, null));
-                }
+            if (snapshot.Pages.TryGetValue(accumulated, out var page))
+                crumbs.Add(new BreadcrumbItem(page.Title, $"/{accumulated}"));
+            else if (snapshot.NavTitles.TryGetValue(accumulated, out var navTitle))
+                crumbs.Add(new BreadcrumbItem(navTitle, null));
+            else
+            {
+                var title = segment.Replace('-', ' ').Replace('_', ' ');
+                if (title.Length > 0)
+                    title = char.ToUpperInvariant(title[0]) + title[1..];
+                crumbs.Add(new BreadcrumbItem(title, null));
             }
         }
-        finally
-        {
-            _buildLock.Release();
-        }
 
-        return crumbs;
+        return Task.FromResult<IReadOnlyList<BreadcrumbItem>>(crumbs);
     }
 
     private static Dictionary<string, string> BuildNavTitleLookup(Config? config)

@@ -6,19 +6,43 @@ namespace Bark.Services;
 
 public sealed partial class SearchIndex
 {
+    // Bounds keep a hostile query from turning fuzzy matching into a CPU sink
+    private const int MaxQueryLength = 128;
+    private const int MaxQueryTerms = 8;
+    private const int MaxFuzzyCandidates = 3;
+    private const double FuzzySimilarityThreshold = 0.5;
+
     private readonly ConcurrentDictionary<string, List<(string Path, int Score)>> _invertedIndex = new();
+    private readonly ConcurrentDictionary<string, List<string>> _trigramIndex = new();
     private readonly ConcurrentDictionary<string, DocumentationPage> _pages = new();
     private volatile bool _isBuilt;
 
     public void Build(IEnumerable<DocumentationPage> pages)
     {
         _invertedIndex.Clear();
+        _trigramIndex.Clear();
         _pages.Clear();
 
         foreach (var page in pages)
         {
             _pages[page.Path] = page;
             IndexPage(page);
+        }
+
+        foreach (var term in _invertedIndex.Keys)
+        {
+            foreach (var trigram in Trigrams(term))
+            {
+                _trigramIndex.AddOrUpdate(
+                    trigram,
+                    _ => [term],
+                    (_, list) =>
+                    {
+                        if (!list.Contains(term))
+                            list.Add(term);
+                        return list;
+                    });
+            }
         }
 
         _isBuilt = true;
@@ -70,28 +94,31 @@ public sealed partial class SearchIndex
         if (!_isBuilt || string.IsNullOrWhiteSpace(query))
             return Array.Empty<SearchResult>();
 
+        if (query.Length > MaxQueryLength)
+            query = query[..MaxQueryLength];
+
         var terms = Tokenize(query);
         if (terms.Count == 0)
             return Array.Empty<SearchResult>();
+        if (terms.Count > MaxQueryTerms)
+            terms = terms.Take(MaxQueryTerms).ToList();
 
         var scores = new Dictionary<string, (int Score, string? Excerpt)>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var term in terms)
         {
-            if (!_invertedIndex.TryGetValue(term.ToLowerInvariant(), out var matches))
-                continue;
-
-            foreach (var (path, termScore) in matches)
+            var key = term.ToLowerInvariant();
+            if (_invertedIndex.TryGetValue(key, out var matches))
             {
-                if (!_pages.TryGetValue(path, out var page))
-                    continue;
+                AccumulateMatches(scores, matches, term, scoreDivisor: 1);
+                continue;
+            }
 
-                var excerpt = GetExcerpt(page.HtmlContent, term)
-                    ?? (page.Description is { Length: > 0 } ? GetExcerpt(page.Description, term) : null);
-                if (scores.TryGetValue(path, out var existing))
-                    scores[path] = (existing.Score + termScore, existing.Excerpt ?? excerpt);
-                else
-                    scores[path] = (termScore, excerpt);
+            // No exact hit; fall back to trigram-similar terms at half weight so typos still match but rank below exact hits
+            foreach (var candidate in FindFuzzyCandidates(key))
+            {
+                if (_invertedIndex.TryGetValue(candidate, out var fuzzyMatches))
+                    AccumulateMatches(scores, fuzzyMatches, candidate, scoreDivisor: 2);
             }
         }
 
@@ -108,6 +135,68 @@ public sealed partial class SearchIndex
                     Excerpt: kv.Value.Excerpt);
             })
             .ToList();
+    }
+
+    private void AccumulateMatches(
+        Dictionary<string, (int Score, string? Excerpt)> scores,
+        List<(string Path, int Score)> matches,
+        string excerptTerm,
+        int scoreDivisor)
+    {
+        foreach (var (path, termScore) in matches)
+        {
+            if (!_pages.TryGetValue(path, out var page))
+                continue;
+
+            var effectiveScore = Math.Max(1, termScore / scoreDivisor);
+            var excerpt = GetExcerpt(page.HtmlContent, excerptTerm)
+                ?? (page.Description is { Length: > 0 } ? GetExcerpt(page.Description, excerptTerm) : null);
+            if (scores.TryGetValue(path, out var existing))
+                scores[path] = (existing.Score + effectiveScore, existing.Excerpt ?? excerpt);
+            else
+                scores[path] = (effectiveScore, excerpt);
+        }
+    }
+
+    private List<string> FindFuzzyCandidates(string term)
+    {
+        var trigrams = Trigrams(term);
+        if (trigrams.Count == 0)
+            return [];
+
+        var sharedCounts = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var trigram in trigrams)
+        {
+            if (!_trigramIndex.TryGetValue(trigram, out var termsWithTrigram))
+                continue;
+            foreach (var indexTerm in termsWithTrigram)
+                sharedCounts[indexTerm] = sharedCounts.GetValueOrDefault(indexTerm) + 1;
+        }
+
+        return sharedCounts
+            .Select(kv => (Term: kv.Key, Similarity: DiceCoefficient(kv.Value, trigrams.Count, TrigramCount(kv.Key))))
+            .Where(x => x.Similarity >= FuzzySimilarityThreshold)
+            .OrderByDescending(x => x.Similarity)
+            .ThenBy(x => x.Term, StringComparer.Ordinal)
+            .Take(MaxFuzzyCandidates)
+            .Select(x => x.Term)
+            .ToList();
+    }
+
+    private static double DiceCoefficient(int shared, int countA, int countB) =>
+        countA + countB == 0 ? 0 : 2.0 * shared / (countA + countB);
+
+    private static int TrigramCount(string term) => Math.Max(term.Length - 2, 0);
+
+    private static List<string> Trigrams(string term)
+    {
+        if (term.Length < 3)
+            return [];
+
+        var trigrams = new List<string>(term.Length - 2);
+        for (var i = 0; i <= term.Length - 3; i++)
+            trigrams.Add(term.Substring(i, 3));
+        return trigrams;
     }
 
     private static string? GetExcerpt(string html, string term)
