@@ -47,9 +47,23 @@ public static partial class LayoutProvider
             ? $"<meta name=\"description\" content=\"{HtmlEncode(description)}\">"
             : "";
 
-        var layoutClass = isHomePage ? "layout bark-home-layout" : "layout";
+        var hasLeftNav = !string.IsNullOrWhiteSpace(navigationHtml);
+        var layoutClass = isHomePage
+            ? "layout bark-home-layout"
+            : hasLeftNav ? "layout" : "layout no-left-sidebar";
         var mobileSocialHtml = !string.IsNullOrWhiteSpace(socialLinksHtml)
             ? $@"<div class=""sidebar-social-links"">{socialLinksHtml}</div>"
+            : "";
+        var drawerHasContent = hasLeftNav
+            || !string.IsNullOrWhiteSpace(mobileTopNavHtml)
+            || !string.IsNullOrWhiteSpace(mobileSocialHtml);
+        var menuToggleHtml = drawerHasContent
+            ? @"<button type=""button"" class=""menu-toggle icon-btn"" id=""menu-toggle""
+                    aria-expanded=""false"" aria-controls=""sidebar-left"" aria-label=""Toggle navigation menu"">
+                <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" aria-hidden=""true"">
+                    <path d=""M3 6h18M3 12h18M3 18h18"" stroke-linecap=""round""/>
+                </svg>
+            </button>"
             : "";
         var sidebarLeftHtml = $@"
         <aside class=""sidebar-left"" id=""sidebar-left"" aria-label=""Documentation navigation"">
@@ -68,11 +82,8 @@ public static partial class LayoutProvider
                     {tocHtml}
                 </ul>
             </details>")}";
-        var sidebarRightHtml = isHomePage || tocHtml is null ? "" : string.IsNullOrWhiteSpace(tocHtml)
-            ? $@"
-        <aside class=""sidebar-right"" aria-label=""Page info"">
-            <div class=""toc-title"">{HtmlEncode(title)}</div>
-        </aside>"
+        var sidebarRightHtml = isHomePage || string.IsNullOrWhiteSpace(tocHtml)
+            ? ""
             : $@"
         <aside class=""sidebar-right"" aria-label=""Table of contents"">
             <div class=""toc-title"">On This Page</div>
@@ -171,12 +182,7 @@ public static partial class LayoutProvider
     {scrollIndicatorHtml}
     <header class=""topbar"">
         <div class=""topbar-left"">
-            <button type=""button"" class=""menu-toggle icon-btn"" id=""menu-toggle""
-                    aria-expanded=""false"" aria-controls=""sidebar-left"" aria-label=""Toggle navigation menu"">
-                <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" aria-hidden=""true"">
-                    <path d=""M3 6h18M3 12h18M3 18h18"" stroke-linecap=""round""/>
-                </svg>
-            </button>
+            {menuToggleHtml}
             <div class=""brand""><a href=""{homeHref}"">{(brandImageSrc is not null ? $"<img src=\"{HtmlEncode(brandImageSrc)}\" alt=\"\">" : "")}{brandText ?? "Bark"}</a></div>
             <button type=""button"" class=""search-trigger"" id=""search-trigger""
                     aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""Search documentation"">

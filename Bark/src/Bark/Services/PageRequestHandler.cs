@@ -229,23 +229,23 @@ public sealed class PageRequestHandler
     {
         var pages = await docs.GetAllPagesAsync(cancellationToken);
         var linksHtml = pages.Count > 0
-            ? "<ul>" + string.Join("", pages.OrderBy(p => p.Path)
+            ? "<p>In the meantime, here are the pages you have already written:</p><ul>" + string.Join("", pages.OrderBy(p => p.Path)
                 .Select(p => $"<li><a href=\"{UrlPaths.Href(basePath, p.Path)}\">{LayoutProvider.HtmlEncode(p.Title)}</a></li>")) + "</ul>"
-            : "<p>No Markdown files found yet. Drop one into your docs folder to get started.</p>";
+            : "<p>It looks like there are not any Markdown files just yet. Whenever you are ready, you can simply drop a <code>.md</code> file into your docs folder, and it will appear here instantly, with no build step to wait on.</p>";
 
         var html = $"""
             <h1>
-                No homepage yet
+                Let's set up your homepage
             </h1>
             <p>
-                Create <code>index.md</code> in your docs folder to set what's shown here.
+                You are up and running. Whenever you would like to choose what appears on this page, you can create an <code>index.md</code> file inside your docs folder, and it will be rendered here as your homepage automatically.
             </p>
             {linksHtml}
             """;
 
         return new DocumentationPage(
             Path: "index",
-            Title: "No homepage yet",
+            Title: "Let's set up your homepage",
             HtmlContent: html,
             Description: null,
             LastModified: null,
