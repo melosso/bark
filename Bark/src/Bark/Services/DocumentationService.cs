@@ -409,6 +409,11 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         return _snapshot.SearchIndex.Search(query);
     }
 
+    public SearchIndexExport GetSearchIndexExport()
+    {
+        return _snapshot.SearchIndex.ExportSnapshot();
+    }
+
     public Task<IReadOnlyList<BreadcrumbItem>> GetBreadcrumbsAsync(string path, CancellationToken cancellationToken = default)
     {
         path = path.Trim('/').ToLowerInvariant();

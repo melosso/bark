@@ -29,9 +29,10 @@ try
 
     var docsOptions = builder.Configuration.GetSection("Docs").Get<DocsOptions>() ?? new DocsOptions();
     if (exportDir != null)
-        // No server survives the export, so there's nothing for the hot-reload poll baked into
-        // the exported HTML to talk to. Disable it instead of baking in a dead endpoint call.
-        docsOptions = docsOptions with { EnableHotReload = false };
+        // No server survives the export, so there's nothing for the hot-reload poll or the
+        // /api/search endpoint baked into the exported HTML to talk to. Disable the poll and
+        // switch search to the prebuilt static index instead of baking in dead endpoint calls.
+        docsOptions = docsOptions with { EnableHotReload = false, IsStaticExport = true };
 
     builder.Services.AddSingleton(docsOptions);
 

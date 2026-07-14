@@ -202,6 +202,7 @@ public sealed class PageRequestHandler
             footerHtml: footerHtml,
             socialLinksHtml: socialLinksHtml,
             enableLiveReload: _docsOptions.EnableHotReload,
+            staticSearch: _docsOptions.IsStaticExport,
             buildVersion: _docs.BuildVersion,
             favicon: config?.Favicon,
             description: string.IsNullOrEmpty(page.Description) ? config?.Description : page.Description,

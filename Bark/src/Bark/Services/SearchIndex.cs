@@ -89,6 +89,36 @@ public sealed partial class SearchIndex
         }
     }
 
+    // Projects the built index into a serializable form for static export. Docs are ordered
+    // by path so output is deterministic; postings reference docs by that index.
+    public SearchIndexExport ExportSnapshot()
+    {
+        var docs = _pages.Values
+            .OrderBy(p => p.Path, StringComparer.Ordinal)
+            .Select(p => new SearchDocEntry(p.Path, p.Title, p.Description, PlainText(p.HtmlContent)))
+            .ToList();
+
+        var docIndex = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (var i = 0; i < docs.Count; i++)
+            docIndex[docs[i].Path] = i;
+
+        var terms = new Dictionary<string, IReadOnlyList<SearchPosting>>(StringComparer.Ordinal);
+        foreach (var (term, postings) in _invertedIndex)
+        {
+            var mapped = new List<SearchPosting>(postings.Count);
+            foreach (var (path, score) in postings)
+                if (docIndex.TryGetValue(path, out var idx))
+                    mapped.Add(new SearchPosting(idx, score));
+            terms[term] = mapped;
+        }
+
+        var trigrams = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach (var (trigram, termList) in _trigramIndex)
+            trigrams[trigram] = termList.ToList();
+
+        return new SearchIndexExport(docs, terms, trigrams);
+    }
+
     public IReadOnlyList<SearchResult> Search(string query)
     {
         if (!_isBuilt || string.IsNullOrWhiteSpace(query))
@@ -232,6 +262,11 @@ public sealed partial class SearchIndex
 
     private static string GetPlainText(string html) =>
         HtmlTagRegex().Replace(html, " ");
+
+    // Strip tags to spaces then decode entities -- same shape GetExcerpt slices, so a client
+    // slicing the exported text with identical window math produces the same excerpt.
+    internal static string PlainText(string html) =>
+        System.Net.WebUtility.HtmlDecode(HtmlTagRegex().Replace(html, " "));
 
     [GeneratedRegex("<[^>]*>")]
     private static partial Regex HtmlTagRegex();

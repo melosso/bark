@@ -2,7 +2,7 @@ namespace Bark.Services.Layout;
 
 public static partial class LayoutProvider
 {
-    private static string GetScripts(bool enableLiveReload, long buildVersion, string basePath, string? nonce = null) => $@"    <script{GetNonceAttr(nonce)}>
+    private static string GetScripts(bool enableLiveReload, long buildVersion, string basePath, string? nonce = null, bool staticSearch = false) => $@"    <script{GetNonceAttr(nonce)}>
         document.addEventListener('error', function(e) {{
             if (e.target && e.target.classList && e.target.classList.contains('tab-icon')) e.target.remove();
         }}, true);
@@ -200,6 +200,107 @@ public static partial class LayoutProvider
             var searchLastFocused = null;
             var searchRequestId = 0;
 
+            // Static export: search runs in-browser against a prebuilt index, mirroring SearchIndex.
+            var barkStaticSearch = {(staticSearch ? "true" : "false")};
+            var barkSearchIndexUrl = '{basePath}/search-index.json';
+            var barkSearchIndexPromise = null;
+            var BARK_MAX_QUERY_LENGTH = 128, BARK_MAX_QUERY_TERMS = 8, BARK_MAX_FUZZY = 3, BARK_FUZZY_THRESHOLD = 0.5;
+
+            function barkLoadSearchIndex() {{
+                if (!barkSearchIndexPromise) {{
+                    barkSearchIndexPromise = fetch(barkSearchIndexUrl).then(function(r) {{
+                        if (!r.ok) throw new Error('search index unavailable');
+                        return r.json();
+                    }});
+                }}
+                return barkSearchIndexPromise;
+            }}
+
+            function barkTokenize(text) {{
+                if (!text) return [];
+                return text.split(/\W+/)
+                    .map(function(w) {{ return w.trim().toLowerCase(); }})
+                    .filter(function(w) {{ return w.length > 0; }});
+            }}
+
+            function barkTrigrams(term) {{
+                if (term.length < 3) return [];
+                var out = [];
+                for (var i = 0; i <= term.length - 3; i++) out.push(term.substr(i, 3));
+                return out;
+            }}
+
+            function barkExcerpt(text, term) {{
+                if (!text) return null;
+                var idx = text.toLowerCase().indexOf(term.toLowerCase());
+                if (idx < 0) return null;
+                var start = Math.max(0, idx - 60);
+                var length = Math.min(text.length - start, 160);
+                var excerpt = text.slice(start, start + length).trim();
+                if (start > 0) excerpt = '...' + excerpt;
+                if (start + length < text.length) excerpt = excerpt + '...';
+                return excerpt;
+            }}
+
+            function barkFindFuzzy(index, term) {{
+                var tg = barkTrigrams(term);
+                if (!tg.length) return [];
+                var shared = {{}};
+                tg.forEach(function(t) {{
+                    var terms = index.trigrams[t];
+                    if (!terms) return;
+                    terms.forEach(function(it) {{ shared[it] = (shared[it] || 0) + 1; }});
+                }});
+                var cands = [];
+                Object.keys(shared).forEach(function(it) {{
+                    var countB = Math.max(it.length - 2, 0);
+                    var denom = tg.length + countB;
+                    var sim = denom === 0 ? 0 : (2 * shared[it]) / denom;
+                    if (sim >= BARK_FUZZY_THRESHOLD) cands.push({{ term: it, sim: sim }});
+                }});
+                cands.sort(function(a, b) {{ return b.sim - a.sim || (a.term < b.term ? -1 : a.term > b.term ? 1 : 0); }});
+                return cands.slice(0, BARK_MAX_FUZZY).map(function(c) {{ return c.term; }});
+            }}
+
+            function barkAccumulate(index, scores, postings, excerptTerm, divisor) {{
+                postings.forEach(function(p) {{
+                    var doc = index.docs[p.doc];
+                    if (!doc) return;
+                    var eff = Math.max(1, Math.floor(p.score / divisor));
+                    var ex = barkExcerpt(doc.text, excerptTerm);
+                    if (ex == null && doc.description) ex = barkExcerpt(doc.description, excerptTerm);
+                    var cur = scores[p.doc];
+                    if (cur) {{ cur.score += eff; if (cur.excerpt == null) cur.excerpt = ex; }}
+                    else scores[p.doc] = {{ score: eff, excerpt: ex }};
+                }});
+            }}
+
+            function barkSearchStatic(index, query) {{
+                if (query.length > BARK_MAX_QUERY_LENGTH) query = query.slice(0, BARK_MAX_QUERY_LENGTH);
+                var terms = barkTokenize(query);
+                if (!terms.length) return [];
+                if (terms.length > BARK_MAX_QUERY_TERMS) terms = terms.slice(0, BARK_MAX_QUERY_TERMS);
+                var scores = {{}};
+                terms.forEach(function(term) {{
+                    var key = term.toLowerCase();
+                    if (index.terms[key]) {{ barkAccumulate(index, scores, index.terms[key], term, 1); return; }}
+                    barkFindFuzzy(index, key).forEach(function(cand) {{
+                        if (index.terms[cand]) barkAccumulate(index, scores, index.terms[cand], cand, 2);
+                    }});
+                }});
+                return Object.keys(scores).map(function(k) {{
+                    var doc = index.docs[k];
+                    return {{ path: doc.path, title: doc.title, description: doc.description, excerpt: scores[k].excerpt, score: scores[k].score }};
+                }}).sort(function(a, b) {{ return b.score - a.score || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0); }});
+            }}
+
+            function barkRunSearch(query) {{
+                if (barkStaticSearch) {{
+                    return barkLoadSearchIndex().then(function(index) {{ return barkSearchStatic(index, query); }});
+                }}
+                return fetch('{basePath}/api/search?q=' + encodeURIComponent(query)).then(function(r) {{ return r.json(); }});
+            }}
+
             if (searchTriggerKbd && /Mac|iPhone|iPad/.test(navigator.platform || '')) {{
                 searchTriggerKbd.textContent = '⌘K';
             }}
@@ -351,8 +452,7 @@ public static partial class LayoutProvider
                 searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">Searching&hellip;</div>';
                 var requestId = searchRequestId;
                 searchTimeout = setTimeout(function() {{
-                    fetch('{basePath}/api/search?q=' + encodeURIComponent(query))
-                        .then(function(r) {{ return r.json(); }})
+                    barkRunSearch(query)
                         .then(function(data) {{
                             if (requestId !== searchRequestId) return; // a newer keystroke superseded this request
                             if (data.length === 0) {{
