@@ -53,6 +53,8 @@ Every entry in a sidebar array is either a link or a group, and groups nest to a
 | `items` | `array` | Child entries. Set this (and omit `path`) to make this entry a group. |
 | `collapsed` | `bool` | Group-only. See below. |
 
+If you leave the `title` off a group, its links render together as one heading-less cluster. You can read more about this in [Grouping links without a heading](#grouping-links-without-a-heading) further down.
+
 ## Collapse behavior
 
 `collapsed` controls whether a group gets a toggle caret and what state it starts in:
@@ -67,3 +69,24 @@ A group containing the page you're currently on always renders expanded. Collaps
 
 > [!NOTE] 
 > Use static (no `collapsed` field) groups for reference material someone scans top to bottom, like this site's `/reference/` sidebar. Use collapsible groups for a guide with more sections than fit comfortably on screen at once.
+
+## Grouping links without a heading
+
+Sometimes you have a handful of standalone links that belong together, yet none of them really calls for a section heading above it. Rather than leaving them as separate top-level links, where each one sits on its own under a divider, you can gather them into a group and simply leave the `title` off. Bark then renders the links as one tight cluster, quietly skipping the uppercase heading that a titled group would show.
+
+```json
+{
+  "sidebar": {
+    "": [
+      {
+        "items": [
+          { "title": "Config & API Reference", "path": "reference/site-config" },
+          { "title": "Changelog", "path": "more/changelog" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+This is convenient for a closing set of reference or housekeeping links at the bottom of a guide sidebar. The cluster is still set apart from the section above it by a gentle divider, so your grouping stays clear without adding extra visual weight. A heading-less group is always expanded and is not collapsible, since there is no title to click.

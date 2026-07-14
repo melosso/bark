@@ -83,6 +83,16 @@ public static class NavigationHtmlRenderer
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(entry.Title))
+        {
+            html.AppendLine("<div class=\"sidebar-group no-caret\">")
+                .AppendLine("<div class=\"sidebar-group-items\">");
+            foreach (var child in children)
+                AppendSidebarEntry(html, child, currentPath, level + 1, basePath);
+            html.AppendLine("</div>").AppendLine("</div>");
+            return;
+        }
+
         var hasActiveDescendant = ContainsActiveDescendant(entry, currentPath);
         var isCollapsible = entry.Collapsed.HasValue;
         var startsOpen = !isCollapsible || entry.Collapsed == false || hasActiveDescendant;

@@ -50,7 +50,11 @@
           { "title": "Extending Themes", "path": "getting-started/extending-themes" }
         ]
       },
-      { "title": "Config & API Reference", "path": "reference/site-config" }
+      {
+        "items": [
+          { "title": "Config & API Reference", "path": "reference/site-config" }
+        ]
+      }
     ],
     "/reference/": [
       {
