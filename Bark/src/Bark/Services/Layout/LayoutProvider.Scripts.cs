@@ -2,18 +2,50 @@ namespace Bark.Services.Layout;
 
 public static partial class LayoutProvider
 {
-    private static string GetScripts(bool enableLiveReload, long buildVersion, string basePath, string? nonce = null, bool staticSearch = false) => $@"    <script{GetNonceAttr(nonce)}>
+    private static string GetScripts(bool enableLiveReload, bool enableDarkMode, long buildVersion, string basePath, string? nonce = null, bool staticSearch = false)
+    {
+        // Non-toggle theme swaps (bfcache/other tab/OS flip) hit an already-painted page: suppress transitions or every element cross-fades.
+        var themeSyncScript = enableDarkMode
+            ? @"var themeRoot = document.documentElement;
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        function syncThemeToggle() {
+            var toggle = document.getElementById('theme-toggle');
+            if (!toggle) return;
+            var current = themeRoot.getAttribute('data-theme');
+            toggle.setAttribute('aria-checked', String(current ? current === 'dark' : prefersDark.matches));
+        }
+        function applyStoredTheme() {
+            var t = null;
+            try { t = localStorage.getItem('bark-theme'); } catch (_) {}
+            themeRoot.classList.add('no-theme-transition');
+            if (t === 'dark' || t === 'light') {
+                themeRoot.setAttribute('data-theme', t);
+                themeRoot.style.colorScheme = t;
+            } else {
+                themeRoot.removeAttribute('data-theme');
+                themeRoot.style.colorScheme = '';
+            }
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    themeRoot.classList.remove('no-theme-transition');
+                });
+            });
+            syncThemeToggle();
+        }
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted) applyStoredTheme();
+        });
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'bark-theme') applyStoredTheme();
+        });
+        prefersDark.addEventListener('change', syncThemeToggle);"
+            : "";
+
+        return $@"    <script{GetNonceAttr(nonce)}>
         document.addEventListener('error', function(e) {{
             if (e.target && e.target.classList && e.target.classList.contains('tab-icon')) e.target.remove();
         }}, true);
-        window.addEventListener('pageshow', function(e) {{
-            if (e.persisted) {{
-                try {{
-                    var t = localStorage.getItem('bark-theme');
-                    if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
-                }} catch (_) {{}}
-            }}
-        }});
+        {themeSyncScript}
         document.addEventListener('DOMContentLoaded', function() {{
             var headings = document.querySelectorAll('.content h1, .content h2, .content h3, .content h4');
             var tocItems = document.querySelectorAll('.toc-item');
@@ -40,24 +72,18 @@ public static partial class LayoutProvider
             }}
 
             if (themeToggle) {{
-                var prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-                function isDarkActive() {{
-                    var current = document.documentElement.getAttribute('data-theme');
-                    return current ? current === 'dark' : prefersDarkQuery.matches;
-                }}
-
-                themeToggle.setAttribute('aria-checked', String(isDarkActive()));
+                syncThemeToggle();
 
                 themeToggle.addEventListener('click', function() {{
-                    var next = isDarkActive() ? 'light' : 'dark';
-                    document.documentElement.setAttribute('data-theme', next);
+                    var current = themeRoot.getAttribute('data-theme');
+                    var isDark = current ? current === 'dark' : prefersDark.matches;
+                    var next = isDark ? 'light' : 'dark';
+                    themeRoot.setAttribute('data-theme', next);
+                    themeRoot.style.colorScheme = next;
                     themeToggle.setAttribute('aria-checked', String(next === 'dark'));
                     try {{ localStorage.setItem('bark-theme', next); }} catch (e) {{}}
 
-                    // Mermaid SVGs have their theme's colors baked in at render time, so a CSS
-                    // variable flip alone leaves them showing the old theme. Reload is the
-                    // simplest reliable way to force a clean re-render with the new theme.
+                    // Mermaid bakes theme colors into its SVG at render time; reload to re-render.
                     if (document.querySelector('.mermaid')) {{
                         location.reload();
                     }}
@@ -76,8 +102,7 @@ public static partial class LayoutProvider
                     sidebarLeft.classList.add('open');
                     sidebarOverlay.classList.add('open');
                     menuToggle.setAttribute('aria-expanded', 'true');
-                    // Drawer is position:fixed so it doesn't grow the page, but touch-scroll on it
-                    // still scrolls <body> underneath without this.
+                    // Drawer is position:fixed; without this, touch-scroll on it scrolls <body> underneath.
                     document.documentElement.style.overflow = 'hidden';
                 }}
 
@@ -117,8 +142,6 @@ public static partial class LayoutProvider
 
             window.addEventListener('scroll', updateScrollProgress);
 
-            // Moves the sliding accent bar to the active item's position. transform/height
-            // both transition via CSS, so this only needs to set the target values.
             function updateTocIndicator() {{
                 if (!tocIndicator || !tocListWrapper) return;
                 var activeLink = tocListWrapper.querySelector('.toc-item.active > a');
@@ -133,8 +156,7 @@ public static partial class LayoutProvider
                 tocIndicator.classList.add('visible');
             }}
 
-            // toc-item markup renders twice (tablet dropdown + desktop sidebar), so activation
-            // is keyed by heading id and applies to every matching copy.
+            // toc-item markup renders twice (tablet dropdown + desktop sidebar), so activation is keyed by heading id.
             function setActiveTocId(id) {{
                 tocItems.forEach(function(item) {{
                     var link = item.querySelector('a');
@@ -154,9 +176,7 @@ public static partial class LayoutProvider
 
             headings.forEach(function(h) {{ observer.observe(h); }});
 
-            // Landing on a #hash scrolls there natively before JS runs, but a heading flush at
-            // the top edge sits outside the observer's ~20% rootMargin and never fires. Set it
-            // explicitly instead of waiting on the observer.
+            // Native #hash scroll happens before JS; a heading flush at the top sits outside the observer rootMargin and never fires.
             if (location.hash) {{
                 setActiveTocId(location.hash.slice(1));
             }}
@@ -164,8 +184,7 @@ public static partial class LayoutProvider
                 if (location.hash) setActiveTocId(location.hash.slice(1));
             }});
 
-            // At the very bottom of the page the last heading can sit above the observer's
-            // ~20% rootMargin and never re-fire, leaving the second-to-last item stuck active.
+            // At page bottom the last heading can sit above the observer rootMargin, leaving the wrong item active.
             function checkScrolledToBottom() {{
                 var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
                 if (atBottom && headings.length > 0) {{
@@ -186,8 +205,6 @@ public static partial class LayoutProvider
                 }}
             }});
 
-            // Search modal: combobox/listbox a11y pattern (aria-activedescendant, roving
-            // aria-selected) plus a manual focus trap since <dialog> isn't used.
             var searchTrigger = document.getElementById('search-trigger');
             var searchTriggerKbd = document.getElementById('search-trigger-kbd');
             var searchOverlay = document.getElementById('search-overlay');
@@ -315,8 +332,7 @@ public static partial class LayoutProvider
                 return value.replace(/[.*+?^${{}}()|[\]\\]/g, '\\$&');
             }}
 
-            // Escapes first, then wraps matches in the *escaped* string -- query terms never
-            // contain markup themselves, so highlighting after escaping can't reopen the hole.
+            // Escape first, then highlight within the escaped string so the <mark> wrap can't reopen an XSS hole.
             function highlightMatches(value, terms) {{
                 var escaped = escapeHtml(value);
                 if (!terms.length) return escaped;
@@ -399,8 +415,6 @@ public static partial class LayoutProvider
                     return;
                 }}
                 if (e.key === 'Tab') {{
-                    // Manual focus trap -- modal only contains the input and close button as
-                    // focusable elements, so Tab/Shift+Tab just toggles between the two.
                     var focusable = [searchModalInput, searchModalClose];
                     var currentIndex = focusable.indexOf(document.activeElement);
                     e.preventDefault();
@@ -429,8 +443,6 @@ public static partial class LayoutProvider
                 }}
             }});
 
-            // Mouse and keyboard share one active index so a hover never silently
-            // disagrees with the last arrow-key position.
             searchModalResults.addEventListener('mouseover', function(e) {{
                 var item = e.target.closest('.search-result-item');
                 if (!item) return;
@@ -569,7 +581,7 @@ public static partial class LayoutProvider
                 }});
             }});
 
-            // Mermaid bakes colors into the SVG at render time and ignores CSS variables, so the current theme must be passed in explicitly; a full reload is needed to redraw..
+            // Mermaid ignores CSS variables; current theme must be passed in explicitly.
             var mermaidBlocks = document.querySelectorAll('.mermaid');
             if (mermaidBlocks.length && window.mermaid) {{
                 var currentTheme = document.documentElement.getAttribute('data-theme');
@@ -695,4 +707,5 @@ public static partial class LayoutProvider
         }});
     </script>
 ";
+    }
 }
