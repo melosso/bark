@@ -68,11 +68,11 @@ public static partial class LayoutProvider
                     {tocHtml}
                 </ul>
             </details>")}";
-        var sidebarRightHtml = isHomePage || tocHtml is null ? "" : string.IsNullOrWhiteSpace(tocHtml)
-            ? $@"
-        <aside class=""sidebar-right"" aria-label=""Page info"">
-            <div class=""toc-title"">{HtmlEncode(title)}</div>
-        </aside>"
+        // Matches VitePress: the outline aside (title included) only renders when there is at least
+        // one heading to list. Empty/whitespace tocHtml collapses to the same "render nothing" case
+        // as a null (toc:false) -- never a title-only box.
+        var sidebarRightHtml = isHomePage || string.IsNullOrWhiteSpace(tocHtml)
+            ? ""
             : $@"
         <aside class=""sidebar-right"" aria-label=""Table of contents"">
             <div class=""toc-title"">On This Page</div>
