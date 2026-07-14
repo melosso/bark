@@ -205,6 +205,14 @@ public static partial class LayoutProvider
             grid-template-columns: 270px 1fr 270px;
             min-height: calc(100vh - var(--topbar-height));
         }}
+        .layout.no-left-sidebar {{
+            grid-template-columns: 1fr 270px;
+        }}
+        @media (min-width: 769px) {{
+            .layout.no-left-sidebar > .sidebar-left {{
+                display: none;
+            }}
+        }}
         .sidebar-left {{
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border);
