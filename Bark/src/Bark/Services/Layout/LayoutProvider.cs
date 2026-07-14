@@ -132,8 +132,9 @@ public static partial class LayoutProvider
             : "";
 
         var nonceAttr = nonce is { Length: > 0 } ? $" nonce=\"{nonce}\"" : "";
+        // Pre-<style> so no transition can fire; without a stored theme, data-theme stays unset so CSS follows live OS changes.
         var themeInitScript = enableDarkMode
-            ? "<script" + nonceAttr + ">(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('no-theme-transition');requestAnimationFrame(function(){requestAnimationFrame(function(){document.documentElement.classList.remove('no-theme-transition');});});}catch(e){}})();</script>"
+            ? "<script" + nonceAttr + ">(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light'){var r=document.documentElement;r.setAttribute('data-theme',t);r.style.colorScheme=t;}}catch(e){}})();</script>"
             : "";
 
         var themeToggleHtml = enableDarkMode
@@ -247,7 +248,7 @@ public static partial class LayoutProvider
         </main>
         {sidebarRightHtml}
     </div>
-    {GetScripts(enableLiveReload, buildVersion, basePath, nonce)}
+    {GetScripts(enableLiveReload, enableDarkMode, buildVersion, basePath, nonce)}
 </body>
 </html>";
     }
@@ -258,10 +259,12 @@ public static partial class LayoutProvider
         // Build outside the interpolated block so JS/CSS braces don't need escaping.
         const string darkVars = "--bg-color:#0b0b0b;--text-color:#e5e5e5;--text-muted:#a0a0a0;--accent:#6b8e74";
         const string themeInit = "<script>(function(){" +
-            "try{var t=localStorage.getItem('bark-theme');" +
-            "if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);" +
-            "else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');" +
-            "}catch(e){}" +
+            "function apply(){try{var t=localStorage.getItem('bark-theme');var r=document.documentElement;" +
+            "if(t==='dark'||t==='light'){r.setAttribute('data-theme',t);r.style.colorScheme=t;}" +
+            "else{r.removeAttribute('data-theme');r.style.colorScheme='';}" +
+            "}catch(e){}}" +
+            "apply();" +
+            "window.addEventListener('pageshow',function(e){if(e.persisted)apply();});" +
             "})()</script>";
         const string darkCss = "@media (prefers-color-scheme: dark) {" +
             ":root:not([data-theme=\"light\"]) {" + darkVars + "}" +
