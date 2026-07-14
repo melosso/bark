@@ -1,4 +1,6 @@
+using System.Text.Json;
 using Bark.Models;
+using Bark.Serialization;
 using Bark.Services;
 
 namespace Bark.Tests;
@@ -132,5 +134,50 @@ public sealed class SearchIndexTests
         var results = index.Search("new");
         Assert.Single(results);
         Assert.Empty(index.Search("old"));
+    }
+
+    [Fact]
+    public void ExportSnapshot_ContainsDocsTermsAndTrigrams()
+    {
+        var index = new SearchIndex();
+        index.Build([MakePage("install", "Installation Guide", body: "deployment strategies")]);
+        var export = index.ExportSnapshot();
+
+        var doc = Assert.Single(export.Docs);
+        Assert.Equal("install", doc.Path);
+        Assert.Equal("Installation Guide", doc.Title);
+        Assert.Contains("deployment", doc.Text);
+        Assert.True(export.Terms.ContainsKey("installation"));
+        Assert.True(export.Trigrams.ContainsKey("ins"));
+    }
+
+    [Fact]
+    public void ExportSnapshot_PostingsReferenceDocsByIndex()
+    {
+        var index = new SearchIndex();
+        index.Build([MakePage("a", "Alpha"), MakePage("b", "Beta")]);
+        var export = index.ExportSnapshot();
+
+        var postings = export.Terms["alpha"];
+        var posting = Assert.Single(postings);
+        Assert.Equal("a", export.Docs[posting.Doc].Path);
+        Assert.True(posting.Score > 0);
+    }
+
+    [Fact]
+    public void ExportSnapshot_RoundTripsThroughBarkJsonContext()
+    {
+        var index = new SearchIndex();
+        index.Build([MakePage("guide", "Guide", "intro", body: "content here")]);
+        var export = index.ExportSnapshot();
+
+        var json = JsonSerializer.Serialize(export, BarkJsonContext.Default.SearchIndexExport);
+        var restored = JsonSerializer.Deserialize(json, BarkJsonContext.Default.SearchIndexExport);
+
+        Assert.NotNull(restored);
+        Assert.Equal(export.Docs.Count, restored!.Docs.Count);
+        Assert.Equal("guide", restored.Docs[0].Path);
+        Assert.True(restored.Terms.ContainsKey("guide"));
+        Assert.Contains("\"docs\"", json);
     }
 }

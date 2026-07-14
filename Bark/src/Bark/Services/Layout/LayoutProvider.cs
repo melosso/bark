@@ -18,6 +18,7 @@ public static partial class LayoutProvider
         string? footerHtml = null,
         string? socialLinksHtml = null,
         bool enableLiveReload = false,
+        bool staticSearch = false,
         long buildVersion = 0,
         string? favicon = null,
         string? description = null,
@@ -248,7 +249,7 @@ public static partial class LayoutProvider
         </main>
         {sidebarRightHtml}
     </div>
-    {GetScripts(enableLiveReload, enableDarkMode, buildVersion, basePath, nonce)}
+    {GetScripts(enableLiveReload, enableDarkMode, buildVersion, basePath, nonce, staticSearch)}
 </body>
 </html>";
     }

@@ -9,4 +9,5 @@ namespace Bark.Serialization;
 [JsonSerializable(typeof(BuildVersionResponse))]
 [JsonSerializable(typeof(IReadOnlyList<SearchResult>))]
 [JsonSerializable(typeof(SearchResult[]))]
+[JsonSerializable(typeof(SearchIndexExport))]
 internal sealed partial class BarkJsonContext : JsonSerializerContext;
