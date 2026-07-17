@@ -809,6 +809,25 @@ public static partial class LayoutProvider
         .content hr {{
             border: none; border-top: 1px solid var(--border); margin: 2.5rem 0;
         }}
+        .content video {{
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #000;
+            margin: 1.75rem 0;
+        }}
+        .content iframe {{
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            aspect-ratio: 16 / 9;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin: 1.75rem 0;
+        }}
         .content h3 {{
             font-size: 1.15rem; font-weight: 500; letter-spacing: -0.01em;
             margin-top: 2rem; margin-bottom: 0.75rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
@@ -1295,9 +1314,9 @@ public static partial class LayoutProvider
                 width: 44px;
                 height: 44px;
             }}
-            .theme-toggle {{
-                height: 44px;
-                border-radius: 22px;
+            .theme-toggle::after {{
+                content: ""; position: absolute; left: 0; right: 0;
+                top: 50%; transform: translateY(-50%); height: 44px;
             }}
             .nav-item a, .toc-item a {{
                 min-height: 44px; display: flex; align-items: center;

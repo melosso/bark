@@ -283,3 +283,13 @@ Append `{target="_blank" rel="noopener"}` after a link to open it in a new tab:
 ```md
 [Bark on GitHub](https://github.com/org/bark){target="_blank" rel="noopener"}
 ```
+
+## Video and media
+
+Drop media files into `docs/assets/` and reference them with image syntax — Bark turns known video, audio, and embed URLs into native players:
+
+```md
+![Demo clip](/assets/video.mp4)
+```
+
+![Demo clip](/assets/video.mp4)
