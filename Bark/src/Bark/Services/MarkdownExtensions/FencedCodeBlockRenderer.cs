@@ -1,7 +1,9 @@
 using System.Linq;
+using System.Net;
 using Markdig.Renderers;
 using Markdig.Renderers.Html;
 using Markdig.Syntax;
+using Bark.Services.Rendering;
 
 namespace Bark.Services.MarkdownExtensions;
 
@@ -76,7 +78,7 @@ public sealed class FencedCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter
         renderer.Write('>');
         if (showTitleBar)
             renderer.Write("<div class=\"code-title\">").WriteEscape(meta.Title!).Write("</div>");
-        renderer.Write("<button title=\"Copy code\" class=\"copy\"></button>");
+        renderer.Write($"<button title=\"{WebUtility.HtmlEncode(Localization.Current.CopyCode)}\" class=\"copy\"></button>");
         renderer.Write("<span class=\"lang\">").WriteEscape(lang.Replace('_', ' ')).Write("</span>");
 
         var theme = syntaxHighlighter.Theme;

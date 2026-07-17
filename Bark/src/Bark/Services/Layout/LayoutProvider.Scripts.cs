@@ -41,6 +41,8 @@ public static partial class LayoutProvider
         prefersDark.addEventListener('change', syncThemeToggle);"
             : "";
 
+        var l = Rendering.Localization.Current;
+
         return $@"    <script{GetNonceAttr(nonce)}>
         document.addEventListener('error', function(e) {{
             if (e.target && e.target.classList && e.target.classList.contains('tab-icon')) e.target.remove();
@@ -461,15 +463,15 @@ public static partial class LayoutProvider
                     searchModalStatus.textContent = '';
                     return;
                 }}
-                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">Searching&hellip;</div>';
+                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">{Rendering.Localization.JsEncode(l.SearchSearching)}&hellip;</div>';
                 var requestId = searchRequestId;
                 searchTimeout = setTimeout(function() {{
                     barkRunSearch(query)
                         .then(function(data) {{
                             if (requestId !== searchRequestId) return; // a newer keystroke superseded this request
                             if (data.length === 0) {{
-                                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">No results found.</div>';
-                                searchModalStatus.textContent = 'No results found.';
+                                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">{Rendering.Localization.JsEncode(l.SearchNoResults)}</div>';
+                                searchModalStatus.textContent = '{Rendering.Localization.JsEncode(l.SearchNoResults)}';
                             }} else {{
                                 var terms = query.split(/\s+/).filter(Boolean);
                                 var html = '';
@@ -480,14 +482,14 @@ public static partial class LayoutProvider
                                         '</a>';
                                 }});
                                 searchModalResults.innerHTML = html;
-                                searchModalStatus.textContent = data.length + (data.length === 1 ? ' result found.' : ' results found.');
+                                searchModalStatus.textContent = data.length + (data.length === 1 ? ' {Rendering.Localization.JsEncode(l.SearchResultSingular)}' : ' {Rendering.Localization.JsEncode(l.SearchResultPlural)}');
                             }}
                             searchModalInput.setAttribute('aria-expanded', 'true');
                         }})
                         ['catch'](function() {{
                             if (requestId !== searchRequestId) return;
-                            searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">Something went wrong. Try again.</div>';
-                            searchModalStatus.textContent = 'Search failed.';
+                            searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">{Rendering.Localization.JsEncode(l.SearchError)}</div>';
+                            searchModalStatus.textContent = '{Rendering.Localization.JsEncode(l.SearchFailed)}';
                         }});
                 }}, 200);
             }});

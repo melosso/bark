@@ -39,11 +39,12 @@ public static class PageControlsHtmlRenderer
             return string.Empty;
 
         var relPath = page.OriginalRelativePath ?? string.Empty;
+        var l = Localization.Current;
         var sb = new StringBuilder();
 
         sb.Append("<div class=\"page-controls\">");
-        sb.Append("<button type=\"button\" class=\"page-controls-toggle icon-btn\" " +
-                  "aria-expanded=\"false\" aria-haspopup=\"true\" aria-label=\"Page options\">" +
+        sb.Append($"<button type=\"button\" class=\"page-controls-toggle icon-btn\" " +
+                  $"aria-expanded=\"false\" aria-haspopup=\"true\" aria-label=\"{LayoutProvider.HtmlEncode(l.PageOptions)}\">" +
                   "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\" width=\"16\" height=\"16\">" +
                   "<circle cx=\"12\" cy=\"5\" r=\"1.5\"/><circle cx=\"12\" cy=\"12\" r=\"1.5\"/><circle cx=\"12\" cy=\"19\" r=\"1.5\"/>" +
                   "</svg></button>");
@@ -59,13 +60,13 @@ public static class PageControlsHtmlRenderer
               .Append("<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" width=\"14\" height=\"14\">")
               .Append("<rect x=\"9\" y=\"2\" width=\"6\" height=\"4\" rx=\"1\"/>")
               .Append("<path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/>")
-              .Append("</svg>Copy page</a>");
+              .Append($"</svg>{LayoutProvider.HtmlEncode(l.CopyPage)}</a>");
 
             sb.Append($"<a class=\"page-controls-item\" role=\"menuitem\" href=\"{viewHref}\" target=\"_blank\" rel=\"noopener noreferrer\">")
               .Append("<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" width=\"14\" height=\"14\">")
               .Append("<path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/>")
               .Append("<circle cx=\"12\" cy=\"12\" r=\"3\"/>")
-              .Append("</svg>View as Markdown</a>");
+              .Append($"</svg>{LayoutProvider.HtmlEncode(l.ViewMarkdown)}</a>");
         }
 
         if (hasRss)
@@ -74,7 +75,7 @@ public static class PageControlsHtmlRenderer
             sb.Append($"<a class=\"page-controls-item\" role=\"menuitem\" tabindex=\"0\" data-copy-value=\"{feedPath}\">")
               .Append("<svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\" width=\"14\" height=\"14\">")
               .Append("<path d=\"M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20 4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z\"/>")
-              .Append("</svg>Copy RSS feed URL</a>");
+              .Append($"</svg>{LayoutProvider.HtmlEncode(l.CopyRssUrl)}</a>");
         }
 
         // ── Group 2: editors ──

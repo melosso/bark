@@ -103,3 +103,22 @@ When `sidebar` is present, it takes priority over `nav` for any page matching on
 :::
 
 Your `footer` is rendered as Markdown, so links and formatting work exactly as you would expect. For social links, an `icon` value of `"github"` or `"mastodon"` renders as an inline SVG; any other value renders as plain text.
+
+## Interface language
+
+The text Bark renders around your content — the search box, "On this page", prev/next links, "Copy code", the 404 page — reads from a string table. English is the default and always the fallback, so you never have to touch this to ship in English.
+
+To translate the interface, drop a JSON file in `docs/locale/`. Copy the shipped `en.json` to `{code}.json`, translate the values, and point `locale.code` at it:
+
+```json
+{
+  "lang": "nl",
+  "locale": { "code": "nl" }
+}
+```
+
+Bark loads `docs/locale/nl.json`. Any key you leave out falls back to English, so a partial translation is fine. Edits to a locale file hot-reload like the rest of your content. One locale is active at a time; there is no per-visitor language switching.
+
+::: tip
+`locale.code` falls back to `lang` when omitted, so setting `"lang": "nl"` alone will pick up `docs/locale/nl.json` if it exists. Unknown keys in a locale file are ignored with a startup warning, so use `en.json` as your key reference.
+:::

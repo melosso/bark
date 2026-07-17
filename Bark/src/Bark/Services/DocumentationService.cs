@@ -17,6 +17,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
     private readonly ILogger<DocumentationService> _logger;
     private FileSystemWatcher? _watcher;
     private FileSystemWatcher? _configWatcher;
+    private FileSystemWatcher? _localeWatcher;
     private readonly CancellationTokenSource _shutdownCts = new();
 
     // All read state lives in one immutable snapshot swapped atomically after a full build; readers never see half-built state
@@ -88,6 +89,21 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             _configWatcher.Deleted += OnFileChanged;
             _configWatcher.Renamed += OnFileRenamed;
 
+            // The main watcher filters *.md, so locale JSON needs its own watcher.
+            var localeDir = Path.Combine(docsPath, "locale");
+            if (Directory.Exists(localeDir))
+            {
+                _localeWatcher = new FileSystemWatcher(localeDir)
+                {
+                    Filter = "*.json",
+                    EnableRaisingEvents = true
+                };
+                _localeWatcher.Changed += OnFileChanged;
+                _localeWatcher.Created += OnFileChanged;
+                _localeWatcher.Deleted += OnFileChanged;
+                _localeWatcher.Renamed += OnFileRenamed;
+            }
+
             _ = FileWatcherConsumerAsync(_shutdownCts.Token);
 
             _logger.LogInformation("Hot reload enabled, watching {DocsPath}", docsPath);
@@ -99,6 +115,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _shutdownCts.Cancel();
         _watcher?.Dispose();
         _configWatcher?.Dispose();
+        _localeWatcher?.Dispose();
         return Task.CompletedTask;
     }
 
@@ -109,6 +126,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _shutdownCts.Dispose();
         _watcher?.Dispose();
         _configWatcher?.Dispose();
+        _localeWatcher?.Dispose();
         _buildLock.Dispose();
         _disposed = true;
     }
@@ -182,6 +200,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
 
         // Loaded up front so title fallback can consult config.json before the filename.
         var config = LoadConfig(docsPath);
+        Rendering.Localization.Current = Rendering.Localization.From(docsPath, config, _logger);
         var navTitlesByPath = BuildNavTitleLookup(config);
 
         // Sorted for deterministic hashing, regardless of FS enumeration order.
@@ -248,6 +267,13 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         var configPath = Path.Combine(docsPath, "config.json");
         if (File.Exists(configPath))
             hashInput.Append(await File.ReadAllTextAsync(configPath, cancellationToken));
+
+        // Fold locale files into the hash so an edit bumps BuildVersion and drives live reload.
+        var localeDir = Path.Combine(docsPath, "locale");
+        if (Directory.Exists(localeDir))
+            foreach (var f in Directory.GetFiles(localeDir, "*.json").Order())
+                hashInput.Append(Path.GetFileName(f)).Append('\0')
+                         .Append(await File.ReadAllTextAsync(f, cancellationToken)).Append('\0');
 
         var contentHash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput.ToString())));
 
@@ -420,7 +446,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries)
             .Where(s => !s.Equals("index", StringComparison.OrdinalIgnoreCase))
             .ToArray();
-        var crumbs = new List<BreadcrumbItem> { new("Home", "/") };
+        var crumbs = new List<BreadcrumbItem> { new(Rendering.Localization.Current.BreadcrumbHome, "/") };
 
         var snapshot = _snapshot;
         var accumulated = "";

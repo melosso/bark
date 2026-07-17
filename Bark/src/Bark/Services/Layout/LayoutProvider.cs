@@ -40,6 +40,7 @@ public static partial class LayoutProvider
         string? rssDiscoveryHtml = null,
         string? promoBarHtml = null)
     {
+        var l = Rendering.Localization.Current;
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
@@ -59,8 +60,8 @@ public static partial class LayoutProvider
             || !string.IsNullOrWhiteSpace(mobileTopNavHtml)
             || !string.IsNullOrWhiteSpace(mobileSocialHtml);
         var menuToggleHtml = drawerHasContent
-            ? @"<button type=""button"" class=""menu-toggle icon-btn"" id=""menu-toggle""
-                    aria-expanded=""false"" aria-controls=""sidebar-left"" aria-label=""Toggle navigation menu"">
+            ? $@"<button type=""button"" class=""menu-toggle icon-btn"" id=""menu-toggle""
+                    aria-expanded=""false"" aria-controls=""sidebar-left"" aria-label=""{HtmlEncode(l.MenuToggle)}"">
                 <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" aria-hidden=""true"">
                     <path d=""M3 6h18M3 12h18M3 18h18"" stroke-linecap=""round""/>
                 </svg>
@@ -78,7 +79,7 @@ public static partial class LayoutProvider
                 {pageControlsHtml}
             </nav>
             {(tocHtml is null ? "" : $@"<details class=""toc-inline"">
-                <summary>On this page</summary>
+                <summary>{HtmlEncode(l.OnThisPage)}</summary>
                 <ul class=""toc-list"">
                     {tocHtml}
                 </ul>
@@ -87,7 +88,7 @@ public static partial class LayoutProvider
             ? ""
             : $@"
         <aside class=""sidebar-right"" aria-label=""Table of contents"">
-            <div class=""toc-title"">On This Page</div>
+            <div class=""toc-title"">{HtmlEncode(l.OnThisPage)}</div>
             <div class=""toc-list-wrapper"">
                 <div class=""toc-indicator"" aria-hidden=""true""></div>
                 <ul class=""toc-list"">
@@ -139,7 +140,7 @@ public static partial class LayoutProvider
             : "";
 
         var themeToggleHtml = enableDarkMode
-            ? @"<button type=""button"" class=""theme-toggle"" id=""theme-toggle"" role=""switch"" aria-checked=""false"" aria-label=""Toggle dark mode"">
+            ? $@"<button type=""button"" class=""theme-toggle"" id=""theme-toggle"" role=""switch"" aria-checked=""false"" aria-label=""{HtmlEncode(l.ThemeToggle)}"">
                 <span class=""theme-toggle-thumb"">
                     <svg class=""icon-sun"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""12"" cy=""12"" r=""4""/><path d=""M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41""/></svg>
                     <svg class=""icon-moon"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z""/></svg>
@@ -179,7 +180,7 @@ public static partial class LayoutProvider
     {(hasMermaid ? $"<script defer src=\"{basePath}/js/mermaid.min.js\"></script>" : "")}
 </head>
 <body>
-    <a href=""#main-content"" class=""skip-link"">Skip to content</a>
+    <a href=""#main-content"" class=""skip-link"">{HtmlEncode(l.SkipToContent)}</a>
     {promoBarHtml}
     {scrollIndicatorHtml}
     <header class=""topbar"">
@@ -187,7 +188,7 @@ public static partial class LayoutProvider
             {menuToggleHtml}
             <div class=""brand""><a href=""{homeHref}"">{(brandImageSrc is not null ? $"<img src=\"{HtmlEncode(brandImageSrc)}\" alt=\"\">" : "")}{brandText ?? "Bark"}</a></div>
             <button type=""button"" class=""search-trigger"" id=""search-trigger""
-                    aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""Search documentation"">
+                    aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""{HtmlEncode(l.SearchAria)}"">
                 <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.3-4.3""/></svg>
                 <span class=""search-trigger-label"">Search</span>
                 <kbd class=""search-trigger-kbd"" id=""search-trigger-kbd"" aria-hidden=""true"">Ctrl K</kbd>
@@ -196,7 +197,7 @@ public static partial class LayoutProvider
         {topNavHtml}
         <div class=""topbar-right"">
             <button type=""button"" class=""search-trigger-mobile icon-btn"" id=""search-trigger-mobile""
-                    aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""Search documentation"">
+                    aria-haspopup=""dialog"" aria-controls=""search-modal"" aria-label=""{HtmlEncode(l.SearchAria)}"">
                 <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.3-4.3""/></svg>
             </button>
             {socialLinksHtml}
@@ -205,32 +206,32 @@ public static partial class LayoutProvider
     </header>
     <div class=""search-overlay"" id=""search-overlay"" hidden>
         <div class=""search-modal"" id=""search-modal"" role=""dialog"" aria-modal=""true"" aria-labelledby=""search-modal-label"">
-            <h2 id=""search-modal-label"" class=""sr-only"">Search documentation</h2>
+            <h2 id=""search-modal-label"" class=""sr-only"">{HtmlEncode(l.SearchAria)}</h2>
             <div class=""search-modal-header"">
                 <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.3-4.3""/></svg>
                 <input type=""search"" class=""search-modal-input"" id=""search-modal-input""
-                       placeholder=""Search documentation..."" autocomplete=""off"" enterkeyhint=""search""
+                       placeholder=""{HtmlEncode(l.SearchPlaceholder)}"" autocomplete=""off"" enterkeyhint=""search""
                        role=""combobox"" aria-expanded=""false"" aria-controls=""search-modal-results""
-                       aria-autocomplete=""list"" aria-label=""Search documentation"">
-                <button type=""button"" class=""search-modal-close icon-btn"" id=""search-modal-close"" aria-label=""Close search"">
+                       aria-autocomplete=""list"" aria-label=""{HtmlEncode(l.SearchAria)}"">
+                <button type=""button"" class=""search-modal-close icon-btn"" id=""search-modal-close"" aria-label=""{HtmlEncode(l.SearchClose)}"">
                     <svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" aria-hidden=""true""><path d=""M18 6L6 18M6 6l12 12""/></svg>
                 </button>
             </div>
-            <div class=""search-modal-results"" id=""search-modal-results"" role=""listbox"" aria-label=""Search results""></div>
+            <div class=""search-modal-results"" id=""search-modal-results"" role=""listbox"" aria-label=""{HtmlEncode(l.SearchResultsAria)}""></div>
             <div class=""sr-only"" id=""search-modal-status"" role=""status"" aria-live=""polite""></div>
             <ul class=""DocSearch-Commands"" aria-hidden=""true"">
                 <li>
                     <kbd class=""DocSearch-Commands-Key""><svg width=""20"" height=""20"" aria-label=""Arrow down"" viewBox=""0 0 24 24"" role=""img""><g fill=""none"" stroke=""currentColor"" stroke-linecap=""round"" stroke-linejoin=""round"" stroke-width=""1.4""><path d=""M12 5v14""></path><path d=""m19 12-7 7-7-7""></path></g></svg></kbd>
                     <kbd class=""DocSearch-Commands-Key""><svg width=""20"" height=""20"" aria-label=""Arrow up"" viewBox=""0 0 24 24"" role=""img""><g fill=""none"" stroke=""currentColor"" stroke-linecap=""round"" stroke-linejoin=""round"" stroke-width=""1.4""><path d=""m5 12 7-7 7 7""></path><path d=""M12 19V5""></path></g></svg></kbd>
-                    <span class=""DocSearch-Label"">Navigate</span>
+                    <span class=""DocSearch-Label"">{HtmlEncode(l.SearchNavigate)}</span>
                 </li>
                 <li>
                     <kbd class=""DocSearch-Commands-Key""><svg width=""20"" height=""20"" aria-label=""Enter key"" viewBox=""0 0 24 24"" role=""img""><g fill=""none"" stroke=""currentColor"" stroke-linecap=""round"" stroke-linejoin=""round"" stroke-width=""1.4""><polyline points=""9 10 4 15 9 20""></polyline><path d=""M20 4v7a4 4 0 0 1-4 4H4""></path></g></svg></kbd>
-                    <span class=""DocSearch-Label"">Select</span>
+                    <span class=""DocSearch-Label"">{HtmlEncode(l.SearchSelect)}</span>
                 </li>
                 <li>
                     <kbd class=""DocSearch-Commands-Key""><span class=""DocSearch-Escape-Key"">ESC</span></kbd>
-                    <span aria-label=""Escape key"" class=""DocSearch-Label"">Close</span>
+                    <span aria-label=""Escape key"" class=""DocSearch-Label"">{HtmlEncode(l.SearchEsc)}</span>
                 </li>
             </ul>
         </div>
@@ -256,6 +257,7 @@ public static partial class LayoutProvider
 
     public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "", string lang = "en")
     {
+        var l = Rendering.Localization.Current;
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
         // Build outside the interpolated block so JS/CSS braces don't need escaping.
         const string darkVars = "--bg-color:#0b0b0b;--text-color:#e5e5e5;--text-muted:#a0a0a0;--accent:#6b8e74";
@@ -278,7 +280,7 @@ public static partial class LayoutProvider
     <meta charset=""UTF-8"">
     {themeInit}
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Page Not Found</title>
+    <title>{htmlEncode(l.NotFoundTitle)}</title>
     <style>
         :root {{
             --bg-color: #fafafa;
@@ -325,8 +327,8 @@ public static partial class LayoutProvider
 <body>
     <div class=""not-found"">
         <h1>404</h1>
-        <p>The page you're looking for doesn't exist.</p>
-        <a href=""{homeHref}"">Return home</a>
+        <p>{htmlEncode(l.NotFoundMessage)}</p>
+        <a href=""{homeHref}"">{htmlEncode(l.NotFoundHome)}</a>
     </div>
 </body>
 </html>";

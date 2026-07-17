@@ -6,6 +6,10 @@ public class Config
     public string? TitleTemplate { get; set; }
     public string? Description { get; set; }
     public string? Lang { get; set; }
+
+    /// <summary>Active UI locale; points at <c>docs/locale/{code}.json</c>. Falls back to <see cref="Lang"/>, then English defaults.</summary>
+    public LocaleOptions? Locale { get; set; }
+
     public List<HeadTag>? Head { get; set; }
 
     public string? Brand { get; set; }
