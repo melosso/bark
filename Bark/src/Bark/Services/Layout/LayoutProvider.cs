@@ -38,7 +38,9 @@ public static partial class LayoutProvider
         bool hasMermaid = false,
         string? pageControlsHtml = null,
         string? rssDiscoveryHtml = null,
-        string? promoBarHtml = null)
+        string? promoBarHtml = null,
+        string? socialMetaHtml = null,
+        string? structuredDataHtml = null)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -155,8 +157,6 @@ public static partial class LayoutProvider
             ? $"<link rel=\"canonical\" href=\"{HtmlEncode(canonicalUrl)}\">"
             : string.Empty;
 
-        var socialMeta = BuildSocialMeta(canonicalUrl, title, description, isHomePage);
-
         return $@"
 <!DOCTYPE html>
 <html lang=""{HtmlEncode(lang)}"">
@@ -169,7 +169,8 @@ public static partial class LayoutProvider
     {descriptionHtml}
     {keywordsHtml}
     {canonicalLink}
-    {socialMeta}
+    {socialMetaHtml}
+    {structuredDataHtml}
     {rssDiscoveryHtml}
     {faviconHtml}
     {headTagsHtml}
@@ -360,24 +361,6 @@ public static partial class LayoutProvider
             return false;
         return path.StartsWith(basePath, StringComparison.Ordinal)
             && (path.Length == basePath.Length || path[basePath.Length] == '/');
-    }
-
-    private static string BuildSocialMeta(string? canonicalUrl, string title, string? description, bool isHomePage)
-    {
-        if (string.IsNullOrEmpty(canonicalUrl)) return string.Empty;
-
-        var sb = new StringBuilder();
-        sb.AppendLine($"    <meta property=\"og:type\" content=\"{(isHomePage ? "website" : "article")}\">");
-        sb.AppendLine($"    <meta property=\"og:title\" content=\"{HtmlEncode(title)}\">");
-        sb.AppendLine($"    <meta property=\"og:url\" content=\"{HtmlEncode(canonicalUrl)}\">");
-        if (!string.IsNullOrEmpty(description))
-        {
-            sb.AppendLine($"    <meta property=\"og:description\" content=\"{HtmlEncode(description)}\">");
-            sb.AppendLine($"    <meta name=\"twitter:description\" content=\"{HtmlEncode(description)}\">");
-        }
-        sb.AppendLine("    <meta name=\"twitter:card\" content=\"summary\">");
-        sb.AppendLine($"    <meta name=\"twitter:title\" content=\"{HtmlEncode(title)}\">");
-        return sb.ToString();
     }
 
     private static string GetNonceAttr(string? nonce) =>

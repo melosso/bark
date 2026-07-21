@@ -273,7 +273,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
                 Keywords: parsed.Keywords,
                 ShowPagination: parsed.ShowPagination,
                 Redirect: parsed.Redirect,
-                ShowToc: parsed.ShowToc
+                ShowToc: parsed.ShowToc,
+                Image: parsed.Image
             );
 
             pageMap[pagePath] = page;

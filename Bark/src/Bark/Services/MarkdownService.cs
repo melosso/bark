@@ -103,7 +103,8 @@ public sealed partial class MarkdownService
             frontMatter?.Pagination ?? true,
             frontMatter?.Redirect,
             frontMatter?.Updated ?? frontMatter?.Date,
-            frontMatter?.Toc ?? true);
+            frontMatter?.Toc ?? true,
+            frontMatter?.Image);
     }
 
     private static string RenderHomePage(FrontMatter frontMatter, string basePath)

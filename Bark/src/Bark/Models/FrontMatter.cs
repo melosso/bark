@@ -5,6 +5,9 @@ public sealed record FrontMatter
     public string? Title { get; init; }
     public string? Description { get; init; }
 
+    /// <summary>Social preview image (og:image / twitter:image). Absolute URL, or root-relative path resolved against the request origin.</summary>
+    public string? Image { get; init; }
+
     /// <summary>Set to <c>"home"</c> to render <see cref="Hero"/>/<see cref="Features"/> instead of standard docs chrome.</summary>
     public string? Layout { get; init; }
 

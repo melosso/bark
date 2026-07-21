@@ -24,6 +24,7 @@ Bark reads frontmatter keys using camelCase (`lastUpdated`, not `last_updated`).
 |---|---|---|---|
 | `title` | `string` | filename or nav-configured title | Page title. Shows in the browser tab, breadcrumbs, and pagination links. |
 | `description` | `string` | none | Meta description. Also shows under the title in search results and `llms.txt`. |
+| `image` | `string` | site `image`, then `brandImage` | Social preview image for this page (`og:image` / `twitter:image`). An absolute URL, or a root-relative path such as `/og.png` that Bark resolves against the request origin. When set, the Twitter card becomes `summary_large_image`. |
 | `layout` | `string` | none | Set to `home` to render a hero and features grid instead of standard docs chrome. See [Home Page](/reference/default-theme-home-page). |
 | `hero` | `object` | none | Hero content. Only used when `layout: home`. |
 | `features` | `array` | none | Feature cards. Only used when `layout: home`. |

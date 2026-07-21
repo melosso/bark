@@ -46,6 +46,17 @@ public sealed class PageRequestHandler
         _fallbackIconsDir = Directory.Exists(defaultIconsDir) ? defaultIconsDir : null;
     }
 
+    private static string? ResolveSocialImage(string? image, string origin, string basePath)
+    {
+        if (string.IsNullOrWhiteSpace(image))
+            return null;
+        if (image.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || image.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return image;
+        var path = image.StartsWith('/') ? image : "/" + image;
+        return $"{origin}{basePath}{path}";
+    }
+
     // ETag-based nonce: persists across restarts and updates automatically when content changes
     private static string NonceFromETag(string etag) =>
         Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(etag)), 0, 16);
@@ -188,6 +199,17 @@ public sealed class PageRequestHandler
         var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');
         var canonicalUrl = $"{context.Request.Scheme}://{context.Request.Host}/{rawPath}";
 
+        var metaDescription = string.IsNullOrEmpty(page.Description) ? config?.Description : page.Description;
+        var origin = $"{context.Request.Scheme}://{context.Request.Host}";
+        var socialImageUrl = ResolveSocialImage(page.Image ?? config?.Image ?? config?.BrandImage, origin, basePath);
+        var siteName = config?.Brand ?? config?.Title;
+        var modified = isHomePage ? null : page.LastModified;
+
+        var socialMetaHtml = SocialMetaRenderer.BuildSocialMeta(
+            canonicalUrl, page.Title, metaDescription, isHomePage, socialImageUrl, siteName, config?.Lang ?? "en", modified);
+        var structuredDataHtml = StructuredDataRenderer.BuildJsonLd(
+            canonicalUrl, page.Title, metaDescription, isHomePage, origin, basePath, crumbs, socialImageUrl, siteName, modified, nonce);
+
         var fullHtml = LayoutProvider.GetLayout(
             title: PageTitleRenderer.ComputeTitle(page.Title, config),
             content: page.HtmlContent,
@@ -208,7 +230,7 @@ public sealed class PageRequestHandler
             staticSearch: _docsOptions.IsStaticExport,
             buildVersion: _docs.BuildVersion,
             favicon: config?.Favicon,
-            description: string.IsNullOrEmpty(page.Description) ? config?.Description : page.Description,
+            description: metaDescription,
             isHomePage: isHomePage,
             lastUpdatedHtml: lastUpdatedHtml,
             editLinkHtml: editLinkHtml,
@@ -222,7 +244,9 @@ public sealed class PageRequestHandler
             hasMermaid: page.HtmlContent.Contains("class=\"mermaid\"", StringComparison.Ordinal),
             pageControlsHtml: pageControlsHtml,
             rssDiscoveryHtml: rssDiscoveryHtml,
-            promoBarHtml: promoBarHtml
+            promoBarHtml: promoBarHtml,
+            socialMetaHtml: socialMetaHtml,
+            structuredDataHtml: structuredDataHtml
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";

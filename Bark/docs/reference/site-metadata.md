@@ -75,22 +75,48 @@ The canonical URL is derived from the request scheme, host, and page path. A pag
 <link rel="canonical" href="https://docs.example.com/getting-started/installation/">
 ```
 
-Open Graph and Twitter Card tags are generated from the same canonical URL and the page's own `title` and `description` values:
+Open Graph and Twitter Card tags are generated from the same canonical URL, the page's own `title` and `description`, and your site settings:
 
 ```html
 <meta property="og:type" content="article">
 <meta property="og:title" content="Installation">
 <meta property="og:url" content="https://docs.example.com/getting-started/installation/">
+<meta property="og:site_name" content="Bark">
+<meta property="og:locale" content="en">
 <meta property="og:description" content="How to install Bark.">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Installation">
 <meta name="twitter:description" content="How to install Bark.">
+<meta property="og:image" content="https://docs.example.com/site-og.png">
+<meta name="twitter:image" content="https://docs.example.com/site-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Installation">
 ```
 
-The home page (`/`) uses `og:type` of `website`; all other pages use `article`. The description tags are omitted when the page has no description.
+A few notes on how these are filled in:
+
+- `og:site_name` comes from your `brand` or `title`, and `og:locale` from `lang`.
+- The home page (`/`) uses `og:type` of `website`; all other pages use `article`, and article pages also carry an `article:modified_time`.
+- Description tags are omitted when the page has no description.
+
+### Social Preview Image
+
+The preview image is resolved for each page in order: the page's own frontmatter `image`, then a site-wide `image` in `config.json`, then your `brandImage`. A relative path such as `/og.png` is turned into an absolute URL against the request origin for you.
+
+```json
+{
+  "image": "/site-og.png"
+}
+```
+
+When an image is found, Bark also upgrades the Twitter card to `summary_large_image`. Without one, it stays at `summary` and the image tags are simply omitted. To set a preview per page, add `image` to that page's frontmatter (see [Frontmatter Config](/reference/frontmatter-config)).
+
+### Structured Data (JSON-LD)
+
+Bark also emits a `application/ld+json` block so search engines can read your pages as structured data. The home page is described as a `WebSite`, and every other page as an `Article` with its title, description, image, and modified date. When a page has breadcrumbs, a `BreadcrumbList` is included as well.
+
+There is nothing to configure. The block reflects the live request, and it carries the page nonce so it passes a strict Content Security Policy.
 
 ::: info
-Because Bark generates canonical and Open Graph tags from the live request, they reflect the correct URL automatically and do not require any configuration. If you add matching tags via the `head` array in `config.json`, the manually added tags appear alongside the auto-generated ones, not instead of them. It is recommended to leave canonical and basic Open Graph coverage to Bark and use `head` for site-name, structured data, or additional OG fields such as `og:image`.
+Canonical, Open Graph, Twitter Card, and JSON-LD are all generated from the live request, so they stay correct on their own. If you add matching tags through the `head` array below, yours appear alongside the automatic ones rather than replacing them.
 :::
 
 ## Extra Head Tags
@@ -146,4 +172,4 @@ All entries in `head` are added to every page on your site. For per-page metadat
 }
 ```
 
-Bark generates the canonical link, `og:title`, `og:url`, `og:description`, `og:type`, `twitter:card`, and `twitter:title` / `twitter:description` automatically on every page, so those are intentionally absent from this example. The `head` array is for fields Bark does not cover on its own.
+Bark generates the canonical link, the full Open Graph and Twitter Card set (including `og:site_name`, `og:locale`, and `og:image`), and a JSON-LD block automatically on every page, so those are intentionally absent from this example. The `head` array is for anything beyond that, such as third-party verification tags or your own extra structured data.

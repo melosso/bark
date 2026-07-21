@@ -67,9 +67,10 @@ These settings shape how your site presents itself to readers, search engines, a
 | `titleTemplate` | `string?` | Custom title pattern using `:title` and `:siteName` as placeholders. For example, `":title · :siteName"` produces `Getting Started · Bark`. Overrides the default suffix format when set. |
 | `description` | `string?` | Site-wide fallback `<meta name="description">`. Per-page frontmatter descriptions take priority over this value. |
 | `lang` | `string?` | `lang` attribute on `<html>`. Defaults to `"en"`. |
-| `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for structured data, supplementary Open Graph fields like `og:image`, or third-party initialization snippets. Bark generates canonical links and basic Open Graph tags automatically, so those do not need to be listed here. |
+| `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for third-party verification tags or your own extra structured data. Bark generates canonical links, the full Open Graph and Twitter Card set (including `og:image`), and a JSON-LD block automatically, so those do not need to be listed here. |
 | `brand` | `string?` | Sidebar and header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
 | `brandImage` | `string?` | An image URL or path to display alongside the brand label in the header, placed to the left of the text. |
+| `image` | `string?` | Default social preview image (`og:image` / `twitter:image`) for pages that do not set their own `image` in frontmatter. Falls back to `brandImage` when unset. See [Global Meta Tags](/reference/site-metadata). |
 | `footer` | `string?` | Rendered as Markdown inside the page footer. Links and inline formatting are fully supported. See [Footer](../default-theme-footer). |
 | `favicon` | `string?` | A URL or path to an icon file, or a single emoji character to use as an inline SVG favicon. |
 | `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" timestamp. Off by default. When enabled, the date shown for each page comes from the file's last-modified time on disk unless the page sets `date` or `updated` in its frontmatter, which takes priority. See [Last Updated Timestamp](../default-theme-last-updated) and [Frontmatter Config](/reference/frontmatter-config#dates). |

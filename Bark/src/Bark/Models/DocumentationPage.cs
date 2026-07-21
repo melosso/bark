@@ -13,7 +13,8 @@ public sealed record DocumentationPage(
     IReadOnlyList<string>? Keywords = null,
     bool ShowPagination = true,
     string? Redirect = null,
-    bool ShowToc = true
+    bool ShowToc = true,
+    string? Image = null
 )
 {
     public DocumentationPage(
@@ -29,7 +30,8 @@ public sealed record DocumentationPage(
         IReadOnlyList<string>? keywords = null,
         bool showPagination = true,
         string? redirect = null,
-        bool showToc = true
+        bool showToc = true,
+        string? image = null
     ) : this(
         path,
         title,
@@ -43,6 +45,7 @@ public sealed record DocumentationPage(
         keywords,
         showPagination,
         redirect,
-        showToc
+        showToc,
+        image
     ) { }
 }

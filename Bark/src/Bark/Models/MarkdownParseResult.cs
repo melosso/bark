@@ -12,7 +12,8 @@ public sealed record MarkdownParseResult(
     bool ShowPagination = true,
     string? Redirect = null,
     DateTime? FrontmatterDate = null,
-    bool ShowToc = true)
+    bool ShowToc = true,
+    string? Image = null)
 {
     public void Deconstruct(out string html, out string? title, out string? description, out List<HeadingInfo> headings)
     {
