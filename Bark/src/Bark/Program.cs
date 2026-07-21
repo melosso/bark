@@ -10,6 +10,7 @@ using Bark.Endpoints;
 using Bark.Models;
 using Bark.Serialization;
 using Bark.Services;
+using Bark.Services.Extensions;
 using Bark.Services.MarkdownExtensions;
 
 Directory.CreateDirectory("log");
@@ -59,6 +60,7 @@ try
         sp.GetRequiredService<ILogger<MarkdownService>>()));
     builder.Services.AddSingleton<DocumentationService>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<DocumentationService>());
+    builder.Services.AddSingleton<IExtensionSource>(sp => sp.GetRequiredService<DocumentationService>());
 
     var customCspRaw = builder.Configuration["Docs:ContentSecurityPolicy"];
     var customCsp = string.IsNullOrWhiteSpace(customCspRaw) ? null : customCspRaw;

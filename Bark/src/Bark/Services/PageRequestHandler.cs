@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Bark.Configuration;
 using Bark.Models;
+using Bark.Services.Extensions;
 using Bark.Services.Layout;
 using Bark.Services.Rendering;
 
@@ -102,9 +103,11 @@ public sealed class PageRequestHandler
         context.Response.Headers.ETag = $"\"{etag}\"";
         context.Response.Headers.CacheControl = "no-cache";
 
+        var extensions = _docs.Extensions;
+
         var nonce = NonceFromETag(etag);
-        context.Response.Headers.ContentSecurityPolicy =
-            SecurityHeaders.BuildNonceCsp(_settings.CustomCsp ?? SecurityHeaders.DefaultCsp, nonce);
+        var baseCsp = SecurityHeaders.WithExtraSources(_settings.CustomCsp ?? SecurityHeaders.DefaultCsp, extensions.CspSources);
+        context.Response.Headers.ContentSecurityPolicy = SecurityHeaders.BuildNonceCsp(baseCsp, nonce);
 
         if (context.Request.Headers.IfNoneMatch.ToString() == $"\"{etag}\"")
         {
@@ -211,7 +214,7 @@ public sealed class PageRequestHandler
             editLinkHtml: editLinkHtml,
             basePath: basePath,
             lang: config?.Lang ?? "en",
-            headTagsHtml: HeadTagHtmlRenderer.BuildHeadTagsHtml(config?.Head),
+            headTagsHtml: HeadTagHtmlRenderer.BuildHeadTagsHtml(config?.Head) + ExtensionHeadRenderer.Build(extensions, nonce),
             keywordsHtml: keywordsHtml,
             canonicalUrl: canonicalUrl,
             nonce: nonce,

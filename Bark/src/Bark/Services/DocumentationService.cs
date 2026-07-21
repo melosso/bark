@@ -6,17 +6,20 @@ using System.Text.RegularExpressions;
 using System.Threading.Channels;
 using Bark.Configuration;
 using Bark.Models;
+using Bark.Services.Extensions;
 using Bark.Services.Rendering;
 
 namespace Bark.Services;
 
-public sealed partial class DocumentationService : IHostedService, IDisposable
+public sealed partial class DocumentationService : IHostedService, IDisposable, IExtensionSource
 {
     private readonly DocsOptions _options;
     private readonly MarkdownService _markdown;
     private readonly ILogger<DocumentationService> _logger;
     private FileSystemWatcher? _watcher;
     private FileSystemWatcher? _configWatcher;
+    private FileSystemWatcher? _extensionsWatcher;
+    private FileSystemWatcher? _localeWatcher;
     private readonly CancellationTokenSource _shutdownCts = new();
 
     // All read state lives in one immutable snapshot swapped atomically after a full build; readers never see half-built state
@@ -25,14 +28,16 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         NavigationNode Navigation,
         IReadOnlyDictionary<string, string> NavTitles,
         Config? Config,
-        SearchIndex SearchIndex);
+        SearchIndex SearchIndex,
+        ExtensionSet Extensions);
 
     private static readonly ContentSnapshot EmptySnapshot = new(
         ImmutableDictionary<string, DocumentationPage>.Empty,
         new NavigationNode("Root", null, Array.Empty<NavigationNode>()),
         ImmutableDictionary<string, string>.Empty,
         null,
-        new SearchIndex());
+        new SearchIndex(),
+        ExtensionSet.Empty);
 
     private volatile ContentSnapshot _snapshot = EmptySnapshot;
     private string? _lastContentHash;
@@ -55,6 +60,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
     }
 
     public Config? SiteConfig => _snapshot.Config;
+    public ExtensionSet Extensions => _snapshot.Extensions;
     public long BuildVersion { get; private set; }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -88,6 +94,31 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             _configWatcher.Deleted += OnFileChanged;
             _configWatcher.Renamed += OnFileRenamed;
 
+            _extensionsWatcher = new FileSystemWatcher(docsPath)
+            {
+                Filter = ExtensionLoader.FileName,
+                EnableRaisingEvents = true
+            };
+            _extensionsWatcher.Changed += OnFileChanged;
+            _extensionsWatcher.Created += OnFileChanged;
+            _extensionsWatcher.Deleted += OnFileChanged;
+            _extensionsWatcher.Renamed += OnFileRenamed;
+
+            // The main watcher filters *.md, so locale JSON needs its own watcher.
+            var localeDir = Path.Combine(docsPath, "locale");
+            if (Directory.Exists(localeDir))
+            {
+                _localeWatcher = new FileSystemWatcher(localeDir)
+                {
+                    Filter = "*.json",
+                    EnableRaisingEvents = true
+                };
+                _localeWatcher.Changed += OnFileChanged;
+                _localeWatcher.Created += OnFileChanged;
+                _localeWatcher.Deleted += OnFileChanged;
+                _localeWatcher.Renamed += OnFileRenamed;
+            }
+
             _ = FileWatcherConsumerAsync(_shutdownCts.Token);
 
             _logger.LogInformation("Hot reload enabled, watching {DocsPath}", docsPath);
@@ -99,6 +130,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _shutdownCts.Cancel();
         _watcher?.Dispose();
         _configWatcher?.Dispose();
+        _extensionsWatcher?.Dispose();
+        _localeWatcher?.Dispose();
         return Task.CompletedTask;
     }
 
@@ -109,6 +142,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         _shutdownCts.Dispose();
         _watcher?.Dispose();
         _configWatcher?.Dispose();
+        _extensionsWatcher?.Dispose();
+        _localeWatcher?.Dispose();
         _buildLock.Dispose();
         _disposed = true;
     }
@@ -249,6 +284,18 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
         if (File.Exists(configPath))
             hashInput.Append(await File.ReadAllTextAsync(configPath, cancellationToken));
 
+        var extensions = ExtensionLoader.Load(docsPath, _logger);
+        var extensionsPath = Path.Combine(docsPath, ExtensionLoader.FileName);
+        if (File.Exists(extensionsPath))
+            hashInput.Append(await File.ReadAllTextAsync(extensionsPath, cancellationToken));
+
+        // Fold locale files into the hash so an edit bumps BuildVersion and drives live reload.
+        var localeDir = Path.Combine(docsPath, "locale");
+        if (Directory.Exists(localeDir))
+            foreach (var f in Directory.GetFiles(localeDir, "*.json").Order())
+                hashInput.Append(Path.GetFileName(f)).Append('\0')
+                         .Append(await File.ReadAllTextAsync(f, cancellationToken)).Append('\0');
+
         var contentHash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput.ToString())));
 
         var searchIndex = new SearchIndex();
@@ -259,7 +306,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable
             BuildNavigation(docsPath, pages),
             navTitlesByPath,
             config,
-            searchIndex);
+            searchIndex,
+            extensions);
 
         _snapshot = snapshot;
 
