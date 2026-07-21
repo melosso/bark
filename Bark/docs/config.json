@@ -62,6 +62,7 @@
         "items": [
           { "title": "Site Config", "path": "reference/site-config" },
           { "title": "Frontmatter", "path": "reference/frontmatter-config" },
+          { "title": "Extensions", "path": "reference/extensions" },
           { "title": "API Reference", "path": "reference/api-reference" },
           { "title": "Sitemap & Crawlers", "path": "reference/sitemap-generation" },
           { "title": "Global Meta Tags", "path": "reference/site-metadata" },

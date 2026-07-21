@@ -1,0 +1,29 @@
+{
+  "extensions": {
+    "matomo": {
+      "enabled": false,
+      "url": "https://analytics.example.com",
+      "siteId": "1",
+      "disableCookies": true
+    },
+    "plausible": {
+      "enabled": false,
+      "domain": "example.com",
+      "url": "https://plausible.io",
+      "script": "script.js"
+    },
+    "medama": {
+      "enabled": false,
+      "url": "https://medama.example.com"
+    },
+    "goatcounter": {
+      "enabled": false,
+      "url": "https://you.goatcounter.com"
+    },
+    "liwan": {
+      "enabled": false,
+      "url": "https://liwan.example.com",
+      "entity": "my-website"
+    }
+  }
+}

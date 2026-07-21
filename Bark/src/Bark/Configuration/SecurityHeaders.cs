@@ -32,6 +32,40 @@ public static class SecurityHeaders
         return next();
     }
 
+    private static readonly string[] WidenedDirectives =
+        ["script-src ", "connect-src ", "img-src ", "frame-src "];
+
+    public static string WithExtraSources(string csp, IReadOnlyList<string> origins)
+    {
+        if (origins.Count == 0)
+            return csp;
+
+        var extra = " " + string.Join(' ', origins);
+        var directives = csp.Split(';');
+        var seen = new bool[WidenedDirectives.Length];
+
+        for (var i = 0; i < directives.Length; i++)
+        {
+            var trimmed = directives[i].TrimStart();
+            for (var d = 0; d < WidenedDirectives.Length; d++)
+            {
+                if (trimmed.StartsWith(WidenedDirectives[d], StringComparison.Ordinal))
+                {
+                    directives[i] = directives[i].TrimEnd() + extra;
+                    seen[d] = true;
+                    break;
+                }
+            }
+        }
+
+        var result = new List<string>(directives);
+        for (var d = 0; d < WidenedDirectives.Length; d++)
+            if (!seen[d])
+                result.Add(" " + WidenedDirectives[d].TrimEnd() + extra);
+
+        return string.Join(";", result);
+    }
+
     public static string BuildNonceCsp(string baseCsp, string nonce)
     {
         var noncePart = $"'nonce-{nonce}'";
