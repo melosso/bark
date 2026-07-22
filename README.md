@@ -8,6 +8,10 @@ Meet Bark: your new favorite way to serve documentation. If you have a folder fu
 
 Built on the modern .NET stack, Bark is designed for those who want a powerful, self-hosted solution without being tethered to the traditional Microsoft ecosystem.
 
+<div>
+      <p align="center"><strong>🔍 <a href="https://melosso.github.io/bark/">See it in action!</a></strong></p>
+</div>
+
 ![Screenshot of Bark](.github/images/preview.webp)
 
 ---
