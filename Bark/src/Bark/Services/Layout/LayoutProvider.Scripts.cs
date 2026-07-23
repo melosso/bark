@@ -130,6 +130,15 @@ public static partial class LayoutProvider
                     }}
                 }}, {{ passive: true }});
                 sidebarLeft.addEventListener('touchend', function() {{ touchStartX = null; }});
+
+                var activeNavItem = sidebarLeft.querySelector('.nav-item.active, .sidebar-link.is-active');
+                if (activeNavItem) {{
+                    var itemRect = activeNavItem.getBoundingClientRect();
+                    var sidebarRect = sidebarLeft.getBoundingClientRect();
+                    if (itemRect.top < sidebarRect.top || itemRect.bottom > sidebarRect.bottom) {{
+                        sidebarLeft.scrollTop += (itemRect.top - sidebarRect.top) - (sidebarLeft.clientHeight - itemRect.height) / 2;
+                    }}
+                }}
             }}
 
             function updateScrollProgress() {{

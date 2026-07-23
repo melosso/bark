@@ -1013,9 +1013,6 @@ public static partial class LayoutProvider
             cursor: pointer;
             margin: 0 0 0.5rem;
         }}
-        .content details.custom-block:not([open]) {{
-            padding-bottom: 0;
-        }}
         .content details.custom-block:not([open]) summary {{
             margin-bottom: 0;
         }}
