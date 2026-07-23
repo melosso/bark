@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Bark.Configuration;
 using Bark.Serialization;
 
 namespace Bark.Services;
@@ -60,6 +61,10 @@ public static class StaticSiteExporter
             searchIndex.Docs.Count, System.Text.Encoding.UTF8.GetByteCount(searchJson));
 
         CopyStaticAssets(app.Environment.WebRootPath, outputDir);
+
+        // The /assets route is served from docs/assets at runtime, outside wwwroot; mirror it into the export.
+        var assetsDir = Path.Combine(Path.GetFullPath(app.Services.GetRequiredService<DocsOptions>().RootPath), "assets");
+        CopyStaticAssets(assetsDir, Path.Combine(outputDir, "assets"));
 
         await app.StopAsync(cancellationToken);
     }
