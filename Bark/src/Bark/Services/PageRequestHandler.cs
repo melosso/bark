@@ -57,6 +57,12 @@ public sealed class PageRequestHandler
         return $"{origin}{basePath}{path}";
     }
 
+    internal static string ExpandFooterVariables(string footer, string brand, string? title) =>
+        footer
+            .Replace("{year}", DateTime.UtcNow.Year.ToString())
+            .Replace("{brand}", brand)
+            .Replace("{title}", title ?? string.Empty);
+
     // ETag-based nonce: persists across restarts and updates automatically when content changes
     private static string NonceFromETag(string etag) =>
         Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(etag)), 0, 16);
@@ -159,7 +165,7 @@ public sealed class PageRequestHandler
 
         var socialLinksHtml = await SocialLinksHtmlRenderer.BuildSocialLinksHtmlAsync(config?.SocialLinks, _iconsDir, _fallbackIconsDir);
         var footerHtml = config?.Footer is { } footer
-            ? $"<div class=\"content-footer\">{_markdown.ToHtml(footer)}</div>"
+            ? $"<div class=\"content-footer\">{_markdown.ToHtml(ExpandFooterVariables(footer, brandText, config.Title))}</div>"
             : string.Empty;
 
         var lastUpdatedHtml = !isHomePage && config?.LastUpdated == true && page.ShowLastUpdated && page.LastModified is { } lastModified

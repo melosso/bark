@@ -71,7 +71,7 @@ These settings shape how your site presents itself to readers, search engines, a
 | `brand` | `string?` | Sidebar and header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
 | `brandImage` | `string?` | An image URL or path to display alongside the brand label in the header, placed to the left of the text. |
 | `image` | `string?` | Default social preview image (`og:image` / `twitter:image`) for pages that do not set their own `image` in frontmatter. Falls back to `brandImage` when unset. See [Global Meta Tags](/reference/site-metadata). |
-| `footer` | `string?` | Rendered as Markdown inside the page footer. Links and inline formatting are fully supported. See [Footer](../default-theme-footer). |
+| `footer` | `string?` | Rendered as Markdown inside the page footer. Links and inline formatting are fully supported, plus `{year}`, `{brand}` and `{title}` variables. See [Footer](../default-theme-footer). |
 | `favicon` | `string?` | A URL or path to an icon file, or a single emoji character to use as an inline SVG favicon. |
 | `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" timestamp. Off by default. When enabled, the date shown for each page comes from the file's last-modified time on disk unless the page sets `date` or `updated` in its frontmatter, which takes priority. See [Last Updated Timestamp](../default-theme-last-updated) and [Frontmatter Config](/reference/frontmatter-config#dates). |
 | `editLink` | `EditLinkConfig?` | "Edit this page" link displayed near the pagination footer. See [Edit Link](../default-theme-edit-link). |
