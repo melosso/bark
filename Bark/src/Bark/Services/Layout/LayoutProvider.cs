@@ -45,7 +45,9 @@ public static partial class LayoutProvider
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
-        var brandImageSrc = ResolveAssetUrl(brandImage, basePath);
+        var brandImageSrc = ResolveAssetUrl(brandImage, basePath) is { } resolvedBrandImage
+            ? AssetVersioning.Current.Apply(resolvedBrandImage)
+            : null;
         var descriptionHtml = !string.IsNullOrWhiteSpace(description)
             ? $"<meta name=\"description\" content=\"{HtmlEncode(description)}\">"
             : "";

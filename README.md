@@ -1,6 +1,6 @@
 # 🌳 Bark
 
-[![License](https://img.shields.io/badge/license-AGPL%203.0-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-EUPL%201.2-blue)]( LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/melosso/bark)](https://github.com/melosso/bark/commits/main)
 [![Docker](https://img.shields.io/badge/ghcr.io-melosso%2Fbark-blue?logo=docker)](https://github.com/melosso/bark/pkgs/container/bark)
 
@@ -94,4 +94,4 @@ Theme overrides, such as CSS variables, dark mode and custom CSS, are handled th
 
 ## License
 
-Licensed under the **AGPL 3.0** license. See [LICENSE](LICENSE) for details.
+Licensed under the **EUPL 1.2** license. See [LICENSE](LICENSE) for details.

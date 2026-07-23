@@ -157,6 +157,7 @@ try
 
     // Serve user-hosted media/files from /assets/
     var assetsDir = Path.Combine(Path.GetFullPath(docsOptions.RootPath), "assets");
+    AssetVersioning.Current = new AssetVersioning(assetsDir);
     if (Directory.Exists(assetsDir))
     {
         var assetContentTypes = new FileExtensionContentTypeProvider(
@@ -183,7 +184,12 @@ try
             FileProvider = new PhysicalFileProvider(assetsDir),
             RequestPath = "/assets",
             ContentTypeProvider = assetContentTypes,
-            ServeUnknownFileTypes = false
+            ServeUnknownFileTypes = false,
+            OnPrepareResponse = ctx =>
+                ctx.Context.Response.Headers.CacheControl =
+                    !app.Environment.IsDevelopment() && ctx.Context.Request.Query.ContainsKey("v")
+                        ? "public,max-age=31536000,immutable"
+                        : "no-cache"
         });
     }
 

@@ -258,6 +258,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
             var parsed = _markdown.Parse(content, defaultTitle, filePath: normalizedRelativePath);
 
             var html = WrapTables(parsed.Html);
+            html = VersionAssets(html);
             var lastModified = parsed.FrontmatterDate ?? File.GetLastWriteTimeUtc(file);
 
             var page = new DocumentationPage(
@@ -538,6 +539,17 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
 
     private static string WrapTables(string html) =>
         TableRegex().Replace(html, m => $"<div class=\"table-wrapper\">{m.Value}</div>");
+
+    private static string VersionAssets(string html) =>
+        AssetSrcHrefRegex().Replace(html, m =>
+        {
+            var url = m.Groups[2].Value;
+            var versioned = AssetVersioning.Current.Apply(url);
+            return versioned == url ? m.Value : $"{m.Groups[1].Value}=\"{versioned}\"";
+        });
+
+    [GeneratedRegex(@"(src|href)=""([^""]+)""", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex AssetSrcHrefRegex();
 
     private static Config? LoadConfig(string docsPath)
     {

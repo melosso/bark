@@ -9,7 +9,7 @@ Set `footer` in `docs/config.json` and Bark renders it at the bottom of every pa
 
 ```json
 {
-  "footer": "Built with Bark · [AGPL-3.0](https://github.com/melosso/bark/blob/main/LICENSE)"
+  "footer": "Built with Bark · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE)"
 }
 ```
 
@@ -37,7 +37,7 @@ Handy for copyright lines that never go stale:
 
 ```json
 {
-  "footer": "© {year} {brand} · [AGPL-3.0](https://github.com/melosso/bark/blob/main/LICENSE)"
+  "footer": "© {year} {brand} · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE)"
 }
 ```
 

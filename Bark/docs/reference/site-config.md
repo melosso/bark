@@ -145,7 +145,7 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
   "lang": "en",
   "brand": "Bark",
   "brandImage": "/brand-image.svg",
-  "footer": "Built with Bark · [AGPL-3.0](LICENSE)",
+  "footer": "Built with Bark · [EUPL-1.2](LICENSE)",
   "favicon": "🌳",
   "lastUpdated": true,
   "editLink": {
