@@ -23,6 +23,24 @@ Set `footer` in `docs/config.json` and Bark renders it at the bottom of every pa
 
 Skip `footer` and Bark renders nothing there. There's no default placeholder text to remove.
 
+## Variables
+
+The footer supports a few dynamic variables, substituted before the Markdown is rendered:
+
+| Variable | Replaced with |
+|----------|---------------|
+| `{year}` | The current year (UTC) |
+| `{brand}` | The brand text (`brand`, falling back to `title`) |
+| `{title}` | The site `title` from `config.json` |
+
+Handy for copyright lines that never go stale:
+
+```json
+{
+  "footer": "© {year} {brand} · [AGPL-3.0](https://github.com/melosso/bark/blob/main/LICENSE)"
+}
+```
+
 ::: note Rendering the footer
 The footer renders once per page, not once per site. There's no separate "footer-only" content area independent of the per-page Markdown pipeline, so anything you put here goes through the same renderer as your docs content (full support for links, code spans, and emphasis; no headings or fenced code blocks, since those don't make sense in a one-line footer).
 :::
