@@ -16,7 +16,25 @@ public sealed record PageRequestSettings(
     string? AutoCustomCssUrl,
     string? AutoCustomJsUrl,
     string WebRootPath,
-    string DocsRootAbsolute);
+    string DocsRootAbsolute,
+    string? PublicBaseUrl)
+{
+    /// <summary>Blank means absent. An empty setting must not count as "configured" and mask a later source.</summary>
+    public static string? Normalize(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim().TrimEnd('/');
+
+    /// <summary>Precedence: <c>--base-url</c>, then <c>Docs:PublicBaseUrl</c>, then the bare <c>PublicBaseUrl</c> alias.</summary>
+    public static string? ResolvePublicBaseUrl(string? cliBaseUrl, string? docsOption, string? alias) =>
+        Normalize(cliBaseUrl) ?? Normalize(docsOption) ?? Normalize(alias);
+
+    /// <summary>
+    /// Absolute origin for canonical URLs, feeds and sitemaps. <c>PublicBaseUrl</c> wins when set:
+    /// the Host header is caller-supplied, and ASP.NET leaves host filtering at <c>*</c> unless
+    /// <c>AllowedHosts</c> is configured, so an unconfigured deployment otherwise echoes whatever it is sent.
+    /// </summary>
+    public string Origin(HttpContext context) =>
+        Normalize(PublicBaseUrl) ?? $"{context.Request.Scheme}://{context.Request.Host}";
+}
 
 /// <summary>Handles the catch-all documentation page route; lookup, ETag/304, CSP nonce, layout assembly</summary>
 public sealed class PageRequestHandler
@@ -62,10 +80,6 @@ public sealed class PageRequestHandler
             .Replace("{year}", DateTime.UtcNow.Year.ToString())
             .Replace("{brand}", brand)
             .Replace("{title}", title ?? string.Empty);
-
-    // ETag-based nonce: persists across restarts and updates automatically when content changes
-    private static string NonceFromETag(string etag) =>
-        Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(etag)), 0, 16);
 
     public async Task HandleAsync(string? path, HttpContext context)
     {
@@ -114,15 +128,17 @@ public sealed class PageRequestHandler
         }
 
         // Folds in the BuildVersion (not limited to this page's own HTML) so content edits that don't touch this page's content still invalidate its cached ETag.
+        // CspNonce.ProcessSalt is folded in too: BuildVersion restarts at 0, so without it a restart would
+        // hand a 304 to a cached body whose baked-in nonce the new process no longer accepts.
         var responseBytes = Encoding.UTF8.GetBytes(page.HtmlContent);
-        var etagInput = Encoding.UTF8.GetBytes(_docs.BuildVersion + ":").Concat(responseBytes).ToArray();
+        var etagInput = Encoding.UTF8.GetBytes($"{CspNonce.ProcessSalt}:{_docs.BuildVersion}:").Concat(responseBytes).ToArray();
         var etag = Convert.ToBase64String(SHA256.HashData(etagInput)).TrimEnd('=');
         context.Response.Headers.ETag = $"\"{etag}\"";
         context.Response.Headers.CacheControl = "no-cache";
 
         var extensions = _docs.Extensions;
 
-        var nonce = NonceFromETag(etag);
+        var nonce = CspNonce.Derive(etag);
         var baseCsp = SecurityHeaders.WithExtraSources(_settings.CustomCsp ?? SecurityHeaders.DefaultCsp, extensions.CspSources);
         context.Response.Headers.ContentSecurityPolicy = SecurityHeaders.BuildNonceCsp(baseCsp, nonce);
 
@@ -198,15 +214,15 @@ public sealed class PageRequestHandler
             ? PromoBarHtmlRenderer.BuildPromoBarHtml(_markdown.ToHtml(promoSource), promoSource, nonce)
             : string.Empty;
 
-        var feedUrl = $"{context.Request.Scheme}://{context.Request.Host}{basePath}/feed.xml";
+        var feedUrl = $"{_settings.Origin(context)}{basePath}/feed.xml";
         var rssDiscoveryHtml = $"<link rel=\"alternate\" type=\"application/rss+xml\" title=\"{LayoutProvider.HtmlEncode(config?.Brand ?? config?.Title ?? "RSS Feed")}\" href=\"{LayoutProvider.HtmlEncode(feedUrl)}\">";
 
         var pageSegment = page.Path == "index" ? string.Empty : $"{page.Path}/";
         var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');
-        var canonicalUrl = $"{context.Request.Scheme}://{context.Request.Host}/{rawPath}";
+        var canonicalUrl = $"{_settings.Origin(context)}/{rawPath}";
 
         var metaDescription = string.IsNullOrEmpty(page.Description) ? config?.Description : page.Description;
-        var origin = $"{context.Request.Scheme}://{context.Request.Host}";
+        var origin = _settings.Origin(context);
         var socialImageUrl = ResolveSocialImage(page.Image ?? config?.Image ?? config?.BrandImage, origin, basePath);
         var siteName = config?.Brand ?? config?.Title;
         var modified = isHomePage ? null : page.LastModified;

@@ -81,7 +81,9 @@ try
         AutoCustomCssUrl: autoCustomCssUrl,
         AutoCustomJsUrl: autoCustomJsUrl,
         WebRootPath: webRootPath,
-        DocsRootAbsolute: docsRootAbsolute));
+        DocsRootAbsolute: docsRootAbsolute,
+        PublicBaseUrl: PageRequestSettings.ResolvePublicBaseUrl(
+            exportBaseUrl, docsOptions.PublicBaseUrl, builder.Configuration["PublicBaseUrl"])));
     builder.Services.AddSingleton<PageRequestHandler>();
 
     builder.Services.ConfigureHttpJsonOptions(opts =>

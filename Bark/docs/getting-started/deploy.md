@@ -20,9 +20,12 @@ services:
       - "8080:8080"
     volumes:
       - ./docs:/app/docs
+    environment:
+      PublicBaseUrl: https://docs.example.com
+      AllowedHosts: docs.example.com
 ```
 
-Mount your own `docs/` folder (your `.md` files plus an optional `config.json`), then run:
+Mount your own `docs/` folder (your `.md` files plus an optional `config.json`), set `PublicBaseUrl` to the origin you serve from, then run:
 
 ```bash
 docker compose up -d
@@ -180,6 +183,17 @@ Hot reload (the `FileSystemWatcher` on `docs/`) keeps working in this setup. You
 We have ensured that Bark is secure for production environments when running without a reverse proxy. However, you should evaluate whether this setup meets your specific requirements.
 
 For production container deployments, it is recommended to set `Docs__EnableHotReload` to `false`. Since documentation is typically either baked directly into your image or provided as a read-only volume at startup, the filesystem watcher will not have any functional purpose.
+
+Set `PublicBaseUrl` to the origin you actually serve from, and `AllowedHosts` to the matching hostname:
+
+```yaml
+    environment:
+      PublicBaseUrl: https://docs.example.com
+      Docs__EnableHotReload: "false"
+      AllowedHosts: docs.example.com
+```
+
+Without `PublicBaseUrl`, the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed and your `canonical`/`og:url` tags are built from the incoming request's `Host` header, which the caller controls. Someone can then request your `robots.txt` with a forged `Host` and receive a `Sitemap:` line pointing at their own site, and if a CDN caches that response, the forged copy is what your visitors and crawlers get. `AllowedHosts` closes the same gap from the other side, rejecting requests for hostnames you do not serve instead of quietly answering them. See [Environment variables](/getting-started/environment-variables/) for the full list.
 
 ## Sizing expectations
 

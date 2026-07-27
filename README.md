@@ -33,10 +33,14 @@ services:
       - "8080:8080"
     volumes:
       - ./docs:/app/docs
-
+    environment:
+      PublicBaseUrl: https://docs.example.com
+      AllowedHosts: docs.example.com
 ```
 
-Mount your own `docs/` folder containing your `.md` files and optional `config.json`. When that is done, run `docker compose up -d` to start the container and browse to `http://localhost:8080`.
+Mount your own `docs/` folder containing your `.md` files and optional `config.json`, and set `PublicBaseUrl` to the origin you serve from. When that is done, run `docker compose up -d` to start the container and browse to `http://localhost:8080`.
+
+Running locally only? Drop the `environment:` block. Left unset, absolute URLs fall back to the request's `Host` header, which is fine on localhost but caller-controlled on a public host.
 
 ### Option B: Windows / IIS
 

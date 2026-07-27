@@ -1,6 +1,21 @@
-using Microsoft.AspNetCore.Builder;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Bark.Configuration;
+
+/// <summary>
+/// Derives a secure, unpredictable CSP nonce from the ETag.
+/// Keeps nonces unique per response while ensuring 304 Not Modified responses stay consistent.
+/// </summary>
+public static class CspNonce
+{
+    private static readonly byte[] Key = RandomNumberGenerator.GetBytes(32);
+
+    public static readonly string ProcessSalt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+    public static string Derive(string etag) =>
+        Convert.ToBase64String(HMACSHA256.HashData(Key, Encoding.UTF8.GetBytes(etag)), 0, 16);
+}
 
 public static class SecurityHeaders
 {

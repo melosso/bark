@@ -21,7 +21,7 @@ internal static partial class SeoEndpoints
 
     internal static ContentHttpResult GetRobots(HttpContext context, PageRequestSettings settings)
     {
-        var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+        var baseUrl = settings.Origin(context);
         var body = $"User-agent: *\nAllow: /\nSitemap: {baseUrl}{settings.BasePath}/sitemap.xml\n";
         return TypedResults.Text(body, "text/plain", Encoding.UTF8);
     }
@@ -29,7 +29,7 @@ internal static partial class SeoEndpoints
     internal static async Task<ContentHttpResult> GetLlms(DocumentationService docs, PageRequestSettings settings, HttpContext context)
     {
         var basePath = settings.BasePath;
-        var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+        var baseUrl = settings.Origin(context);
         var pages = await docs.GetAllPagesAsync(context.RequestAborted);
         var config = docs.SiteConfig;
         var sb = new StringBuilder();
@@ -70,7 +70,7 @@ internal static partial class SeoEndpoints
     internal static async Task<ContentHttpResult> GetFeed(DocumentationService docs, PageRequestSettings settings, HttpContext context)
     {
         var basePath = settings.BasePath;
-        var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+        var baseUrl = settings.Origin(context);
         var pages = await docs.GetAllPagesAsync(context.RequestAborted);
         var config = docs.SiteConfig;
 

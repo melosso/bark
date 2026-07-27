@@ -15,6 +15,24 @@ ASP.NET Core translates environment variable names into configuration keys by re
 
 For example, `Docs:RootPath` becomes `Docs__RootPath`, and `Docs:Themes:PrimaryColor` becomes `Docs__Themes__PrimaryColor`.
 
+## Public base URL
+
+Set `PublicBaseUrl` to the origin your site is actually served from:
+
+```bash
+PublicBaseUrl=https://docs.example.com
+```
+
+Bark uses it to build the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed, and the `canonical` and `og:url` tags. Left unset, those URLs are built from the incoming request's `Host` header, which the caller controls — fine locally, but on a public host anyone can request your `robots.txt` with a forged `Host` and get a `Sitemap:` line pointing somewhere else. If a CDN caches that response, the forged copy is what your visitors and crawlers get.
+
+Combine it with the standard `AllowedHosts` variable so requests for other hostnames are rejected outright rather than merely ignored:
+
+```bash
+AllowedHosts=docs.example.com
+```
+
+`Docs__PublicBaseUrl` works too, if you prefer keeping it alongside the other `Docs__` settings. Exporting a static site with `--base-url` sets the same value, so you only need this when running Bark as a server.
+
 ## Server URL and port
 
 Kestrel's listening address is controlled by the standard `ASPNETCORE_URLS` variable:
@@ -39,6 +57,8 @@ Docker is a common deployment target, so the examples below show both a `docker 
 docker run \
   -e Docs__RootPath=/docs \
   -e Docs__BasePath=/my-repo \
+  -e PublicBaseUrl=https://docs.example.com \
+  -e AllowedHosts=docs.example.com \
   -e ASPNETCORE_URLS=http://+:8080 \
   -v /path/to/your/docs:/docs \
   -p 8080:8080 \
@@ -57,7 +77,9 @@ services:
       ASPNETCORE_URLS: http://+:8080
       Docs__RootPath: /docs
       Docs__BasePath: /my-repo
+      PublicBaseUrl: https://docs.example.com
       Docs__EnableHotReload: "false"
+      AllowedHosts: docs.example.com
     volumes:
       - ./docs:/docs
 ```
