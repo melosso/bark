@@ -49,11 +49,35 @@ Every entry in a sidebar array is either a link or a group, and groups nest to a
 | Field | Type | Description |
 |---|---|---|
 | `title` | `string` | Link text or group heading. |
-| `path` | `string` | Leaf link target. Omit it to make this entry a group. |
+| `path` | `string` | Leaf link target: a docs page path, or a full `http://`/`https://` URL. Omit it to make this entry a group. |
 | `items` | `array` | Child entries. Set this (and omit `path`) to make this entry a group. |
 | `collapsed` | `bool` | Group-only. See below. |
 
 If you leave the `title` off a group, its links render together as one heading-less cluster. You can read more about this in [Grouping links without a heading](#grouping-links-without-a-heading) further down.
+
+## External links
+
+A `path` starting with `http://` or `https://` is treated as an external link rather than a docs page:
+
+```json
+{
+  "sidebar": {
+    "": [
+      {
+        "title": "Resources",
+        "items": [
+          { "title": "Getting Started", "path": "getting-started/getting-started" },
+          { "title": "Source on GitHub", "path": "https://github.com/melosso/bark" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+External entries render with an outbound arrow and open in a new tab (`target="_blank"`, `rel="noopener noreferrer"`), the same as external [top-nav](/reference/default-theme-nav/) items. They are never highlighted as the active page, never auto-expand their group, and are skipped by [prev/next pagination](/reference/default-theme-prev-next-links/) since they aren't pages in your docs.
+
+Only `http` and `https` are recognised. Any other value is treated as a docs page path.
 
 ## Collapse behavior
 

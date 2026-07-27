@@ -6,6 +6,12 @@ namespace Bark.Services.Rendering;
 
 public static class NavigationHtmlRenderer
 {
+    internal const string ExternalLinkIcon = "<svg class=\"external-link-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" " +
+        "stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>" +
+        "<path d=\"M15 3h6v6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M10 14 21 3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
+
+    internal const string ExternalLinkRel = " target=\"_blank\" rel=\"noopener noreferrer\"";
+
     public static string BuildNavigationHtml(NavigationNode node, string currentPath, Config? config, string basePath)
     {
         if (config?.Sidebar is { Count: > 0 } sidebars)
@@ -59,6 +65,9 @@ public static class NavigationHtmlRenderer
 
     public static bool SidebarPathMatches(string entryPath, string currentPath)
     {
+        // An external target is never "the current page", so it can't highlight or auto-expand its group.
+        if (UrlPaths.IsExternal(entryPath)) return false;
+
         var normalized = entryPath.Trim('/').ToLowerInvariant();
         return normalized == currentPath || (normalized.Length == 0 && currentPath == "index");
     }
@@ -75,11 +84,14 @@ public static class NavigationHtmlRenderer
     {
         if (entry.Items is not { Count: > 0 } children)
         {
-            var isActive = SidebarPathMatches(entry.Path ?? string.Empty, currentPath);
-            var href = UrlPaths.Href(basePath, entry.Path ?? string.Empty);
+            var path = entry.Path ?? string.Empty;
+            var isExternal = UrlPaths.IsExternal(path);
+            var isActive = SidebarPathMatches(path, currentPath);
+            var href = isExternal ? LayoutProvider.HtmlEncode(path) : UrlPaths.Href(basePath, path);
             html.AppendLine(
                 $"<div class=\"sidebar-link level-{level}{(isActive ? " is-active" : "")}\">" +
-                $"<a href=\"{href}\">{LayoutProvider.HtmlEncode(entry.Title)}</a></div>");
+                $"<a href=\"{href}\"{(isExternal ? ExternalLinkRel : "")}>" +
+                $"{LayoutProvider.HtmlEncode(entry.Title)}{(isExternal ? ExternalLinkIcon : "")}</a></div>");
             return;
         }
 
@@ -177,17 +189,13 @@ public static class NavigationHtmlRenderer
     public static void AppendTopNavLink(StringBuilder html, TopNavItem item, string currentPath, string cssClass, string basePath, bool wrapInItemDiv = false)
     {
         var link = item.Link ?? "#";
-        var isExternal = link.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                          link.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+        var isExternal = UrlPaths.IsExternal(link);
         var normalizedLink = isExternal ? link : UrlPaths.Href(basePath, link);
         var isActive = !isExternal &&
             link.Trim('/').Equals(currentPath.Trim('/'), StringComparison.OrdinalIgnoreCase);
         var activeClass = isActive ? " active" : "";
-        var relAttr = isExternal ? " target=\"_blank\" rel=\"noopener noreferrer\"" : "";
-
-        const string externalIcon = "<svg class=\"external-link-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" " +
-            "stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>" +
-            "<path d=\"M15 3h6v6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M10 14 21 3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
+        var relAttr = isExternal ? ExternalLinkRel : "";
+        const string externalIcon = ExternalLinkIcon;
 
         if (wrapInItemDiv)
             html.AppendLine("<div class=\"top-nav-item\">");
@@ -242,7 +250,8 @@ public static class NavigationHtmlRenderer
         var list = new List<string?>();
         foreach (var entry in entries)
         {
-            if (entry.Path != null)
+            // External targets aren't pages, so they must not land in the prev/next sequence.
+            if (entry.Path != null && !UrlPaths.IsExternal(entry.Path))
                 list.Add(entry.Path.Trim('/'));
             if (entry.Items is { Count: > 0 } children)
                 list.AddRange(FlattenNavEntries(children));
