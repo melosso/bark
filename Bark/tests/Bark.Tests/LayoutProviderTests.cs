@@ -343,4 +343,35 @@ public sealed class LayoutProviderTests
         Assert.Contains("<link rel=\"icon\" href=\"data:image/svg+xml;base64,", html);
         Assert.DoesNotContain("/🔥", html);
     }
+
+    [Fact]
+    public void GetLayout_HomePage_MobileDrawerHasTopNavButNoSidebar()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Home", "<p>content</p>",
+            "<nav>SIDEBAR_TREE</nav>", null,
+            "<a href='/'>Home</a>", "",
+            null,
+            topNavHtml: "<nav>DESKTOP_TOP_NAV</nav>",
+            mobileTopNavHtml: "<nav>MOBILE_TOP_NAV</nav>",
+            isHomePage: true);
+
+        Assert.DoesNotContain("SIDEBAR_TREE", html);
+        Assert.Contains("MOBILE_TOP_NAV", html);
+        Assert.Contains("id=\"menu-toggle\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_ContentPage_MobileDrawerKeepsSidebar()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Guide", "<p>content</p>",
+            "<nav>SIDEBAR_TREE</nav>", null,
+            "<a href='/'>Home</a>", "",
+            null,
+            mobileTopNavHtml: "<nav>MOBILE_TOP_NAV</nav>");
+
+        Assert.Contains("SIDEBAR_TREE", html);
+        Assert.Contains("MOBILE_TOP_NAV", html);
+    }
 }

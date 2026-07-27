@@ -59,7 +59,9 @@ public static partial class LayoutProvider
         var mobileSocialHtml = !string.IsNullOrWhiteSpace(socialLinksHtml)
             ? $@"<div class=""sidebar-social-links"">{socialLinksHtml}</div>"
             : "";
-        var drawerHasContent = hasLeftNav
+        // Home declares "no sidebar"; the mobile drawer must honour that too, so it carries top-nav sections only.
+        var drawerNavigationHtml = isHomePage ? "" : navigationHtml;
+        var drawerHasContent = !string.IsNullOrWhiteSpace(drawerNavigationHtml)
             || !string.IsNullOrWhiteSpace(mobileTopNavHtml)
             || !string.IsNullOrWhiteSpace(mobileSocialHtml);
         var menuToggleHtml = drawerHasContent
@@ -73,7 +75,7 @@ public static partial class LayoutProvider
         var sidebarLeftHtml = $@"
         <aside class=""sidebar-left"" id=""sidebar-left"" aria-label=""Documentation navigation"">
             {mobileTopNavHtml}
-            {navigationHtml}
+            {drawerNavigationHtml}
             {mobileSocialHtml}
         </aside>";
         var breadcrumbAndTocHtml = isHomePage ? "" : $@"
