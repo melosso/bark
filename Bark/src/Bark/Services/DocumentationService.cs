@@ -526,7 +526,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
     {
         foreach (var entry in entries)
         {
-            if (!string.IsNullOrEmpty(entry.Path))
+            // External targets have no page path, so they must not shadow a real page's breadcrumb title.
+            if (!string.IsNullOrEmpty(entry.Path) && !UrlPaths.IsExternal(entry.Path))
                 lookup[entry.Path.Trim('/').ToLowerInvariant()] = entry.Title;
 
             if (entry.Items is { Count: > 0 } children)
