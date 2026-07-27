@@ -1387,7 +1387,8 @@ public static partial class LayoutProvider
                 display: block; margin-bottom: 1.25rem; padding-bottom: 1.25rem;
                 border-bottom: 1px solid var(--border);
             }}
-            .mobile-top-nav:last-child {{
+            .mobile-top-nav:last-child,
+            .mobile-top-nav:has(+ .sidebar-social-links) {{
                 margin-bottom: 0; padding-bottom: 0; border-bottom: none;
             }}
             .mobile-top-nav-link {{
