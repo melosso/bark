@@ -70,6 +70,25 @@ public sealed class MarkdownServiceTests
     }
 
     [Fact]
+    public void Parse_BoldEndingInColonAfterCode_IsNotEatenBySmileyParser()
+    {
+        var md = "**`docker run`:**";
+        var (html, _, _, _) = _service.Parse(md);
+
+        Assert.Contains("<strong>", html);
+        Assert.DoesNotContain("\U0001F617", html);
+    }
+
+    [Fact]
+    public void Parse_ShortcodeEmoji_StillRenders()
+    {
+        var md = ":tada:";
+        var (html, _, _, _) = _service.Parse(md);
+
+        Assert.Contains("\U0001F389", html);
+    }
+
+    [Fact]
     public void Parse_FencedBlockWithTitle_RendersTitleBarAndHidesLang()
     {
         var md = "```json [./appsettings.json]\n{\n  \"Hello\": \"world\"\n}\n```\n";

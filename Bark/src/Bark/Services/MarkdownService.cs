@@ -1,4 +1,5 @@
 using Markdig;
+using Markdig.Extensions.Emoji;
 using Markdig.Extensions.Yaml;
 using Markdig.Renderers.Html;
 using Markdig.Syntax;
@@ -40,7 +41,7 @@ public sealed partial class MarkdownService
             .UseCitations()
             .UseEmphasisExtras()
             .UseDefinitionLists()
-            .UseEmojiAndSmiley()
+            .UseEmojiAndSmiley(EmojiMapping.DefaultEmojisOnlyMapping)
             .UseFootnotes()
             .UseGridTables()
             .UseListExtras()
