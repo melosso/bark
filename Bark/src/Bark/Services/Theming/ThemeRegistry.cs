@@ -14,7 +14,8 @@ public static class ThemeRegistry
         new OceanTheme(),
         new DeepSpaceTheme(),
         new SolarizedTheme(),
-        new LaserwaveTheme()
+        new LaserwaveTheme(),
+        new LimelightTheme()
     ];
 
     public static IBarkTheme Default { get; } = All[0];

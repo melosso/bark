@@ -5,7 +5,7 @@ description: Override colors, ship your own CSS and JS, or hand the whole theme 
 
 # Themes
 
-Bark ships eight built-in themes and four escalating levels of control, from "pick a different look" to "replace every line of CSS":
+Bark ships nine built-in themes and four escalating levels of control, from "pick a different look" to "replace every line of CSS":
 
 1. **A built-in theme**, one word in `config.json`.
 2. **CSS variables**, for palette and font tweaks on top of it.
@@ -36,6 +36,7 @@ That is the whole opt-in. Leave it out and you get `default`. The value hot-relo
 | `deep-space` | Near-black navy and a periwinkle accent. The darkest built-in, with a soft-cornered feature grid. |
 | `solarized` | Solarized base tones: warm paper by day, deep teal by night, square corners throughout. |
 | `laserwave` | Synthwave violet with a hot magenta accent and a 2px accent rule above each feature. |
+| `limelight` | Pale off-white with a sage-lime accent and a cyan counterpart. Square corners and a gradient rule under the hero. |
 
 Every theme carries a full light **and** dark palette, so the light/dark toggle behaves the same whichever you pick. The dark-sounding names are not dark-only: `signal-dark` has a paper-toned light mode that swaps its amber for bronze, and `laserwave` and `deep-space` have daylight palettes too.
 
