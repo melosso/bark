@@ -335,6 +335,9 @@ public static partial class LayoutProvider
             overflow-y: auto;
             padding: 0.5rem;
         }}
+        .search-modal-results:empty {{
+            display: none;
+        }}
         .search-result-item {{
             display: block; padding: 0.7rem 0.9rem; border-radius: 8px;
             text-decoration: none; transition: background-color 0.1s ease;
