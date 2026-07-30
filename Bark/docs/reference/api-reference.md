@@ -12,7 +12,7 @@ This document defines the HTTP routes Bark exposes. The surface area exposed is 
 Returns the rendered HTML page for the given documentation path.
 
 ```bash
-curl http://localhost:5000/getting-started/getting-started/
+curl http://localhost:5000/guide/guide/
 ```
 
 What happens on each request:
@@ -29,7 +29,7 @@ Unknown paths return a 404 page rather than an exception.
 Returns the raw Markdown source for the given documentation page. This is what the [page controls](/reference/site-config#pagecontrolsconfig) "Copy page" and "View as Markdown" actions use.
 
 ```bash
-curl -O http://localhost:5000/raw/getting-started/getting-started
+curl -O http://localhost:5000/raw/guide/getting-started
 ```
 
 By default the response is served as a file download (`Content-Disposition: attachment`). Adding `?view=true` changes that to an inline `text/plain` response, which is what "View as Markdown" uses to open the source in a new tab without triggering a download.
@@ -64,7 +64,7 @@ This endpoint is rate-limited to 30 requests per minute per IP address. Requests
 
 ## `GET /api/build-version`
 
-Returns an integer that increments every time the docs content actually changes, not on every filesystem event (see [Getting Started](/getting-started/getting-started) for why that distinction matters).
+Returns an integer that increments every time the docs content actually changes, not on every filesystem event (see [Getting Started](/guide/getting-started) for why that distinction matters).
 
 ```json
 { "version": 4 }
@@ -96,7 +96,7 @@ Allow: /
 Sitemap: https://your-host/sitemap.xml
 ```
 
-See [Deploy](/getting-started/deploy) for the forwarded-headers setup.
+See [Deploy](/guide/deploy) for the forwarded-headers setup.
 
 ## `GET /llms.txt`
 

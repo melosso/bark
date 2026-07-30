@@ -17,7 +17,7 @@ curl http://localhost:5000/sitemap.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>/</loc><priority>1.0</priority></url>
-  <url><loc>/getting-started/getting-started</loc><lastmod>2026-06-20</lastmod><priority>0.8</priority></url>
+  <url><loc>/guide/getting-started</loc><lastmod>2026-06-20</lastmod><priority>0.8</priority></url>
   ...
 </urlset>
 ```
@@ -35,7 +35,7 @@ Sitemap: https://your-host/sitemap.xml
 Because this is generated dynamically for every request rather than being served as a static file, the `Sitemap:` line always points to the specific host that handled the request. Whether you are working locally at `http://localhost:5000` or browsing your live site in production, it points to the correct location automatically, so you never have to manage multiple versions of the file.
 
 ::: note
-Behind a reverse proxy, this only resolves correctly if forwarded headers are wired up so the server sees the original scheme and host;  instead of the proxy's internal address. See [Deploy](/getting-started/deploy).
+Behind a reverse proxy, this only resolves correctly if forwarded headers are wired up so the server sees the original scheme and host;  instead of the proxy's internal address. See [Deploy](/guide/deploy).
 :::
 
 ## `llms.txt`
@@ -43,8 +43,8 @@ Behind a reverse proxy, this only resolves correctly if forwarded headers are wi
 ```
 # Bark
 
-- [Getting Started](https://your-host/getting-started/getting-started): Get Bark running locally in under a minute
-- [Configuration](https://your-host/getting-started/configuration): appsettings.json options, docs/config.json, and theming
+- [Getting Started](https://your-host/guide/getting-started): Get Bark running locally in under a minute
+- [Configuration](https://your-host/guide/configuration): appsettings.json options, docs/config.json, and theming
 ...
 ```
 

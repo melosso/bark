@@ -17,7 +17,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /getting-started/getting-started
+      link: /guide/getting-started
     - theme: alt
       text: View on GitHub
       link: https://github.com/melosso/bark

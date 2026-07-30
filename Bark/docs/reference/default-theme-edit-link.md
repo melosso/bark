@@ -21,7 +21,7 @@ Set `editLink` in `docs/config.json` and Bark adds an "Edit this page" link near
 | `pattern` | `string` | none, required | A URL template. The literal text `:path` gets replaced with the current page's path. |
 | `text` | `string` | `"Edit this page"` | Link label. |
 
-`:path` resolves to the page's lowercased URL path plus `.md` (`getting-started/configuration` becomes `getting-started/configuration.md`). That matches Bark's own docs, since Bark lowercases every file path it serves.
+`:path` resolves to the page's lowercased URL path plus `.md` (`guide/configuration` becomes `guide/configuration.md`). That matches Bark's own docs, since Bark lowercases every file path it serves.
 
 > [!CAUTION]  
 > If your filenames have capital letters (like `Configuration.md`), the edit links may break. To avoid this, always use lowercase (like `configuration.md`) for files in your `docs/` folder.

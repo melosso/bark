@@ -191,8 +191,7 @@ public static class NavigationHtmlRenderer
         var link = item.Link ?? "#";
         var isExternal = UrlPaths.IsExternal(link);
         var normalizedLink = isExternal ? link : UrlPaths.Href(basePath, link);
-        var isActive = !isExternal &&
-            link.Trim('/').Equals(currentPath.Trim('/'), StringComparison.OrdinalIgnoreCase);
+        var isActive = !isExternal && IsTopNavActive(link, currentPath);
         var activeClass = isActive ? " active" : "";
         var relAttr = isExternal ? ExternalLinkRel : "";
         const string externalIcon = ExternalLinkIcon;
@@ -200,12 +199,29 @@ public static class NavigationHtmlRenderer
         if (wrapInItemDiv)
             html.AppendLine("<div class=\"top-nav-item\">");
 
+        var label = LayoutProvider.HtmlEncode(item.Text);
         html.AppendLine(
             $"<a href=\"{LayoutProvider.HtmlEncode(normalizedLink)}\" class=\"{cssClass}{activeClass}\"{relAttr}>" +
-            $"{LayoutProvider.HtmlEncode(item.Text)}{(isExternal ? externalIcon : "")}</a>");
+            $"<span class=\"top-nav-label\" data-label=\"{label}\">{label}</span>{(isExternal ? externalIcon : "")}</a>");
 
         if (wrapInItemDiv)
             html.AppendLine("</div>");
+    }
+
+    /// <summary>A section link stays active across the whole section, not just its landing page.</summary>
+    private static bool IsTopNavActive(string link, string currentPath)
+    {
+        var linkPath = link.Trim('/');
+        var current = currentPath.Trim('/');
+
+        if (linkPath.Equals(current, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // A root link ("/") has no section of its own and would otherwise match every page.
+        var section = linkPath.Split('/')[0];
+        return section.Length > 0
+            && current.StartsWith(section, StringComparison.OrdinalIgnoreCase)
+            && (current.Length == section.Length || current[section.Length] == '/');
     }
 
     public static string ToDisplayName(string name)

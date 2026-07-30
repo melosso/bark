@@ -1,4 +1,4 @@
 ---
-title: What is Bark?
+title: Guide
 redirect: /guide/what-is-bark/
 ---

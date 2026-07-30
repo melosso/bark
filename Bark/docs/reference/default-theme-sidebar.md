@@ -18,13 +18,13 @@ Most projects start with option 3 and graduate to option 1 once they have more t
 ```json
 {
   "sidebar": {
-    "/getting-started/": [
+    "/guide/": [
       {
         "title": "Introduction",
         "collapsed": false,
         "items": [
-          { "title": "Getting Started", "path": "getting-started/getting-started" },
-          { "title": "Configuration", "path": "getting-started/configuration" }
+          { "title": "Getting Started", "path": "guide/getting-started" },
+          { "title": "Configuration", "path": "guide/configuration" }
         ]
       }
     ],
@@ -40,7 +40,7 @@ Most projects start with option 3 and graduate to option 1 once they have more t
 }
 ```
 
-Each key is a path prefix. Bark picks whichever key is the **longest match** for the page you're viewing, so `/getting-started/` and `/getting-started/advanced/` can both exist, the more specific one winning for pages under it. An empty-string key (`""` or `/`) acts as a catch-all for anything not matched by a more specific prefix.
+Each key is a path prefix. Bark picks whichever key is the **longest match** for the page you're viewing, so `/guide/` and `/guide/advanced/` can both exist, the more specific one winning for pages under it. An empty-string key (`""` or `/`) acts as a catch-all for anything not matched by a more specific prefix.
 
 ## Entries
 
@@ -66,7 +66,7 @@ A `path` starting with `http://` or `https://` is treated as an external link ra
       {
         "title": "Resources",
         "items": [
-          { "title": "Getting Started", "path": "getting-started/getting-started" },
+          { "title": "Getting Started", "path": "guide/getting-started" },
           { "title": "Source on GitHub", "path": "https://github.com/melosso/bark" }
         ]
       }

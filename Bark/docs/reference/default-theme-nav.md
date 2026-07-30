@@ -11,7 +11,7 @@ The header nav bar comes from `topNav` in `docs/config.json`. Skip it entirely a
 {
   "topNav": [
     { "text": "Home", "link": "/" },
-    { "text": "Guide", "link": "/getting-started/getting-started" },
+    { "text": "Guide", "link": "/guide/getting-started" },
     { "text": "Reference", "link": "/reference/" },
     {
       "text": "More",

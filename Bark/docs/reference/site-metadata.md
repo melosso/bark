@@ -69,10 +69,10 @@ Language tag values follow the [BCP 47 standard](https://www.ietf.org/rfc/bcp/bc
 
 Bark automatically emits a canonical link and Open Graph / Twitter Card tags on every page. You do not need to configure any of these manually.
 
-The canonical URL is derived from the request scheme, host, and page path. A page at `/getting-started/installation/` on `https://docs.example.com` produces:
+The canonical URL is derived from the request scheme, host, and page path. A page at `/guide/installation/` on `https://docs.example.com` produces:
 
 ```html
-<link rel="canonical" href="https://docs.example.com/getting-started/installation/">
+<link rel="canonical" href="https://docs.example.com/guide/installation/">
 ```
 
 Open Graph and Twitter Card tags are generated from the same canonical URL, the page's own `title` and `description`, and your site settings:
@@ -80,7 +80,7 @@ Open Graph and Twitter Card tags are generated from the same canonical URL, the 
 ```html
 <meta property="og:type" content="article">
 <meta property="og:title" content="Installation">
-<meta property="og:url" content="https://docs.example.com/getting-started/installation/">
+<meta property="og:url" content="https://docs.example.com/guide/installation/">
 <meta property="og:site_name" content="Bark">
 <meta property="og:locale" content="en">
 <meta property="og:description" content="How to install Bark.">

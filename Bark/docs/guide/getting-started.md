@@ -7,7 +7,7 @@ description: Run Bark locally in under a minute
 
 Bark is a documentation server: point it at a folder of Markdown and it serves a full site, navigation, search, and all. This guide gets a copy running locally.
 
-Want to know why it's built this way before diving in? Read [What is Bark?](/what-is-bark). Just want it running? Keep reading.
+Want to know why it's built this way before diving in? Read [What is Bark?](/guide/what-is-bark). Just want it running? Keep reading.
 
 ## Prerequisites
 
@@ -44,8 +44,8 @@ Open `http://localhost:8080`. That's the whole setup.
 docs/
 ├── config.json                      ← Configuration file (optional)
 ├── index.md                         ← Homepage
-├── getting-started/
-│   ├── getting-started.md           ← Served at /getting-started/getting-started
+├── guide/
+│   ├── getting-started.md           ← Served at /guide/getting-started
 │   ├── configuration.md
 │   ├── routing.md
 │   └── deploy.md

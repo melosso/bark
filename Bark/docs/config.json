@@ -11,7 +11,7 @@
   "footer": "Built with Bark · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE). Host your own instance now! [Learn more](https://github.com/melosso/bark){target=\"_blank\" rel=\"noopener\"}.",
   "topNav": [
     { "text": "Home", "link": "/" },
-    { "text": "Guide", "link": "what-is-bark" },
+    { "text": "Guide", "link": "guide/what-is-bark" },
     { "text": "Reference", "link": "/reference/site-config" },
     {
       "text": "More",
@@ -24,31 +24,31 @@
   ],
   "sidebar": {
     "": [
-      { "title": "What is Bark?", "path": "what-is-bark" },
+      { "title": "What is Bark?", "path": "guide/what-is-bark" },
       {
         "title": "Introduction",
         "collapsed": false,
         "items": [
-          { "title": "Getting Started", "path": "getting-started/getting-started" },
-          { "title": "Configuration", "path": "getting-started/configuration" },
-          { "title": "Routing", "path": "getting-started/routing" },
-          { "title": "Deploy", "path": "getting-started/deploy" }
+          { "title": "Getting Started", "path": "guide/getting-started" },
+          { "title": "Configuration", "path": "guide/configuration" },
+          { "title": "Routing", "path": "guide/routing" },
+          { "title": "Deploy", "path": "guide/deploy" }
         ]
       },
       {
         "title": "Writing",
         "collapsed": false,
         "items": [
-          { "title": "Markdown", "path": "getting-started/markdown" },
-          { "title": "Diagrams", "path": "getting-started/diagrams" },
-          { "title": "Assets", "path": "getting-started/assets" }
+          { "title": "Markdown", "path": "guide/markdown" },
+          { "title": "Diagrams", "path": "guide/diagrams" },
+          { "title": "Assets", "path": "guide/assets" }
         ]
       },
       { 
         "title": "Customisation",
         "collapsed": false,
         "items": [
-          { "title": "Themes", "path": "getting-started/themes" }
+          { "title": "Themes", "path": "guide/themes" }
         ]
       },
       {

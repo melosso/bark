@@ -12,7 +12,7 @@ Bark splits configuration into two files:
 
 That split means a content editor never needs deploy access just to fix a typo in the brand name. This page walks through what you'll touch first. For the full field-by-field list, see <span style="font-weight:500;">[Site Config](/reference/site-config)</span>. 
 
-If you are running Bark in Docker or a container environment, please see <span style="font-weight:500;">[Environment Variables](/getting-started/environment-variables)</span> for the equivalent variable names.
+If you are running Bark in Docker or a container environment, please see <span style="font-weight:500;">[Environment Variables](/guide/environment-variables)</span> for the equivalent variable names.
 
 ## `appsettings.json`
 
@@ -57,7 +57,7 @@ You get three levels of control over navigation, and you can mix them:
   "brand": "Bark",
   "topNav": [
     { "text": "Home", "link": "/" },
-    { "text": "Guide", "link": "/getting-started/getting-started" },
+    { "text": "Guide", "link": "/guide/getting-started" },
     { "text": "Reference", "link": "/reference/site-config" },
     {
       "text": "More",
@@ -68,14 +68,14 @@ You get three levels of control over navigation, and you can mix them:
     }
   ],
   "sidebar": {
-    "/getting-started/": [
+    "/guide/": [
       {
         "title": "Introduction",
         "items": [
-          { "title": "Getting Started", "path": "getting-started/getting-started" },
-          { "title": "Configuration", "path": "getting-started/configuration" },
-          { "title": "Routing", "path": "getting-started/routing" },
-          { "title": "Deploy", "path": "getting-started/deploy" }
+          { "title": "Getting Started", "path": "guide/getting-started" },
+          { "title": "Configuration", "path": "guide/configuration" },
+          { "title": "Routing", "path": "guide/routing" },
+          { "title": "Deploy", "path": "guide/deploy" }
         ]
       }
     ],
@@ -96,7 +96,7 @@ You get three levels of control over navigation, and you can mix them:
 }
 ```
 
-A `topNav` item is either a direct link (`text` + `link`) or a dropdown (`text` + `items`, no `link`), exactly the two shapes shown above. `sidebar` keys are path prefixes: whichever key is the **longest match** for the page you're viewing wins, so `/getting-started/` and `/getting-started/advanced/` can coexist, with the more specific one taking over for pages under it.
+A `topNav` item is either a direct link (`text` + `link`) or a dropdown (`text` + `items`, no `link`), exactly the two shapes shown above. `sidebar` keys are path prefixes: whichever key is the **longest match** for the page you're viewing wins, so `/guide/` and `/guide/advanced/` can coexist, with the more specific one taking over for pages under it.
 
 ::: tip
 When `sidebar` is present, it takes priority over `nav` for any page matching one of its prefixes. `nav`, when present at all, fully replaces the auto-generated folder-based navigation for every page. Neither merges with the folder tree. Leave both out if you want Bark to build navigation from your folders.

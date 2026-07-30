@@ -22,7 +22,7 @@ Bark has no client-side framework in the loop, so this is plain HTML: write `<Ba
 | `warning` | Amber | `--alert-warning` |
 | `danger` | Red | `--alert-caution` |
 
-Same four colors as [Alerts](/getting-started/markdown#alerts), so a badge and an alert block referring to the same kind of thing always match.
+Same four colors as [Alerts](/guide/markdown#alerts), so a badge and an alert block referring to the same kind of thing always match.
 
 <Badge type="tip">tip</Badge>
 <Badge type="info">info</Badge>

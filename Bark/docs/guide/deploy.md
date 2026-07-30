@@ -5,7 +5,7 @@ description: Docker, Windows/IIS, Linux release, or build from source
 
 # Deploy
 
-These guides assume you already have set-up the documentation folder with content in it, see [Getting Started](../getting-started) if you don't. Pick whichever path matches your environment. Docker is the fastest, usually under a minute from a blank folder to a running site.
+These guides assume you already have set-up the documentation folder with content in it, see [Getting Started](/guide/getting-started) if you don't. Pick whichever path matches your environment. Docker is the fastest, usually under a minute from a blank folder to a running site.
 
 ## Option A: Docker Compose
 
@@ -193,7 +193,7 @@ Set `PublicBaseUrl` to the origin you actually serve from, and `AllowedHosts` to
       AllowedHosts: docs.example.com
 ```
 
-Without `PublicBaseUrl`, the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed and your `canonical`/`og:url` tags are built from the incoming request's `Host` header, which the caller controls. Someone can then request your `robots.txt` with a forged `Host` and receive a `Sitemap:` line pointing at their own site, and if a CDN caches that response, the forged copy is what your visitors and crawlers get. `AllowedHosts` closes the same gap from the other side, rejecting requests for hostnames you do not serve instead of quietly answering them. See [Environment variables](/getting-started/environment-variables/) for the full list.
+Without `PublicBaseUrl`, the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed and your `canonical`/`og:url` tags are built from the incoming request's `Host` header, which the caller controls. Someone can then request your `robots.txt` with a forged `Host` and receive a `Sitemap:` line pointing at their own site, and if a CDN caches that response, the forged copy is what your visitors and crawlers get. `AllowedHosts` closes the same gap from the other side, rejecting requests for hostnames you do not serve instead of quietly answering them. See [Environment variables](/guide/environment-variables/) for the full list.
 
 ## Sizing expectations
 

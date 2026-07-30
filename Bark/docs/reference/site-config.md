@@ -7,23 +7,23 @@ description: Full reference for appsettings.json and docs/config.json
 
 Bark draws from two separate configuration files, and understanding why helps you decide where a setting belongs.
 
-1. **Environment settings.** Found in  `appsettings.json` or your [.env](/getting-started/environment-variables) file is for deployment-level concerns: where your Markdown files live, whether hot-reload is on, and what base path the server sits at. 
+1. **Environment settings.** Found in  `appsettings.json` or your [.env](/guide/environment-variables) file is for deployment-level concerns: where your Markdown files live, whether hot-reload is on, and what base path the server sits at. 
 2. **Site configuration.** Found in `docs/config.json` lives alongside your content and controls everything your readers see, from the site name and navigation structure to the footer and social links.
 
 That distinction means you can check `config.json` into the same repository as your docs and deploy the server without touching it.
 
-If you are looking for a narrative walkthrough of these settings rather than a field-by-field reference, [Configuration](/getting-started/configuration) walks through the most common setups step by step.
+If you are looking for a narrative walkthrough of these settings rather than a field-by-field reference, [Configuration](/guide/configuration) walks through the most common setups step by step.
 
 ## `appsettings.json`: `Docs`
 
-These settings apply at the host level and take effect at startup, so a restart is needed after changing them. If your deployment runs Bark in a container or through an orchestration platform, every field here can be provided as an environment variable instead. See [Environment Variables](/getting-started/environment-variables) for how the naming convention works.
+These settings apply at the host level and take effect at startup, so a restart is needed after changing them. If your deployment runs Bark in a container or through an orchestration platform, every field here can be provided as an environment variable instead. See [Environment Variables](/guide/environment-variables) for how the naming convention works.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `RootPath` | `string` | `docs` | Path to the Markdown files directory, relative to the app's working directory. |
 | `DefaultPage` | `string` | `index` | Page served at `/`. |
 | `EnableHotReload` | `bool` | `true` | Watch `*.md` and `config.json` for changes and rebuild in the background. It is recommended to disable this in production if you publish content as part of your deploy rather than editing files on the running server. |
-| `BasePath` | `string?` | `null` | Prefix every internal link, theme asset URL, and API call with this path segment. This is the setting to reach for when Bark is not served from the domain root, for example a GitHub Pages project page at `you.github.io/your-repo/` or a reverse proxy mounting Bark under `/docs`. A CLI `--base-path` flag overrides this value at runtime, which is how [static export](/getting-started/deploy#option-e-static-export-github-pages-etc) adjusts it without requiring a config edit. |
+| `BasePath` | `string?` | `null` | Prefix every internal link, theme asset URL, and API call with this path segment. This is the setting to reach for when Bark is not served from the domain root, for example a GitHub Pages project page at `you.github.io/your-repo/` or a reverse proxy mounting Bark under `/docs`. A CLI `--base-path` flag overrides this value at runtime, which is how [static export](/guide/deploy#option-e-static-export-github-pages-etc) adjusts it without requiring a config edit. |
 | `ContentSecurityPolicy` | `string?` | `null` | A custom `Content-Security-Policy` header value. When provided, this replaces Bark's built-in default entirely rather than extending it. It is recommended to leave this unset unless you have a specific reason to override the default policy, such as allowing an external font host. Bark's default policy disallows inline scripts and styles that do not carry its per-request nonce, restricts every fetch directive to `'self'`, and disables framing. |
 
 ## `appsettings.json`: `Docs:Themes`
@@ -34,7 +34,7 @@ There are two ways to apply your own theme, and they complement each other nicel
 
 If you would rather track theme settings in version control alongside the rest of your infrastructure, the `Docs:Themes` section of `appsettings.json` offers the same options. When `Docs:Themes` is present it takes full priority over `theme.json`, so the two are not merged.
 
-See [Themes](/getting-started/themes) for a practical walkthrough of both approaches.
+See [Themes](/guide/themes) for a practical walkthrough of both approaches.
 
 **Configuration**
 
@@ -68,7 +68,7 @@ These settings shape how your site presents itself to readers, search engines, a
 | `titleTemplate` | `string?` | Custom title pattern using `:title` and `:siteName` as placeholders. For example, `":title · :siteName"` produces `Getting Started · Bark`. Overrides the default suffix format when set. |
 | `description` | `string?` | Site-wide fallback `<meta name="description">`. Per-page frontmatter descriptions take priority over this value. |
 | `lang` | `string?` | `lang` attribute on `<html>`. Defaults to `"en"`. |
-| `theme` | `string?` | Built-in theme name: `default`, `forest-ledger`, `signal-dark`, `blueprint-grid`, `ocean`, `deep-space`, `solarized` or `laserwave`. Defaults to `default`. Unknown names log a warning and fall back to the default. Overridden by `Docs:Themes:Name` and the `--theme` flag. See [Themes](/getting-started/themes#picking-a-theme). |
+| `theme` | `string?` | Built-in theme name: `default`, `forest-ledger`, `signal-dark`, `blueprint-grid`, `ocean`, `deep-space`, `solarized` or `laserwave`. Defaults to `default`. Unknown names log a warning and fall back to the default. Overridden by `Docs:Themes:Name` and the `--theme` flag. See [Themes](/guide/themes#picking-a-theme). |
 | `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for third-party verification tags or your own extra structured data. Bark generates canonical links, the full Open Graph and Twitter Card set (including `og:image`), and a JSON-LD block automatically, so those do not need to be listed here. |
 | `brand` | `string?` | Sidebar and header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
 | `brandImage` | `string?` | An image URL or path to display alongside the brand label in the header, placed to the left of the text. |
@@ -156,7 +156,7 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
   },
   "topNav": [
     { "text": "Home", "link": "/" },
-    { "text": "Guide", "link": "/getting-started/getting-started" },
+    { "text": "Guide", "link": "/guide/getting-started" },
     { "text": "Reference", "link": "/reference/site-config" },
     {
       "text": "More",
@@ -167,13 +167,13 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
     }
   ],
   "sidebar": {
-    "/getting-started/": [
+    "/guide/": [
       {
         "title": "Introduction",
         "collapsed": false,
         "items": [
-          { "title": "Getting Started", "path": "getting-started/getting-started" },
-          { "title": "Configuration", "path": "getting-started/configuration" }
+          { "title": "Getting Started", "path": "guide/getting-started" },
+          { "title": "Configuration", "path": "guide/configuration" }
         ]
       }
     ],
@@ -220,7 +220,7 @@ Social links appear in the top-right area of the header on desktop and fold into
 
 ## CLI flags
 
-When launching Bark directly from the terminal rather than through Docker or a process manager, a small set of flags let you adjust runtime behavior without editing config files. These are most commonly used during the [static export](/getting-started/deploy#option-e-static-export-github-pages-etc) workflow, but they work just as well against the live server.
+When launching Bark directly from the terminal rather than through Docker or a process manager, a small set of flags let you adjust runtime behavior without editing config files. These are most commonly used during the [static export](/guide/deploy#option-e-static-export-github-pages-etc) workflow, but they work just as well against the live server.
 
 | Flag | Overrides | Description |
 |---|---|---|

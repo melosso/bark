@@ -147,7 +147,17 @@ public static partial class LayoutProvider
         }}
         .top-nav-link.active {{
             color: var(--text-color);
-            font-weight: 650;
+            font-weight: 600;
+        }}
+        /* Reserves the bold width at every weight, so activating an item never nudges its neighbours. */
+        .top-nav-label {{
+            display: inline-grid;
+        }}
+        .top-nav-label::before {{
+            content: attr(data-label);
+            font-weight: 600;
+            height: 0;
+            visibility: hidden;
         }}
         .top-nav-chevron {{
             width: 14px;

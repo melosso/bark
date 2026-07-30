@@ -5,7 +5,7 @@ description: Every Markdown extension Bark supports, with live examples
 
 # Using Markdown
 
-All pages are primarily written in [Markdown](https://www.markdownguide.org/getting-started/). Everything below renders live on this page; it´s tested and verified.
+All pages are primarily written in [Markdown](https://www.markdownguide.org/guide/). Everything below renders live on this page; it´s tested and verified.
 
 ## Syntax-highlighted code blocks
 
@@ -193,7 +193,7 @@ Custom containers are sugar over a plain `<div class="TYPE custom-block">`. Mark
 ```md
 <div class="tip custom-block">
 
-Just want to try it out? Skip to the [Quickstart](../getting-started).
+Just want to try it out? Skip to the [Quickstart](/guide/getting-started).
 
 </div>
 ```
@@ -202,7 +202,7 @@ Renders as:
 
 <div class="tip custom-block">
 
-Just want to try it out? Skip to the [Quickstart](../getting-started).
+Just want to try it out? Skip to the [Quickstart](/guide/getting-started).
 
 </div>
 

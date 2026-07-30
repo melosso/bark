@@ -38,7 +38,7 @@ sequenceDiagram
     participant Browser
     participant Bark
     participant Watcher as FileSystemWatcher
-    Browser->>Bark: GET /getting-started/diagrams
+    Browser->>Bark: GET /guide/diagrams
     Bark->>Browser: 200 OK (cached HTML)
     Note over Watcher: docs/diagrams.md saved
     Watcher->>Bark: change event (debounced 300ms)
