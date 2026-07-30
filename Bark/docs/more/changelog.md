@@ -15,4 +15,4 @@ You can help the repository grow by leaving a star on the GitHub repository.
 
 <br>
 
-Did you see we disabled the table of contents on the right, by accident perhaps?
+Did you see that we disabled the table of contents (on the right) by accident perhaps?

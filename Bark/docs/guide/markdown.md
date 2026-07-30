@@ -286,7 +286,7 @@ Append `{target="_blank" rel="noopener"}` after a link to open it in a new tab:
 
 ## Video and media
 
-Drop media files into `docs/assets/` and reference them with image syntax — Bark turns known video, audio, and embed URLs into native players:
+Drop media files into `docs/assets/` and reference them with image syntax. Bark turns known video, audio, and embed URLs into native players:
 
 ```md
 ![Demo clip](/assets/video.mp4)

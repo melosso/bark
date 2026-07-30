@@ -23,7 +23,7 @@ Set `PublicBaseUrl` to the origin your site is actually served from:
 PublicBaseUrl=https://docs.example.com
 ```
 
-Bark uses it to build the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed, and the `canonical` and `og:url` tags. Left unset, those URLs are built from the incoming request's `Host` header, which the caller controls — fine locally, but on a public host anyone can request your `robots.txt` with a forged `Host` and get a `Sitemap:` line pointing somewhere else. If a CDN caches that response, the forged copy is what your visitors and crawlers get.
+Bark uses it to build the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed, and the `canonical` and `og:url` tags. Left unset, those URLs are built from the incoming request's `Host` header, which the caller controls. That is fine locally, but on a public host anyone can request your `robots.txt` with a forged `Host` and get a `Sitemap:` line pointing somewhere else. If a CDN caches that response, the forged copy is what your visitors and crawlers get.
 
 Combine it with the standard `AllowedHosts` variable so requests for other hostnames are rejected outright rather than merely ignored:
 

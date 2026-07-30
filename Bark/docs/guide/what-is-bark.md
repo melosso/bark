@@ -5,39 +5,22 @@ description: A fast, lightweight Markdown documentation server
 
 # What is Bark?
 
-Bark is a documentation server written on .NET. You write your content in Markdown, point Bark at the folder, and it serves a full documentation site: navigation, a table of contents, breadcrumbs, and search, all built in. Bark runs as a single process and serves your pages directly.
+Bark is a documentation server written on .NET. Point it at a folder of Markdown and it serves a full site with navigation, table of contents, breadcrumbs, and search, all from a single process.
 
-<div class="tip custom-block">
+Most documentation tools are static site generators: write Markdown, run a build, deploy the output. Bark renders in memory at startup and again whenever a file changes. Save a file and the running site updates. Nothing to build, nothing to deploy but Bark itself.
 
-Just want to try it out? Skip to the [Quickstart](/guide/getting-started).
+## How it compares
 
-</div>
+**Against a wiki.** Confluence stores pages in a database and edits them through a web form, which makes reviewing a change before it goes live awkward. Bark's content is Markdown in a folder. Keep it in git and docs go through the same pull request review as your code.
 
-## Why Bark exists
-
-Most documentation tools are static site generators. You write Markdown, run a build, and that build creates a folder of HTML files you then deploy somewhere. That is a fine workflow, but it puts a build pipeline between you editing a page and someone reading it.
-
-Bark skips that step, as it reads your Markdown and renders the site in memory when it starts, and again whenever a file changes. Save a file, and the running site updates right away. There is nothing to build and nothing to deploy other than Bark itself.
-
-## Bark vs. wikis
-
-A wiki like Confluence stores pages in a database and edits them through a web form. That's convenient until you want to review a change before it goes live, or track who changed what and why. Reviewing wiki edits the way you review code isn't really possible.
-
-Bark's content is just Markdown files in a folder. Keep them in git, and documentation changes go through the same pull request review as everything else you write.
-
-## Bark vs. other site generators
-
-Tools like [Hugo](https://github.com/gohugoio/hugo){target="_blank" rel="noopener"}, [MkDocs](https://github.com/mkdocs/mkdocs){target="_blank" rel="noopener"}, and [VitePress](https://github.com/vuejs/vitepress){target="_blank" rel="noopener"} are great if you're happy deploying to static hosting and don't mind a build step. Bark is especially interesting for teams already running .NET.
+**Against other generators.** [Hugo](https://github.com/gohugoio/hugo){target="_blank" rel="noopener"}, [MkDocs](https://github.com/mkdocs/mkdocs){target="_blank" rel="noopener"} and [VitePress](https://github.com/vuejs/vitepress){target="_blank" rel="noopener"} are the better fit if you are happy with static hosting and a build step. Bark suits teams already running .NET.
 
 ## Performance
 
-Bark is designed to be incredibly fast by keeping everything in your computer's memory rather than reading from the hard drive every time someone visits your site.
+Pages are held in memory, so lookups are immediate. Nothing touches disk per request.
 
-**While you are writing:**<br>
-Bark keeps a close eye on your files. If you make changes, it waits for a brief moment to ensure you are done saving before it updates your site. This ensures that even if you save several times in quick succession, it only updates once, saving time and resources.
-
-**For your readers:**<br>
-Visitors enjoy nearly instant load times. Because all the information is ready in memory, looking up a page is essentially immediate. Additionally, Bark uses smart caching; if a reader visits a page they have already seen, the site quickly confirms nothing has changed, avoiding the need to download the full page again.
+- Edits are debounced, so a burst of saves triggers one rebuild.
+- Responses carry an ETag, so a returning reader gets a 304 instead of the page again.
 
 ## Ready to try it out?
 

@@ -5,7 +5,7 @@ description: Docker, Windows/IIS, Linux release, or build from source
 
 # Deploy
 
-These guides assume you already have set-up the documentation folder with content in it, see [Getting Started](/guide/getting-started) if you don't. Pick whichever path matches your environment. Docker is the fastest, usually under a minute from a blank folder to a running site.
+These guides assume you already have a documentation folder with content in it. See [Getting Started](/guide/getting-started) if you don't. Pick whichever path matches your environment. Docker is the fastest, usually under a minute from a blank folder to a running site.
 
 ## Option A: Docker Compose
 
@@ -35,108 +35,85 @@ Browse to `http://localhost:8080`.
 
 ## Option B: Windows / IIS
 
-1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"}.
-2. Extract it to your site folder (for example `C:\inetpub\bark`).
-3. In IIS, create a site (or app) pointing at that folder, with the **No Managed Code** .NET CLR version. Bark hosts itself via the ASP.NET Core Module, it doesn't need the CLR to load anything.
-4. The zip already includes a `web.config` wired for in-process hosting. No manual edits needed.
-5. Install the [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/10.0){target="_blank" rel="noopener"} on the server. This gives IIS the ASP.NET Core Module.
-6. Start the site and browse to it.
+1. Install the [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/10.0){target="_blank" rel="noopener"} on the server. This is what gives IIS the ASP.NET Core Module.
+2. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"} and extract it to your site folder, for example `C:\inetpub\bark`.
+3. In IIS, create a site pointing at that folder with the **No Managed Code** .NET CLR version. Bark hosts itself through the ASP.NET Core Module and needs nothing from the CLR.
+4. Start the site and browse to it.
+
+The zip ships a `web.config` wired for in-process hosting, so no manual edits are needed.
 
 ## Option C: Linux release zip
 
-A self-contained Linux x64 build (`*-Linux_x64.zip`) ships alongside every release. This is a convenient option if you prefer running the binary directly without Docker.
+A self-contained Linux x64 build ships alongside every release.
 
-1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"}.
-2. Extract it to your server (for example `/srv/bark`):
+1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"} and extract it:
 
 ```bash
 mkdir -p /srv/bark && unzip Bark-*-Linux_x64.zip -d /srv/bark
+mkdir -p /srv/bark/docs   # your .md files go here
 ```
 
-3. Prepare your `docs/` directory with your Markdown content and optional `config.json`:
-
-```bash
-mkdir -p /srv/bark/docs
-# Place your .md files in /srv/bark/docs
-```
-
-4. Run the binary:
+2. Run it, then browse to `http://localhost:8080`:
 
 ```bash
 cd /srv/bark && ./Bark
 ```
 
 ::: note
-The binary expects a `docs/` folder relative to the current working directory. If your content lives elsewhere, set `Docs:RootPath` in `appsettings.json` or pass it as an environment variable. See [Environment Variables](../environment-variables) for the full list.
+The binary looks for `docs/` relative to the current working directory, not the executable. If your content lives elsewhere, set `Docs:RootPath`. See [Environment Variables](/guide/environment-variables).
 :::
 
-5. Browse to `http://localhost:8080`.
-
-For a production setup, you can configure Bark as a systemd service (see [Running as a service](#running-as-a-service-source-builds) below).
+To survive a reboot, see [Running as a service](#running-as-a-service-source-builds).
 
 ## Option D: Build from source
 
-If you're contributing to Bark itself, or don't want to pull a container image:
+For contributing to Bark itself, or to avoid pulling a container image. Needs the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0){target="_blank" rel="noopener"}.
 
 ```bash
 cd Bark
 dotnet publish src/Bark -c Release -o ./publish
+cd publish && dotnet Bark.dll
 ```
 
-Your `docs/` folder is copied into the publish output automatically:
+Your `docs/` folder is copied into the publish output automatically. The target machine still needs the .NET runtime unless you add `--self-contained true -r <rid>`.
 
-```bash
-cd publish
-dotnet Bark.dll
-```
-
-You need the [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0){target="_blank" rel="noopener"} installed to publish. The published output still needs the .NET runtime on the target machine unless you add `--self-contained true -r <rid>`.
-
-If you're actively developing Bark's own source rather than running it, `dotnet watch --project src/Bark` from a clone gives you C#-side hot reload too.
+Developing Bark's own source rather than running it? `dotnet watch --project src/Bark` gives you C#-side hot reload too.
 
 ## Option E: Static export (GitHub Pages, etc.)
 
-You can skip the server entirely and export plain HTML, CSS, and JS for any static host: GitHub Pages, Netlify, or a plain web server. This path requires cloning the repository and compiling Bark yourself.
+Skip the server entirely and export plain HTML, CSS, and JS for any static host. This path requires cloning the repository and compiling Bark yourself.
 
 ```bash
 dotnet publish src/Bark -c Release -o ./publish
 cd publish && ./Bark --export ./output --base-url https://you.github.io --base-path /your-repo
 ```
 
-When you run the binary, it accepts these CLI flags:
-
 | Flag | Purpose |
 |---|---|
 | `--export <dir>` | Writes every page, plus `404.html`, `robots.txt`, `llms.txt`, `sitemap.xml`, and `wwwroot` to the given directory. |
 | `--base-url <origin>` | The real public origin used for absolute URLs in `robots.txt` and `llms.txt`. |
-| `--base-path </prefix>` | Required when the site lives under a subpath, such as a GitHub project page (`you.github.io/your-repo/`). This flag overrides `Docs:BasePath` at runtime. See [Site Config](/reference/site-config). |
+| `--base-path </prefix>` | Required when the site lives under a subpath, such as a GitHub project page (`you.github.io/your-repo/`). Overrides `Docs:BasePath` at runtime. See [Site Config](/reference/site-config). |
 
 ::: note
-Run the binary from inside the publish folder (`cd publish` first). The `docs/` lookup is relative to the current directory, not the executable's location. The `--export` flag also disables hot reload, so there is no `/api/build-version` polling. Search still renders but fails gracefully without a backend.
+Run the binary from inside the publish folder (`cd publish` first), because the `docs/` lookup is relative to the current directory. `--export` also disables hot reload, so there is no `/api/build-version` polling. Search still renders but fails gracefully without a backend.
 :::
 
-<br>
+A working GitHub Actions example lives in `.github/workflows/bark-deployment.yml`. It needs **Settings → Pages → Source → GitHub Actions** set once per repo before the first deploy succeeds.
 
-A working GitHub Actions example lives in `.github/workflows/bark-deployment.yml`. It still needs **Settings → Pages → Source → GitHub Actions** set once per repo before the first deploy succeeds.
+## What you get by default
 
-## Production-ready
+No flags required for any of this:
 
-Bark is configured for production stability out of the box. The following optimizations are pre-configured and active by default:
+* **Compression.** Brotli or Gzip on all traffic, including HTTPS.
+* **DoS limits.** Caps on request body size, header size, simultaneous connections, and keep-alive timeouts.
+* **Console logging.** Verbosity is adjustable per environment.
+* **[ETags](https://en.wikipedia.org/wiki/HTTP_ETag){target="_blank" rel="noopener"}.** Every page carries a SHA-256 fingerprint, so an unchanged page returns `304 Not Modified`.
 
-* **Automatic Compression**: All web traffic uses Brotli or Gzip compression (including secure HTTPS traffic) to significantly reduce page load times and save bandwidth.
-* **Built-in DoS Protection**: Safety limits are pre-configured to protect the server from resource exhaustion. This includes strict limits on request body sizes, header sizes, maximum simultaneous connections, and keep-alive timeouts.
-* **Production Logging**: Logs are routed directly to the console. You can easily adjust how detailed these logs are for different environment if necessary.
-* **Smart Caching ([ETags](https://en.wikipedia.org/wiki/HTTP_ETag){target="_blank" rel="noopener"})**: Every page includes a unique fingerprint (SHA-256 ETag). If a user's browser already has the current version of a page then the server responds with "304 Not Modified" status, saving resources.
+What's left to you is external: domain, firewall, and SSL certificates.
 
-::: note What does this mean for you?
-Performance and security optimizations are enabled automatically. You only need to configure your external infrastructure, such as your domain, firewall, and SSL certificates.
-:::
+## Reverse proxy setup
 
-## Reverse Proxy Setup
-
-Bark is designed to sit behind a dedicated web server or load balancer that handles SSL/TLS certificates and external traffic encryption.
-
-If you are using Docker, Bark listens internally on port 8080. Below is a minimal Nginx configuration to safely route external traffic to your Bark container:
+Bark expects to sit behind a web server or load balancer that terminates TLS. Under Docker it listens on port 8080:
 
 ```nginx
 server {
@@ -152,13 +129,13 @@ server {
 }
 ```
 
-Building from source and running `dotnet Bark.dll` directly uses whatever port `ASPNETCORE_URLS` or your launch profile configures instead of 8080. Adjust `proxy_pass` to match.
+Running `dotnet Bark.dll` from a source build uses whatever port `ASPNETCORE_URLS` or your launch profile sets instead, so adjust `proxy_pass` to match.
 
-If you're behind a reverse proxy, configure [Forwarded Headers Middleware](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer){target="_blank" rel="noopener"} so Bark sees the real client scheme/host. `robots.txt` and `sitemap.xml` both build absolute URLs from the incoming request, so getting this right matters for SEO correctness, not just logging.
+Configure [Forwarded Headers Middleware](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer){target="_blank" rel="noopener"} so Bark sees the real client scheme and host. `robots.txt` and `sitemap.xml` build absolute URLs from the incoming request, so this affects SEO correctness, not just logging.
 
 ## Running as a service (source builds)
 
-Docker and the IIS zip already manage their own process lifecycle. If you published from source and want it to survive a reboot, a basic `systemd` unit:
+Docker and the IIS zip manage their own process lifecycle. For a source build:
 
 ```ini
 [Unit]
@@ -176,15 +153,11 @@ Environment=ASPNETCORE_ENVIRONMENT=Production
 WantedBy=multi-user.target
 ```
 
-Hot reload (the `FileSystemWatcher` on `docs/`) keeps working in this setup. You don't need to restart the service to publish a content change, only to ship a code change.
+Hot reload keeps working here. Restart the service to ship a code change, not a content change.
 
-## Deploying to Production
+## Going to production
 
-We have ensured that Bark is secure for production environments when running without a reverse proxy. However, you should evaluate whether this setup meets your specific requirements.
-
-For production container deployments, it is recommended to set `Docs__EnableHotReload` to `false`. Since documentation is typically either baked directly into your image or provided as a read-only volume at startup, the filesystem watcher will not have any functional purpose.
-
-Set `PublicBaseUrl` to the origin you actually serve from, and `AllowedHosts` to the matching hostname:
+Set `PublicBaseUrl` to the origin you actually serve from and `AllowedHosts` to the matching hostname. In containers, also turn off hot reload, since documentation is usually baked into the image or mounted read-only, so the filesystem watcher has nothing to do.
 
 ```yaml
     environment:
@@ -193,10 +166,10 @@ Set `PublicBaseUrl` to the origin you actually serve from, and `AllowedHosts` to
       AllowedHosts: docs.example.com
 ```
 
-Without `PublicBaseUrl`, the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed and your `canonical`/`og:url` tags are built from the incoming request's `Host` header, which the caller controls. Someone can then request your `robots.txt` with a forged `Host` and receive a `Sitemap:` line pointing at their own site, and if a CDN caches that response, the forged copy is what your visitors and crawlers get. `AllowedHosts` closes the same gap from the other side, rejecting requests for hostnames you do not serve instead of quietly answering them. See [Environment variables](/guide/environment-variables/) for the full list.
+`PublicBaseUrl` is a security setting, not a convenience one. Without it, the absolute URLs in `robots.txt`, `llms.txt`, the RSS feed and your `canonical`/`og:url` tags are built from the request's `Host` header, which the caller controls. Someone can request your `robots.txt` with a forged `Host` and get back a `Sitemap:` line pointing at their own site; if a CDN caches that response, the forged copy is what your visitors and crawlers get. `AllowedHosts` closes the same gap from the other side, rejecting hostnames you don't serve rather than quietly answering them.
+
+See [Environment variables](/guide/environment-variables/) for the full list.
 
 ## Sizing expectations
 
-Bark holds the entire rendered page set and the search index *in memory*. For a documentation site in the hundreds-of-pages range, that's a non-issue on essentially any environment. 
-
-But, if you're hosting tens of thousands of pages, you've outgrown the assumptions this tool was built around. 
+Bark holds the entire rendered page set and the search index in memory. For a site in the hundreds of pages, that's a non-issue anywhere. At tens of thousands of pages, you've outgrown the assumptions this tool was built around.

@@ -10,50 +10,98 @@
   "promo": "**New:** version 0.2.0 is available. Read the [release notes](https://github.com/melosso/bark/releases).",
   "footer": "Built with Bark · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE). Host your own instance now! [Learn more](https://github.com/melosso/bark){target=\"_blank\" rel=\"noopener\"}.",
   "topNav": [
-    { "text": "Home", "link": "/" },
-    { "text": "Guide", "link": "guide/what-is-bark" },
-    { "text": "Reference", "link": "/reference/site-config" },
+    {
+      "text": "Home",
+      "link": "/"
+    },
+    {
+      "text": "Guide",
+      "link": "guide/what-is-bark"
+    },
+    {
+      "text": "Reference",
+      "link": "/reference/site-config"
+    },
     {
       "text": "More",
       "items": [
-        { "text": "GitHub", "link": "https://github.com/melosso/bark" },
-        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" },
-        { "text": "Changelog", "link": "more/changelog" }
+        {
+          "text": "GitHub",
+          "link": "https://github.com/melosso/bark"
+        },
+        {
+          "text": "Releases",
+          "link": "https://github.com/melosso/bark/releases"
+        },
+        {
+          "text": "Changelog",
+          "link": "more/changelog"
+        }
       ]
     }
   ],
   "sidebar": {
     "": [
-      { "title": "What is Bark?", "path": "guide/what-is-bark" },
+      {
+        "title": "What is Bark?",
+        "path": "guide/what-is-bark"
+      },
       {
         "title": "Introduction",
         "collapsed": false,
         "items": [
-          { "title": "Getting Started", "path": "guide/getting-started" },
-          { "title": "Configuration", "path": "guide/configuration" },
-          { "title": "Routing", "path": "guide/routing" },
-          { "title": "Deploy", "path": "guide/deploy" }
+          {
+            "title": "Getting Started",
+            "path": "guide/getting-started"
+          },
+          {
+            "title": "Configuration",
+            "path": "guide/configuration"
+          },
+          {
+            "title": "Routing",
+            "path": "guide/routing"
+          },
+          {
+            "title": "Deploy",
+            "path": "guide/deploy"
+          }
         ]
       },
       {
         "title": "Writing",
         "collapsed": false,
         "items": [
-          { "title": "Markdown", "path": "guide/markdown" },
-          { "title": "Diagrams", "path": "guide/diagrams" },
-          { "title": "Assets", "path": "guide/assets" }
+          {
+            "title": "Markdown",
+            "path": "guide/markdown"
+          },
+          {
+            "title": "Diagrams",
+            "path": "guide/diagrams"
+          },
+          {
+            "title": "Assets",
+            "path": "guide/assets"
+          }
         ]
       },
-      { 
+      {
         "title": "Customisation",
         "collapsed": false,
         "items": [
-          { "title": "Themes", "path": "guide/themes" }
+          {
+            "title": "Themes",
+            "path": "guide/themes"
+          }
         ]
       },
       {
         "items": [
-          { "title": "Config & API Reference", "path": "reference/site-config" }
+          {
+            "title": "Config & API Reference",
+            "path": "reference/site-config"
+          }
         ]
       }
     ],
@@ -61,25 +109,77 @@
       {
         "title": "Reference",
         "items": [
-          { "title": "Site Config", "path": "reference/site-config" },
-          { "title": "Frontmatter", "path": "reference/frontmatter-config" },
-          { "title": "Extensions", "path": "reference/extensions" },
-          { "title": "API Reference", "path": "reference/api-reference" },
-          { "title": "Sitemap & Crawlers", "path": "reference/sitemap-generation" },
-          { "title": "Global Meta Tags", "path": "reference/site-metadata" },
+          {
+            "title": "Site Config",
+            "path": "reference/site-config"
+          },
+          {
+            "title": "Frontmatter",
+            "path": "reference/frontmatter-config"
+          },
+          {
+            "title": "Extensions",
+            "path": "reference/extensions"
+          },
+          {
+            "title": "API Reference",
+            "path": "reference/api-reference"
+          },
+          {
+            "title": "Sitemap & Crawlers",
+            "path": "reference/sitemap-generation"
+          },
+          {
+            "title": "Global Meta Tags",
+            "path": "reference/site-metadata"
+          },
           {
             "title": "Customisation",
             "items": [
-              { "title": "Navigation", "path": "reference/default-theme-nav" },
-              { "title": "Sidebar", "path": "reference/default-theme-sidebar" },
-              { "title": "Homepage", "path": "reference/default-theme-home-page" },
-              { "title": "Footer", "path": "reference/default-theme-footer" },
-              { "title": "Layout", "path": "reference/default-theme-layout" },
-              { "title": "Pagination", "path": "reference/default-theme-prev-next-links" },
-              { "title": "Edit Link", "path": "reference/default-theme-edit-link" },
-              { "title": "Last Updated", "path": "reference/default-theme-last-updated" },
-              { "title": "Search", "path": "reference/default-theme-search" },
-              { "title": "Badge", "path": "reference/default-theme-badge" }
+              {
+                "title": "Navigation",
+                "path": "reference/default-theme-nav"
+              },
+              {
+                "title": "Sidebar",
+                "path": "reference/default-theme-sidebar"
+              },
+              {
+                "title": "Table of contents",
+                "path": "reference/default-theme-toc"
+              },
+              {
+                "title": "Homepage",
+                "path": "reference/default-theme-home-page"
+              },
+              {
+                "title": "Footer",
+                "path": "reference/default-theme-footer"
+              },
+              {
+                "title": "Layout",
+                "path": "reference/default-theme-layout"
+              },
+              {
+                "title": "Pagination",
+                "path": "reference/default-theme-prev-next-links"
+              },
+              {
+                "title": "Edit Link",
+                "path": "reference/default-theme-edit-link"
+              },
+              {
+                "title": "Last Updated",
+                "path": "reference/default-theme-last-updated"
+              },
+              {
+                "title": "Search",
+                "path": "reference/default-theme-search"
+              },
+              {
+                "title": "Badge",
+                "path": "reference/default-theme-badge"
+              }
             ]
           }
         ]
@@ -87,8 +187,16 @@
     ]
   },
   "socialLinks": [
-    { "icon": "github", "url": "https://github.com/melosso/bark", "title": "GitHub" },
-    { "icon": "mastodon", "url": "https://fosstodon.org/@example", "title": "Mastodon" }
+    {
+      "icon": "github",
+      "url": "https://github.com/melosso/bark",
+      "title": "GitHub"
+    },
+    {
+      "icon": "mastodon",
+      "url": "https://fosstodon.org/@example",
+      "title": "Mastodon"
+    }
   ],
   "editLink": {
     "pattern": "https://github.com/melosso/bark/edit/main/Bark/docs/:path",
@@ -97,9 +205,15 @@
   "pageControls": {
     "downloadMarkdown": true,
     "subscribeRss": true,
-    "openInEditor": [                                                                                                                                                                                  
-      { "template": "vscode://file/{docsRoot}/{path}", "label": "Open in VSCode (Dev only)" },                                                                                                                   
-      { "template": "vscodium://file/{docsRoot}/{path}", "label": "Open in VSCodium (Dev only)" }                                                                                                                 
+    "openInEditor": [
+      {
+        "template": "vscode://file/{docsRoot}/{path}",
+        "label": "Open in VSCode (Dev only)"
+      },
+      {
+        "template": "vscodium://file/{docsRoot}/{path}",
+        "label": "Open in VSCodium (Dev only)"
+      }
     ],
     "editLink": {
       "label": "Edit on GitHub",
