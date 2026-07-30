@@ -24,7 +24,6 @@ public static class SecurityHeaders
         "script-src 'self' 'unsafe-inline'; " +
         "style-src 'self' 'unsafe-inline'; " +
         "style-src-attr 'unsafe-inline'; " +
-        "style-src-elem 'self' 'unsafe-inline'; " +
         "img-src 'self' data:; " +
         "font-src 'self' data:; " +
         "connect-src 'self'; " +
@@ -88,7 +87,7 @@ public static class SecurityHeaders
         for (var i = 0; i < directives.Length; i++)
         {
             var trimmed = directives[i].TrimStart();
-            if ((trimmed.StartsWith("script-src ") || (trimmed.StartsWith("style-src ") && !trimmed.StartsWith("style-src-attr")))
+            if ((trimmed.StartsWith("script-src ") || trimmed.StartsWith("style-src "))
                 && trimmed.Contains("'unsafe-inline'"))
                 directives[i] = directives[i].Replace("'unsafe-inline'", noncePart);
         }
