@@ -83,7 +83,8 @@ try
         WebRootPath: webRootPath,
         DocsRootAbsolute: docsRootAbsolute,
         PublicBaseUrl: PageRequestSettings.ResolvePublicBaseUrl(
-            exportBaseUrl, docsOptions.PublicBaseUrl, builder.Configuration["PublicBaseUrl"])));
+            exportBaseUrl, docsOptions.PublicBaseUrl, builder.Configuration["PublicBaseUrl"]),
+        CliTheme: cliArgs.Theme));
     builder.Services.AddSingleton<PageRequestHandler>();
 
     builder.Services.ConfigureHttpJsonOptions(opts =>

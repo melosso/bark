@@ -2,6 +2,9 @@ namespace Bark.Models;
 
 public sealed record ThemeOptions
 {
+    /// <summary>Deployment-level theme override. Outranks <c>config.json</c>'s <c>theme</c>, loses to <c>--theme</c>.</summary>
+    public string? Name { get; init; }
+
     public string? PrimaryColor { get; init; }
     public string? BgColor { get; init; }
     public string? SidebarBg { get; init; }

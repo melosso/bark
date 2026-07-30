@@ -1,4 +1,5 @@
 using System.Text;
+using Bark.Services.Theming;
 
 namespace Bark.Services.Layout;
 
@@ -40,7 +41,8 @@ public static partial class LayoutProvider
         string? rssDiscoveryHtml = null,
         string? promoBarHtml = null,
         string? socialMetaHtml = null,
-        string? structuredDataHtml = null)
+        string? structuredDataHtml = null,
+        IBarkTheme? theme = null)
     {
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
@@ -110,33 +112,8 @@ public static partial class LayoutProvider
             ? ""
             : $@"<div class=""page-meta""><div class=""page-meta-left"">{editLinkBlock}</div><div class=""page-meta-right"">{lastUpdatedBlock}</div></div>";
 
-        const string darkVars = @"
-                color-scheme: dark;
-                --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-                --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
-                --bg-color: #0b0b0b;
-                --sidebar-bg: #121212;
-                --text-color: #e5e5e5;
-                --text-muted: #a0a0a0;
-                --accent: #6b8e74;
-                --accent-light: #1c241f;
-                --border: #222222;
-                --code-bg: #161616;
-                --alert-note: #2f81f7;
-                --alert-tip: #3fb950;
-                --alert-important: #a371f7;
-                --alert-warning: #d4a72c;
-                --alert-caution: #f85149;
-                --promo-text: #dfe6e1;";
-
-        var darkModeMediaQuery = enableDarkMode
-            ? $@"@media (prefers-color-scheme: dark) {{
-            :root:not([data-theme=""light""]) {{{darkVars}
-            }}
-        }}
-        :root[data-theme=""dark""] {{{darkVars}
-        }}"
-            : "";
+        var activeTheme = theme ?? ThemeRegistry.Default;
+        var themeTokenCss = ThemeCssBuilder.BuildTokenCss(activeTheme, enableDarkMode);
 
         var nonceAttr = nonce is { Length: > 0 } ? $" nonce=\"{nonce}\"" : "";
         // Pre-<style> so no transition can fire; without a stored theme, data-theme stays unset so CSS follows live OS changes.
@@ -163,7 +140,7 @@ public static partial class LayoutProvider
 
         return $@"
 <!DOCTYPE html>
-<html lang=""{HtmlEncode(lang)}"">
+<html lang=""{HtmlEncode(lang)}"" class=""theme-{HtmlEncode(activeTheme.Name)}"">
 <head>
     <meta charset=""UTF-8"">
     {themeInitScript}
@@ -178,8 +155,8 @@ public static partial class LayoutProvider
     {rssDiscoveryHtml}
     {faviconHtml}
     {headTagsHtml}
+    {GetStyles(themeTokenCss, activeTheme.ComponentCss, nonce)}
     {themeCss}
-    {GetStyles(darkModeMediaQuery, nonce)}
     {(hasMath ? $"<link rel=\"stylesheet\" href=\"{basePath}/css/katex.min.css\">" : "")}
     {(hasMermaid ? $"<script defer src=\"{basePath}/js/mermaid.min.js\"></script>" : "")}
 </head>
@@ -259,11 +236,13 @@ public static partial class LayoutProvider
 </html>";
     }
 
-    public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "", string lang = "en")
+    public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "", string lang = "en", IBarkTheme? theme = null)
     {
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
-        // Build outside the interpolated block so JS/CSS braces don't need escaping.
-        const string darkVars = "--bg-color:#0b0b0b;--text-color:#e5e5e5;--text-muted:#a0a0a0;--accent:#6b8e74";
+        var activeTheme = theme ?? ThemeRegistry.Default;
+        // Built outside the interpolated block so JS/CSS braces don't need escaping.
+        var darkVars = ThemeCssBuilder.BuildMinimalTokenCss(activeTheme);
+        var lightVars = ThemeCssBuilder.BuildMinimalLightTokenCss(activeTheme);
         const string themeInit = "<script>(function(){" +
             "function apply(){try{var t=localStorage.getItem('bark-theme');var r=document.documentElement;" +
             "if(t==='dark'||t==='light'){r.setAttribute('data-theme',t);r.style.colorScheme=t;}" +
@@ -272,7 +251,7 @@ public static partial class LayoutProvider
             "apply();" +
             "window.addEventListener('pageshow',function(e){if(e.persisted)apply();});" +
             "})()</script>";
-        const string darkCss = "@media (prefers-color-scheme: dark) {" +
+        var darkCss = "@media (prefers-color-scheme: dark) {" +
             ":root:not([data-theme=\"light\"]) {" + darkVars + "}" +
             "}" +
             ":root[data-theme=\"dark\"] {" + darkVars + "}";
@@ -286,11 +265,7 @@ public static partial class LayoutProvider
     <title>Page Not Found</title>
     <style>
         :root {{
-            --bg-color: #fafafa;
-            --text-color: #1a1a1a;
-            --text-muted: #666666;
-            --accent: #2e4a36;
-            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, ""Segoe UI"", Roboto, sans-serif;
+{lightVars}            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, ""Segoe UI"", Roboto, sans-serif;
         }}
         {darkCss}
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}

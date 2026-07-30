@@ -47,4 +47,4 @@ You can, of course, reference assets from external sources if you prefer:
 
 ## Theme assets
 
-If you would like to apply theme overrides, Bark auto-detects files like `custom.css` or `custom.js`. Drop them into the `wwwroot/theme/` folder and Bark will pick them up at startup without requiring any configuration edits. See [Extending Themes](/getting-started/extending-themes) for more details on this process. N
+If you would like to apply theme overrides, Bark auto-detects files like `custom.css` or `custom.js`. Drop them into the `wwwroot/theme/` folder and Bark will pick them up at startup without requiring any configuration edits. See [Themes](/getting-started/themes) for more details on this process. N

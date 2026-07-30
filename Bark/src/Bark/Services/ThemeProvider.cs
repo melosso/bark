@@ -12,7 +12,9 @@ public static class ThemeProvider
 
         var vars = new List<string>();
 
+        // --primary-color is the documented name; --accent is what the stylesheet reads. Emit both.
         AddVar(vars, "--primary-color", theme.PrimaryColor);
+        AddVar(vars, "--accent", theme.PrimaryColor);
         AddVar(vars, "--bg-color", theme.BgColor);
         AddVar(vars, "--sidebar-bg", theme.SidebarBg);
         AddVar(vars, "--text-color", theme.TextColor);
@@ -26,7 +28,8 @@ public static class ThemeProvider
         if (vars.Count == 0)
             return string.Empty;
 
-        return "<style>\n:root {\n" + string.Join("\n", vars) + "\n}\n</style>";
+        // Both selectors, so an override outranks the theme's light and dark blocks. Mode-agnostic by design.
+        return "<style>\n:root, :root[data-theme=\"dark\"] {\n" + string.Join("\n", vars) + "\n}\n</style>";
     }
 
     public static string BuildCustomCssLink(ThemeOptions? theme, string? autoDetectedCssUrl = null, string basePath = "")

@@ -8,6 +8,9 @@ public class Config
     public string? Lang { get; set; }
     public List<HeadTag>? Head { get; set; }
 
+    /// <summary>Theme name, e.g. <c>"forest-ledger"</c>. Unknown names fall back to the default theme.</summary>
+    public string? Theme { get; set; }
+
     public string? Brand { get; set; }
     public string? BrandImage { get; set; }
     public string? Image { get; set; }

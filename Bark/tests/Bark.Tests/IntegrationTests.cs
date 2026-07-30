@@ -205,3 +205,71 @@ public sealed class RateLimitIntegrationTests
         Assert.Equal(HttpStatusCode.TooManyRequests, lastStatus);
     }
 }
+
+/// <summary>Boots the app with a themed config.json, so theme selection goes through the real config load.</summary>
+public sealed class ThemedWebApplicationFactory(string themeName) : WebApplicationFactory<Program>
+{
+    private readonly string _docsDir =
+        Path.Combine(Path.GetTempPath(), "bark-theme-" + Guid.NewGuid().ToString("N"));
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        Directory.CreateDirectory(_docsDir);
+        File.WriteAllText(Path.Combine(_docsDir, "index.md"),
+            "---\ntitle: Home\nlayout: home\nhero:\n  name: Bark\n  text: Markdown in, docs site out.\n  tagline: Drop in a folder.\nfeatures:\n  - icon: \"\\U0001F4DD\"\n    title: One\n    details: First feature.\n  - icon: \"\\u26A1\"\n    title: Two\n    details: Second feature.\n---\n");
+        Directory.CreateDirectory(Path.Combine(_docsDir, "guide"));
+        File.WriteAllText(Path.Combine(_docsDir, "guide", "install.md"),
+            "---\ntitle: Install\n---\n\n# Install\n\n> [!NOTE]\n> Themed.\n\n```csharp\nvar x = 1;\n```\n");
+        File.WriteAllText(Path.Combine(_docsDir, "config.json"),
+            $$"""{"theme": "{{themeName}}", "promo": "**News** [changelog](/guide/install)"}""");
+
+        builder.UseSetting("urls", "http://127.0.0.1:0");
+        builder.UseSetting("Docs:RootPath", _docsDir);
+        builder.UseSetting("Docs:EnableHotReload", "false");
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (Directory.Exists(_docsDir))
+            Directory.Delete(_docsDir, true);
+    }
+}
+
+public sealed class ThemeIntegrationTests
+{
+    public static TheoryData<string> ThemeNames() => [.. Bark.Services.Theming.ThemeRegistry.All.Select(t => t.Name)];
+
+    [Theory]
+    [MemberData(nameof(ThemeNames))]
+    public async Task EveryTheme_RendersHomeDocsAndNotFound(string themeName)
+    {
+        using var factory = new ThemedWebApplicationFactory(themeName);
+        var client = factory.CreateClient();
+
+        foreach (var path in new[] { "/", "/guide/install" })
+        {
+            var response = await client.GetAsync(path);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var html = await response.Content.ReadAsStringAsync();
+            Assert.Contains($"class=\"theme-{themeName}\"", html);
+            Assert.Contains("@media (prefers-color-scheme: dark)", html);
+            Assert.Contains(":root[data-theme=\"dark\"]", html);
+        }
+
+        var missing = await client.GetAsync("/no-such-page");
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+    }
+
+    [Fact]
+    public async Task UnknownThemeName_FallsBackToDefaultAndStillServes()
+    {
+        using var factory = new ThemedWebApplicationFactory("not-a-real-theme");
+        var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("class=\"theme-default\"", await response.Content.ReadAsStringAsync());
+    }
+}

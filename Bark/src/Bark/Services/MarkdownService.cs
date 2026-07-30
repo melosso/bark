@@ -127,10 +127,15 @@ public sealed partial class MarkdownService
                     .Append("</div>");
             }
 
+            // `name` is the kicker, so `text` takes the <h1>; a name-only hero keeps it.
+            var hasHeadline = !string.IsNullOrWhiteSpace(hero.Text);
             if (!string.IsNullOrWhiteSpace(hero.Name))
-                sb.Append("<h1 class=\"bark-hero-name\">").Append(WebUtility.HtmlEncode(hero.Name)).Append("</h1>");
-            if (!string.IsNullOrWhiteSpace(hero.Text))
-                sb.Append("<p class=\"bark-hero-text\">").Append(WebUtility.HtmlEncode(hero.Text)).Append("</p>");
+            {
+                var tag = hasHeadline ? "p" : "h1";
+                sb.Append($"<{tag} class=\"bark-hero-name\">").Append(WebUtility.HtmlEncode(hero.Name)).Append($"</{tag}>");
+            }
+            if (hasHeadline)
+                sb.Append("<h1 class=\"bark-hero-text\">").Append(WebUtility.HtmlEncode(hero.Text)).Append("</h1>");
             if (!string.IsNullOrWhiteSpace(hero.Tagline))
                 sb.Append("<p class=\"bark-hero-tagline\">").Append(WebUtility.HtmlEncode(hero.Tagline)).Append("</p>");
 

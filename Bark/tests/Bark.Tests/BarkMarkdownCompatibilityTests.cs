@@ -403,8 +403,9 @@ const x = 1;
 
         Assert.Equal("home", result.Layout);
         Assert.Contains("<div class=\"bark-home\">", result.Html);
-        Assert.Contains("<h1 class=\"bark-hero-name\">Bark</h1>", result.Html);
-        Assert.Contains("Markdown in, docs site out.", result.Html);
+        // `text` is the headline, so it owns the <h1>; `name` is the kicker above it.
+        Assert.Contains("<p class=\"bark-hero-name\">Bark</p>", result.Html);
+        Assert.Contains("<h1 class=\"bark-hero-text\">Markdown in, docs site out.</h1>", result.Html);
         Assert.Contains("class=\"bark-hero-action brand\"", result.Html);
         // Theme omitted -> defaults to "brand".
         Assert.Contains("href=\"https://github.com/example/bark\"", result.Html);

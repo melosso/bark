@@ -6,6 +6,28 @@ namespace Bark.Tests;
 public sealed class ThemeProviderTests
 {
     [Fact]
+    public void BuildThemeCss_PrimaryColor_AlsoEmitsAccent()
+    {
+        // --primary-color is the documented field name; --accent is what the stylesheet reads.
+        var css = ThemeProvider.BuildThemeCss(new ThemeOptions { PrimaryColor = "#7c3aed" });
+        Assert.Contains("--primary-color: #7c3aed;", css);
+        Assert.Contains("--accent: #7c3aed;", css);
+    }
+
+    [Fact]
+    public void BuildThemeCss_TargetsBothLightAndDarkRoots()
+    {
+        var css = ThemeProvider.BuildThemeCss(new ThemeOptions { BgColor = "#fff" });
+        Assert.Contains(":root, :root[data-theme=\"dark\"]", css);
+    }
+
+    [Fact]
+    public void BuildThemeCss_NoValuesSet_ReturnsEmpty()
+    {
+        Assert.Equal("", ThemeProvider.BuildThemeCss(new ThemeOptions()));
+    }
+
+    [Fact]
     public void BuildCustomCssLink_ConfiguredRootRelative_ResolvesBasePath()
     {
         var theme = new ThemeOptions { CustomCssUrl = "/theme/custom.css" };

@@ -2,39 +2,9 @@ namespace Bark.Services.Layout;
 
 public static partial class LayoutProvider
 {
-    private static string GetStyles(string darkModeMediaQuery, string? nonce = null) => $@"    <style{GetNonceAttr(nonce)}>
-        :root {{
-            color-scheme: light;
-            --bg-color: #fafafa;
-            --sidebar-bg: #f4f4f4;
-            --text-color: #1a1a1a;
-            --text-muted: #666666;
-            --accent: #2e4a36;
-            --accent-light: #e8ece9;
-            --border: #e5e5e5;
-            --code-bg: #f0f0f0;
-            --alert-note: #0969da;
-            --alert-tip: #1a7f37;
-            --alert-important: #8250df;
-            --alert-warning: #9a6700;
-            --alert-caution: #cf222e;
-            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, ""Segoe UI"", Roboto, sans-serif;
-            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
-            --search-bg: var(--sidebar-bg);
-            --search-border: var(--border);
-            --search-hover-border: var(--accent);
-            --nav-hover-bg: var(--code-bg);
-            --nav-active-bg: var(--accent-light);
-            --overlay-bg: rgba(0, 0, 0, 0.5);
-            --code-button-bg: var(--bg-color);
-            --code-button-border: var(--border);
-            --code-button-hover: var(--accent);
-            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-            --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.3);
-        }}
-        {darkModeMediaQuery}
-        * {{
+    /// <summary>Theme palette then component overrides, appended last so they win. One nonce'd style element, no second tag.</summary>
+    private static string GetStyles(string themeTokenCss, string themeComponentCss, string? nonce = null) => $@"    <style{GetNonceAttr(nonce)}>
+{themeTokenCss}        * {{
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -45,6 +15,9 @@ public static partial class LayoutProvider
             overflow-x: clip;
         }}
         body {{
+            display: flex;
+            flex-direction: column;
+            min-height: 100dvh;
             font-family: var(--font-sans);
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -77,8 +50,6 @@ public static partial class LayoutProvider
         }}
         :root {{
             --topbar-height: 57px;
-            --promo-bg: var(--accent-light);
-            --promo-text: var(--accent);
         }}
         /* z-index scale: sidebar-overlay 1001 < topbar 1002 < mobile drawer 1003 < skip-link 1100
            < scroll-indicator 1101, so the indicator stays visible above the opaque topbar. */
@@ -96,6 +67,13 @@ public static partial class LayoutProvider
         .icon-btn svg {{
             width: 18px;
             height: 18px;
+        }}
+        .social-links .icon-btn {{
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }}
+        .social-links .icon-btn:hover {{
+            border-color: var(--accent);
         }}
         .promo-bar {{
             display: grid; grid-template-rows: 1fr;
@@ -164,8 +142,12 @@ public static partial class LayoutProvider
             text-decoration: none; background: none; border: none; cursor: pointer;
             padding: 0; font-family: inherit;
         }}
-        .top-nav-link:hover, .top-nav-link.active {{
+        .top-nav-link:hover {{
             color: var(--accent);
+        }}
+        .top-nav-link.active {{
+            color: var(--text-color);
+            font-weight: 650;
         }}
         .top-nav-chevron {{
             width: 14px;
@@ -203,7 +185,8 @@ public static partial class LayoutProvider
         .layout {{
             display: grid;
             grid-template-columns: 270px 1fr 270px;
-            min-height: calc(100vh - var(--topbar-height));
+            /* Basis auto: `flex: 1` sizes from 0, capping long pages at one viewport and cutting sticky range. */
+            flex: 1 0 auto;
         }}
         .layout.no-left-sidebar {{
             grid-template-columns: 1fr 270px;
@@ -231,31 +214,29 @@ public static partial class LayoutProvider
             height: 22px; width: auto; vertical-align: middle; margin-right: 0.75rem;
         }}
         .theme-toggle {{
-            position: relative; flex-shrink: 0; width: 48px; height: 28px;
-            border: 1px solid var(--border); border-radius: 999px; padding: 0;
-            background-color: var(--code-bg); cursor: pointer;
-            transition: background-color 0.15s ease, border-color 0.15s ease;
+            position: relative; flex-shrink: 0; width: 34px; height: 34px;
+            border: 1px solid var(--border); border-radius: 50%; padding: 0;
+            background-color: transparent; cursor: pointer;
+            transition: border-color 0.15s ease;
         }}
         .theme-toggle:hover {{
             border-color: var(--accent);
         }}
         .theme-toggle-thumb {{
-            position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
-            border-radius: 50%; background-color: var(--bg-color);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+            width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }}
         .theme-toggle-thumb svg {{
-            width: 13px;
-            height: 13px;
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+            transition: color 0.15s ease;
+        }}
+        .theme-toggle:hover .theme-toggle-thumb svg {{
             color: var(--accent);
         }}
         .theme-toggle-thumb .icon-moon {{
             display: none;
-        }}
-        :root[data-theme=""dark""] .theme-toggle-thumb {{
-            transform: translateX(20px);
         }}
         :root[data-theme=""dark""] .theme-toggle-thumb .icon-sun {{
             display: none;
@@ -264,9 +245,6 @@ public static partial class LayoutProvider
             display: block;
         }}
         @media (prefers-color-scheme: dark) {{
-            :root:not([data-theme=""light""]) .theme-toggle-thumb {{
-                transform: translateX(20px);
-            }}
             :root:not([data-theme=""light""]) .theme-toggle-thumb .icon-sun {{
                 display: none;
             }}
@@ -305,6 +283,12 @@ public static partial class LayoutProvider
             padding: 0.1rem 0.35rem; background-color: var(--bg-color); color: var(--text-muted);
             pointer-events: none;
             user-select: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }}
+        .search-trigger:hover .search-trigger-kbd,
+        .search-trigger:focus-visible .search-trigger-kbd {{
+            opacity: 1;
         }}
         .search-overlay {{
             position: fixed; inset: 0; z-index: 1200;
@@ -550,15 +534,24 @@ public static partial class LayoutProvider
         .bark-home-layout .main-container {{
             max-width: 100%;
             padding: 0;
+            display: flex;
+            flex-direction: column;
         }}
         .bark-home-content {{
             max-width: 960px;
             margin: 0 auto;
             padding: 0 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }}
+        .bark-home-content .content-footer {{
+            margin-top: auto;
         }}
         .bark-hero {{
             text-align: center;
-            padding: 4.5rem 1.5rem 3.5rem;
+            padding: 4.5rem 1.5rem 5rem;
         }}
         .bark-hero-image {{
             font-size: 4rem;
@@ -570,16 +563,32 @@ public static partial class LayoutProvider
             max-height: 200px;
         }}
         .bark-hero-name {{
-            font-size: 2.75rem; font-weight: 700; letter-spacing: -0.02em;
-            color: var(--accent); margin-bottom: 0.5rem;
+            font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--accent); margin-bottom: 1.1rem;
         }}
         .bark-hero-text {{
-            font-size: 2rem; font-weight: 600; color: var(--text-color);
-            letter-spacing: -0.02em; margin-bottom: 1rem;
+            font-size: 3rem; font-weight: 700; color: var(--text-color);
+            letter-spacing: -0.03em; margin-bottom: 1.1rem;
         }}
         .bark-hero-tagline {{
             font-size: 1.15rem; color: var(--text-muted); max-width: 540px;
-            margin: 0 auto 2rem;
+            margin: 0 auto 2.75rem;
+        }}
+        @media (min-width: 1500px) {{
+            .bark-home-content {{
+                max-width: 1180px;
+            }}
+            .bark-hero {{
+                padding: 7rem 1.5rem 6.5rem;
+            }}
+            .bark-hero-text {{
+                font-size: 3.5rem;
+            }}
+            .bark-hero-tagline {{
+                font-size: 1.25rem;
+                max-width: 620px;
+                margin-bottom: 3.25rem;
+            }}
         }}
         .bark-hero-actions {{
             display: flex;
@@ -605,27 +614,34 @@ public static partial class LayoutProvider
         .bark-hero-action.alt:hover {{
             background-color: var(--accent-light);
         }}
+        /* margin-bottom is the gap floor: the footer's margin-top: auto resolves to 0 once the page fills. */
         .bark-features {{
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.25rem; padding: 1rem 1.5rem 4rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2.5rem 3rem; margin: 0 0 3rem;
         }}
         .bark-feature {{
-            display: block; padding: 1.5rem; border: 1px solid var(--border);
-            border-radius: 10px; background-color: var(--sidebar-bg);
-            text-decoration: none; color: inherit; transition: border-color 0.15s ease;
+            display: grid; grid-template-columns: auto 1fr;
+            column-gap: 0.6rem; align-content: start;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+            text-decoration: none; color: inherit;
         }}
-        a.bark-feature:hover {{
-            border-color: var(--accent);
+        a.bark-feature:hover .bark-feature-title {{
+            color: var(--accent);
         }}
         .bark-feature-icon {{
-            font-size: 1.75rem;
-            margin-bottom: 0.75rem;
+            grid-column: 1; grid-row: 1;
+            display: inline-flex; align-items: center;
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            background: none;
         }}
-        .bark-feature-icon img {{ 
-            width: 1.75rem; height: 1.75rem; object-fit: contain; 
+        .bark-feature-icon img {{
+            width: 1.15rem; height: 1.15rem; object-fit: contain;
         }}
-        .bark-feature-icon svg {{   
-            width: 1.75rem; height: 1.75rem; 
+        .bark-feature-icon svg {{
+            width: 1.15rem; height: 1.15rem;
+            stroke: currentColor; stroke-width: 1.5; fill: none;
         }}
         .bark-icon-dark {{ 
             display: none; 
@@ -641,14 +657,18 @@ public static partial class LayoutProvider
             display: inline; 
         }}
         .bark-feature-title {{
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
+            grid-column: 2; grid-row: 1;
+            font-size: 1rem;
+            font-weight: 650;
+            margin: 0;
+            transition: color 0.15s ease;
         }}
         .bark-feature-details {{
-            font-size: 0.875rem;
+            grid-column: 1 / -1; grid-row: 2;
+            margin-top: 0.6rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            line-height: 1.5;
+            line-height: 1.55;
         }}
         .page-controls {{ 
             position: relative; margin-left: auto; flex-shrink: 0; 
@@ -725,7 +745,8 @@ public static partial class LayoutProvider
             color: var(--text-color);
             font-weight: 500;
         }}
-        .content h1 {{
+        /* Element-scoped prose outranks the .bark-* classes; excluding them keeps themes able to override. */
+        .content h1:not(.bark-hero-text):not(.bark-hero-name) {{
             font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em;
             margin-bottom: 1rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
@@ -780,12 +801,12 @@ public static partial class LayoutProvider
         .content h6:hover .header-anchor, .header-anchor:focus {{
             opacity: 1;
         }}
-        .content h2 {{
+        .content h2:not(.bark-feature-title) {{
             font-size: 1.4rem; font-weight: 500; letter-spacing: -0.02em;
             margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.3rem;
             border-bottom: 1px solid var(--border); scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
-        .content p {{
+        .content p:not(.bark-hero-tagline):not(.bark-feature-details) {{
             color: var(--text-color); margin-bottom: 1.25rem;
             text-decoration-color: var(--border); text-underline-offset: 2px;
         }}
@@ -796,6 +817,12 @@ public static partial class LayoutProvider
         }}
         .content a:hover {{
             text-decoration-color: var(--accent);
+        }}
+        .content a.bark-hero-action, .content a.bark-feature {{
+            text-decoration: none;
+        }}
+        .content a.bark-feature {{
+            color: inherit;
         }}
         .content ul, .content ol {{
             padding-left: 1.5rem; margin-bottom: 1.25rem;
@@ -1368,14 +1395,18 @@ public static partial class LayoutProvider
             .main-container {{
                 padding: 2rem 1.5rem;
             }}
-            .bark-hero-name {{ 
-                font-size: 2rem; 
+            .bark-hero {{
+                padding: 2.5rem 1.5rem 3rem;
             }}
-            .bark-hero-text {{ 
-                font-size: 1.4rem; 
+            .bark-hero-name {{
+                font-size: 0.72rem;
             }}
-            .bark-hero-tagline {{ 
-                font-size: 1rem; 
+            .bark-hero-text {{
+                font-size: 1.9rem;
+            }}
+            .bark-hero-tagline {{
+                font-size: 1rem;
+                margin-bottom: 2rem;
             }}
             .menu-toggle {{
                 display: inline-flex;
@@ -1446,6 +1477,7 @@ public static partial class LayoutProvider
                 scroll-behavior: auto !important;
             }}
         }}
+{themeComponentCss}
 </style>
 ";
 }

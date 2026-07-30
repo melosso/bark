@@ -6,8 +6,9 @@
   "brandImage": "/brand-image.svg",
   "favicon": "🌳",
   "lastUpdated": true,
-  "promo": "**Big news!** Version 0.1.0 is out now! Check out the [release notes](https://github.com/melosso/bark/releases).",
-  "footer": "Built with Bark · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE)",
+  "theme": "default",
+  "promo": "**New:** version 0.2.0 is available. Read the [release notes](https://github.com/melosso/bark/releases).",
+  "footer": "Built with Bark · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE). Host your own instance now! [Learn more](https://github.com/melosso/bark){target=\"_blank\" rel=\"noopener\"}.",
   "topNav": [
     { "text": "Home", "link": "/" },
     { "text": "Guide", "link": "what-is-bark" },
@@ -47,7 +48,7 @@
         "title": "Customisation",
         "collapsed": false,
         "items": [
-          { "title": "Extending Themes", "path": "getting-started/extending-themes" }
+          { "title": "Themes", "path": "getting-started/themes" }
         ]
       },
       {

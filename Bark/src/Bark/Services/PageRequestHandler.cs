@@ -6,6 +6,7 @@ using Bark.Models;
 using Bark.Services.Extensions;
 using Bark.Services.Layout;
 using Bark.Services.Rendering;
+using Bark.Services.Theming;
 
 namespace Bark.Services;
 
@@ -17,7 +18,8 @@ public sealed record PageRequestSettings(
     string? AutoCustomJsUrl,
     string WebRootPath,
     string DocsRootAbsolute,
-    string? PublicBaseUrl)
+    string? PublicBaseUrl,
+    string? CliTheme = null)
 {
     /// <summary>Blank means absent. An empty setting must not count as "configured" and mask a later source.</summary>
     public static string? Normalize(string? value) =>
@@ -93,6 +95,9 @@ public sealed class PageRequestHandler
 
         var config = _docs.SiteConfig;
 
+        // Per request, not at startup: config.json hot-reloads, appsettings does not.
+        var theme = ThemeRegistry.Resolve(_settings.CliTheme ?? _themeOptions.Name ?? config?.Theme);
+
         var page = await _docs.GetPageAsync(path, context.RequestAborted);
         if (page == null && isRootRequest)
             page = await BuildSafeRootPage(_docs, basePath, context.RequestAborted);
@@ -101,7 +106,7 @@ public sealed class PageRequestHandler
         {
             context.Response.StatusCode = 404;
             context.Response.ContentType = "text/html; charset=utf-8";
-            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath, config?.Lang ?? "en"));
+            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath, config?.Lang ?? "en", theme));
             return;
         }
 
@@ -268,7 +273,8 @@ public sealed class PageRequestHandler
             rssDiscoveryHtml: rssDiscoveryHtml,
             promoBarHtml: promoBarHtml,
             socialMetaHtml: socialMetaHtml,
-            structuredDataHtml: structuredDataHtml
+            structuredDataHtml: structuredDataHtml,
+            theme: theme
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";

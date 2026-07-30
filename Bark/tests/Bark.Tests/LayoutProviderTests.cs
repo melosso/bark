@@ -95,6 +95,24 @@ public sealed class LayoutProviderTests
     }
 
     [Fact]
+    public void GetLayout_UserThemeCss_ComesAfterTheBaseStylesheet()
+    {
+        // Same specificity, so document order decides; before this, theme.json and custom.css did nothing.
+        var themeCss = "<style>:root, :root[data-theme=\"dark\"] { --accent: red; }</style>";
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            themeCss);
+
+        var baseTokens = html.IndexOf("--accent: #", StringComparison.Ordinal);
+        var userOverride = html.IndexOf("--accent: red;", StringComparison.Ordinal);
+
+        Assert.True(baseTokens >= 0, "base stylesheet emitted no --accent token");
+        Assert.True(userOverride > baseTokens, "user theme CSS must come after the base stylesheet");
+    }
+
+    [Fact]
     public void GetLayout_HtmlEncodesTitle()
     {
         var html = LayoutProvider.GetLayout(

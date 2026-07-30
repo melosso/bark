@@ -34,7 +34,7 @@ There are two ways to apply your own theme, and they complement each other nicel
 
 If you would rather track theme settings in version control alongside the rest of your infrastructure, the `Docs:Themes` section of `appsettings.json` offers the same options. When `Docs:Themes` is present it takes full priority over `theme.json`, so the two are not merged.
 
-See [Extending Themes](/getting-started/extending-themes) for a practical walkthrough of both approaches.
+See [Themes](/getting-started/themes) for a practical walkthrough of both approaches.
 
 **Configuration**
 
@@ -42,7 +42,8 @@ Every field here is optional. Each one is either a CSS variable override or a th
 
 | Option | Type | Maps to | Description |
 |---|---|---|---|
-| `PrimaryColor` | `string` | `--primary-color` | Accent color used for links and highlights. |
+| `Name` | `string` | n/a | Built-in theme name. Overrides `config.json`'s `theme`; the `--theme` flag overrides both. |
+| `PrimaryColor` | `string` | `--primary-color`, `--accent` | Accent color used for links and highlights. Applies to both light and dark mode. |
 | `BgColor` | `string` | `--bg-color` | Page background. |
 | `SidebarBg` | `string` | `--sidebar-bg` | Sidebar background, which can differ from the page background. |
 | `TextColor` | `string` | `--text-color` | Primary text color. |
@@ -67,6 +68,7 @@ These settings shape how your site presents itself to readers, search engines, a
 | `titleTemplate` | `string?` | Custom title pattern using `:title` and `:siteName` as placeholders. For example, `":title · :siteName"` produces `Getting Started · Bark`. Overrides the default suffix format when set. |
 | `description` | `string?` | Site-wide fallback `<meta name="description">`. Per-page frontmatter descriptions take priority over this value. |
 | `lang` | `string?` | `lang` attribute on `<html>`. Defaults to `"en"`. |
+| `theme` | `string?` | Built-in theme name: `default`, `forest-ledger`, `signal-dark`, `blueprint-grid`, `ocean`, `deep-space`, `solarized` or `laserwave`. Defaults to `default`. Unknown names log a warning and fall back to the default. Overridden by `Docs:Themes:Name` and the `--theme` flag. See [Themes](/getting-started/themes#picking-a-theme). |
 | `head` | `HeadTag[]?` | Extra tags injected into `<head>` on every page. Useful for third-party verification tags or your own extra structured data. Bark generates canonical links, the full Open Graph and Twitter Card set (including `og:image`), and a JSON-LD block automatically, so those do not need to be listed here. |
 | `brand` | `string?` | Sidebar and header brand label. Falls back to `title` if unset, then to `Docs:Themes:BrandText`. |
 | `brandImage` | `string?` | An image URL or path to display alongside the brand label in the header, placed to the left of the text. |
@@ -225,6 +227,7 @@ When launching Bark directly from the terminal rather than through Docker or a p
 | `--export <dir>` | | Writes a static HTML export to the given directory and exits. Disables hot reload automatically. |
 | `--base-url <origin>` | | The public origin used when building absolute URLs in `robots.txt` and `llms.txt`. |
 | `--base-path </prefix>` | `Docs:BasePath` | Prefixes all links, theme assets, and API routes with this path segment. Particularly useful for GitHub Pages project sites or reverse proxies mounting Bark under a subpath. |
+| `--theme <name>` | `Docs:Themes:Name`, `config.json` `theme` | Forces a built-in theme for this run. Handy for previewing a theme, or exporting the same docs under several looks. |
 
 ## What Bark does not configure
 

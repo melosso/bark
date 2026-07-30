@@ -127,6 +127,10 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        // DI can dispose this singleton before the host stops it; cancelling a disposed CTS would fail shutdown.
+        if (_disposed)
+            return Task.CompletedTask;
+
         _shutdownCts.Cancel();
         _watcher?.Dispose();
         _configWatcher?.Dispose();
