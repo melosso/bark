@@ -4,8 +4,7 @@ using System.Text;
 namespace Bark.Configuration;
 
 /// <summary>
-/// Derives a secure, unpredictable CSP nonce from the ETag.
-/// Keeps nonces unique per response while ensuring 304 Not Modified responses stay consistent.
+/// Derives an unpredictable CSP nonce from the ETag, so it stays unique per response and consistent across 304s.
 /// </summary>
 public static class CspNonce
 {
@@ -40,8 +39,7 @@ public static class SecurityHeaders
         context.Response.Headers.ContentSecurityPolicy = contentSecurityPolicy;
         context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()";
         context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin";
-        // same-site, not same-origin: docs images and fonts are routinely embedded from a sibling
-        // host (blog.example.com pulling docs.example.com/assets), which same-origin would break.
+        // same-site, not same-origin: sibling hosts routinely embed docs images and fonts.
         context.Response.Headers["Cross-Origin-Resource-Policy"] = "same-site";
         context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
 

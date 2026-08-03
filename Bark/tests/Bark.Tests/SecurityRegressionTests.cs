@@ -65,8 +65,7 @@ public sealed class SecurityRegressionTests : IDisposable
     [Fact]
     public void MarkdownService_RawHtmlInContent_PassesThroughUnsanitized()
     {
-        // Markdig does not sanitize raw HTML by design. Docs are authored content, not
-        // untrusted user input, so this is accepted - but it must not change silently.
+        // Markdig does not sanitize raw HTML by design; docs are authored content, but this must not change silently.
         var markdown = new MarkdownService();
         var result = markdown.Parse("<script>alert('xss')</script>\n\n# Heading");
 
@@ -76,10 +75,7 @@ public sealed class SecurityRegressionTests : IDisposable
     [Fact]
     public async Task Search_ExcerptIsDecodedPlainText_CallerMustEncodeBeforeDisplay()
     {
-        // GetExcerpt intentionally HTML-decodes matched content (see SearchIndex.cs comment) so
-        // callers don't double-escape. That means the API contract requires the frontend to
-        // HTML-encode the excerpt before rendering - locking this in so it isn't "fixed" into a
-        // double-escaping bug later.
+        // GetExcerpt decodes so callers don't double-escape, which makes encoding before display part of the API contract.
         await File.WriteAllTextAsync(Path.Combine(_tempDir, "index.md"),
             "# Home\n\n`<script>alert(1)</script>` marks unsafe code samples.\n");
         await _service.StartAsync(CancellationToken.None);
@@ -108,9 +104,7 @@ public sealed class SecurityRegressionTests : IDisposable
     [Fact]
     public async Task SecurityHeaders_ImgSrc_StaysSelfOnly_CodeGroupIconsAreVendoredLocally()
     {
-        // Code-group icons ship under wwwroot/icons by default (CodeGroupIconOptions.BaseUrl = "/icons"),
-        // so img-src must not trust a CDN. Widening this again means BaseUrl got pointed at a CDN
-        // by default again - which is the exact thing this test exists to catch.
+        // Code-group icons ship under wwwroot/icons, so a widened img-src means BaseUrl was pointed at a CDN again.
         var context = new DefaultHttpContext();
         await SecurityHeaders.Apply(context, () => Task.CompletedTask);
 

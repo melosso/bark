@@ -5,8 +5,7 @@ namespace Bark.Configuration;
 
 public static class PortAvailabilityChecker
 {
-    // Probes each configured URL's port before Kestrel binds to it, so a conflict fails fast
-    // with a clear message instead of an opaque exception from app.Run().
+    // Probes each port before Kestrel binds, so a conflict fails fast instead of throwing from app.Run().
     public static bool TryEnsureUrlsAvailable(IEnumerable<string> urls, out int conflictingPort)
     {
         foreach (var rawUrl in urls)

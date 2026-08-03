@@ -10,8 +10,7 @@ public static partial class LayoutProvider
             padding: 0;
         }}
         html, body {{
-            /* `clip` not `hidden` -- `hidden` forces overflow-y to `auto` too, turning body
-               into a scroll container and breaking position: sticky on the sidebars. */
+            /* `clip` not `hidden`: `hidden` makes body a scroll container and breaks sticky sidebars. */
             overflow-x: clip;
         }}
         body {{
@@ -51,8 +50,7 @@ public static partial class LayoutProvider
         :root {{
             --topbar-height: 57px;
         }}
-        /* z-index scale: sidebar-overlay 1001 < topbar 1002 < mobile drawer 1003 < skip-link 1100
-           < scroll-indicator 1101, so the indicator stays visible above the opaque topbar. */
+        /* z-index scale: overlay 1001 < topbar 1002 < drawer 1003 < skip-link 1100 < scroll-indicator 1101. */
         .icon-btn {{
             display: inline-flex; align-items: center; justify-content: center;
             width: 36px; height: 36px; border-radius: 6px; border: none;
@@ -446,10 +444,8 @@ public static partial class LayoutProvider
         .nav-item.active a {{
             color: var(--accent); background-color: var(--nav-active-bg); font-weight: 500;
         }}
-        /* .sidebar-group-title stays a plain <div>; <summary> can't be fully de-styled across
-           engines, so summary.sidebar-group-summary just wraps it as a click target. */
-        /* Each .sidebar-group-items adds 0.9rem left padding; depth compounds via nesting,
-           no per-level overrides needed. Root list gets no padding. */
+        /* <summary> can't be fully de-styled across engines, so it only wraps the plain title div as a click target. */
+        /* Padding compounds through nesting, so depth needs no per-level overrides. */
         .sidebar-tree {{
             font-size: 0.9rem;
         }}
@@ -481,8 +477,7 @@ public static partial class LayoutProvider
             font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
             color: var(--text-muted); font-weight: 600; flex: 1; margin: 0;
         }}
-        /* Ancestors get a text-color cue only; the highlighted background is reserved for the
-           one active leaf link, so a nested active page doesn't stack backgrounds at every level. */
+        /* Ancestors get a color cue only; the background is reserved for the one active leaf. */
         .sidebar-group-title.has-active h2, .sidebar-group-title.has-active h3 {{
             color: var(--accent);
         }}
@@ -507,8 +502,7 @@ public static partial class LayoutProvider
         .sidebar-link {{
             margin-bottom: 0.1rem;
         }}
-        /* Top-level entries get a divider between sections; scoped to direct children of
-           .sidebar-tree so items inside a group stay tightly packed. */
+        /* Direct children only, so items inside a group stay tightly packed. */
         .sidebar-tree > .sidebar-group + .sidebar-group,
         .sidebar-tree > .sidebar-group + .sidebar-link,
         .sidebar-tree > .sidebar-link + .sidebar-group,
@@ -766,8 +760,7 @@ public static partial class LayoutProvider
         .content h2, .content h3, .content h4, .content h5, .content h6 {{
             position: relative;
         }}
-        /* Jumping to a heading or footnote via URL hash (TOC links, footnote refs/back-refs)
-           should visibly show where you landed, not just scroll there silently. */
+        /* A hash jump should show where you landed, not scroll there silently. */
         .content h1:target, .content h2:target, .content h3:target,
         .content h4:target, .content h5:target, .content h6:target {{
             animation: bark-target-flash 2s ease-out;
@@ -1191,11 +1184,7 @@ public static partial class LayoutProvider
         .markdown-alert > :last-child {{
             margin-bottom: 0;
         }}
-        /* Inline badge: <Badge type=""tip"">text</Badge> in raw Markdown. Markdig passes unrecognized
-           tags through as raw HTML and lowercases them, so plain CSS on <badge> is enough -- no
-           extension needed. Self-closing `<Badge .../>` is NOT supported: HTML has no XML-style
-           self-close for unknown elements, so it'd swallow the rest of the paragraph. Always pair
-           with a closing tag. */
+        /* Markdig lowercases unknown raw tags, so CSS on <badge> needs no extension; self-closing `<Badge/>` swallows the paragraph, always pair a closing tag. */
         badge {{
             display: inline-flex; align-items: center; vertical-align: middle;
             margin: 0 0.3rem; padding: 0.15rem 0.55rem; border-radius: 6px;
@@ -1259,8 +1248,7 @@ public static partial class LayoutProvider
             font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
             color: var(--text-muted); margin-bottom: 1rem; font-weight: 600;
         }}
-        /* Containing block for .toc-indicator, which JS positions absolutely regardless of
-           .toc-list/.toc-sublist nesting depth. */
+        /* Containing block for .toc-indicator, which JS positions absolutely at any nesting depth. */
         .toc-list-wrapper {{
             position: relative;
         }}

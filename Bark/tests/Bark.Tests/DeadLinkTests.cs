@@ -156,9 +156,7 @@ public sealed partial class DeadLinkTests : IDisposable
         if (pathOnly.StartsWith('/'))
             return pathOnly.Trim('/').ToLowerInvariant();
 
-        // Relative link: resolve against page URL path (pagePath acts as directory with trailing slash)
-        // e.g. page at /reference/site-config/ + "default-theme-nav" -> /reference/site-config/default-theme-nav
-        // Index page is served at /, not /index/
+        // Relative links resolve against the page path as a directory, and index is served at / not /index/.
         var basePath = pagePath == "index" ? "" : pagePath;
         var combined = $"{basePath}/{pathOnly}";
         var segments = new List<string>();

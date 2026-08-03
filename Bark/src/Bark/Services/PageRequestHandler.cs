@@ -30,9 +30,7 @@ public sealed record PageRequestSettings(
         Normalize(cliBaseUrl) ?? Normalize(docsOption) ?? Normalize(alias);
 
     /// <summary>
-    /// Absolute origin for canonical URLs, feeds and sitemaps. <c>PublicBaseUrl</c> wins when set:
-    /// the Host header is caller-supplied, and ASP.NET leaves host filtering at <c>*</c> unless
-    /// <c>AllowedHosts</c> is configured, so an unconfigured deployment otherwise echoes whatever it is sent.
+    /// Absolute origin for canonical URLs, feeds and sitemaps; <c>PublicBaseUrl</c> wins because the Host header is caller-supplied and unfiltered unless <c>AllowedHosts</c> is set.
     /// </summary>
     public string Origin(HttpContext context) =>
         Normalize(PublicBaseUrl) ?? $"{context.Request.Scheme}://{context.Request.Host}";
