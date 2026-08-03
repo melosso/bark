@@ -10,10 +10,10 @@ internal static class ApiEndpoints
     public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder app)
     {
         var api = app.MapGroup("/api");
-        api.MapGet("/search", Search).RequireRateLimiting(RateLimitPolicies.Search);
-        api.MapGet("/pages", GetPages).RequireRateLimiting(RateLimitPolicies.Search);
+        api.MapMethods("/search", HttpVerbs.GetAndHead, Search).RequireRateLimiting(RateLimitPolicies.Search);
+        api.MapMethods("/pages", HttpVerbs.GetAndHead, GetPages).RequireRateLimiting(RateLimitPolicies.Search);
         // NOT rate-limited; the hot-reload script polls this every few seconds
-        api.MapGet("/build-version", GetBuildVersion);
+        api.MapMethods("/build-version", HttpVerbs.GetAndHead, GetBuildVersion);
         return app;
     }
 

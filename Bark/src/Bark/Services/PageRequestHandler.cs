@@ -46,6 +46,7 @@ public sealed class PageRequestHandler
     private readonly DocsOptions _docsOptions;
     private readonly ThemeOptions _themeOptions;
     private readonly PageRequestSettings _settings;
+    private readonly ILogger<PageRequestHandler> _logger;
     private readonly string _iconsDir;
     private readonly string? _fallbackIconsDir;
 
@@ -54,13 +55,15 @@ public sealed class PageRequestHandler
         MarkdownService markdown,
         DocsOptions docsOptions,
         ThemeOptions themeOptions,
-        PageRequestSettings settings)
+        PageRequestSettings settings,
+        ILogger<PageRequestHandler> logger)
     {
         _docs = docs;
         _markdown = markdown;
         _docsOptions = docsOptions;
         _themeOptions = themeOptions;
         _settings = settings;
+        _logger = logger;
         _iconsDir = Path.Combine(settings.WebRootPath, "icons");
         var defaultIconsDir = Path.Combine(AppContext.BaseDirectory, "wwwroot-default", "icons");
         _fallbackIconsDir = Directory.Exists(defaultIconsDir) ? defaultIconsDir : null;
@@ -75,6 +78,27 @@ public sealed class PageRequestHandler
             return image;
         var path = image.StartsWith('/') ? image : "/" + image;
         return $"{origin}{basePath}{path}";
+    }
+
+    internal static string ComputeETag(string origin, long buildVersion, string html)
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        hash.AppendData(Encoding.UTF8.GetBytes($"{CspNonce.ProcessSalt}:{buildVersion}:{origin}:"));
+        hash.AppendData(Encoding.UTF8.GetBytes(html));
+        return Convert.ToBase64String(hash.GetHashAndReset()).TrimEnd('=');
+    }
+
+    /// <summary>Absolute front-matter redirects need the target host declared in <c>config.json</c>'s <c>redirectHosts</c>; anything else is an open redirect on the docs domain.</summary>
+    internal static bool IsAllowedRedirectHost(string target, string requestHost, IReadOnlyList<string>? allowedHosts)
+    {
+        if (!Uri.TryCreate(target, UriKind.Absolute, out var uri))
+            return false;
+
+        if (uri.Host.Equals(requestHost, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return allowedHosts is { Count: > 0 }
+            && allowedHosts.Any(h => uri.Host.Equals(h.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
     internal static string ExpandFooterVariables(string footer, string brand, string? title) =>
@@ -115,31 +139,42 @@ public sealed class PageRequestHandler
             var isAbsolute = redirectTarget.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
                 || redirectTarget.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
 
-            string resolvedRedirect;
-            if (isAbsolute)
+            if (isAbsolute && !IsAllowedRedirectHost(redirectTarget, context.Request.Host.Host, config?.RedirectHosts))
             {
-                resolvedRedirect = redirectTarget;
+                _logger.LogWarning(
+                    "Page {Page} redirects to {Target}, whose host is not listed in config.json redirectHosts; redirect ignored",
+                    page.Path, redirectTarget);
             }
             else
             {
-                var trimmed = redirectTarget.Trim('/');
-                resolvedRedirect = trimmed.Length == 0
-                    ? (basePath.Length == 0 ? "/" : $"{basePath}/")
-                    : (basePath.Length == 0 ? $"/{trimmed}/" : $"{basePath}/{trimmed}/");
-            }
+                string resolvedRedirect;
+                if (isAbsolute)
+                {
+                    resolvedRedirect = redirectTarget;
+                }
+                else
+                {
+                    var trimmed = redirectTarget.Trim('/');
+                    resolvedRedirect = trimmed.Length == 0
+                        ? (basePath.Length == 0 ? "/" : $"{basePath}/")
+                        : (basePath.Length == 0 ? $"/{trimmed}/" : $"{basePath}/{trimmed}/");
+                }
 
-            context.Response.Redirect(resolvedRedirect, permanent: false);
-            return;
+                context.Response.Redirect(resolvedRedirect, permanent: false);
+                return;
+            }
         }
 
         // Folds in the BuildVersion (not limited to this page's own HTML) so content edits that don't touch this page's content still invalidate its cached ETag.
         // CspNonce.ProcessSalt is folded in too: BuildVersion restarts at 0, so without it a restart would
         // hand a 304 to a cached body whose baked-in nonce the new process no longer accepts.
-        var responseBytes = Encoding.UTF8.GetBytes(page.HtmlContent);
-        var etagInput = Encoding.UTF8.GetBytes($"{CspNonce.ProcessSalt}:{_docs.BuildVersion}:").Concat(responseBytes).ToArray();
-        var etag = Convert.ToBase64String(SHA256.HashData(etagInput)).TrimEnd('=');
+        // Origin too: with PublicBaseUrl unset the body's canonical/og:url come from the Host header, so an origin-independent ETag lets a shared cache serve one host's body under another host's key.
+        var origin = _settings.Origin(context);
+        var etag = ComputeETag(origin, _docs.BuildVersion, page.HtmlContent);
         context.Response.Headers.ETag = $"\"{etag}\"";
         context.Response.Headers.CacheControl = "no-cache";
+        if (_settings.PublicBaseUrl is null)
+            context.Response.Headers.Vary = "Host";
 
         var extensions = _docs.Extensions;
 
@@ -210,7 +245,7 @@ public sealed class PageRequestHandler
         var pageControlsEditIcon = !isHomePage && config?.PageControls?.EditLink?.Icon is { Length: > 0 } pcIconName
             ? await IconProvider.InlineSvgAsync(pcIconName, _iconsDir, _fallbackIconsDir)
             : null;
-        var isLocalRequest = context.Connection.RemoteIpAddress is { } remoteIp && IPAddress.IsLoopback(remoteIp);
+        var isLocalRequest = LocalRequest.IsLocal(context);
         var pageControlsHtml = !isHomePage
             ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, config?.EditLink, basePath, _settings.DocsRootAbsolute, pageControlsEditIcon, isLocalRequest)
             : string.Empty;
@@ -219,15 +254,14 @@ public sealed class PageRequestHandler
             ? PromoBarHtmlRenderer.BuildPromoBarHtml(_markdown.ToHtml(promoSource), promoSource, nonce)
             : string.Empty;
 
-        var feedUrl = $"{_settings.Origin(context)}{basePath}/feed.xml";
+        var feedUrl = $"{origin}{basePath}/feed.xml";
         var rssDiscoveryHtml = $"<link rel=\"alternate\" type=\"application/rss+xml\" title=\"{LayoutProvider.HtmlEncode(config?.Brand ?? config?.Title ?? "RSS Feed")}\" href=\"{LayoutProvider.HtmlEncode(feedUrl)}\">";
 
         var pageSegment = page.Path == "index" ? string.Empty : $"{page.Path}/";
         var rawPath = $"{basePath}/{pageSegment}".TrimStart('/');
-        var canonicalUrl = $"{_settings.Origin(context)}/{rawPath}";
+        var canonicalUrl = $"{origin}/{rawPath}";
 
         var metaDescription = string.IsNullOrEmpty(page.Description) ? config?.Description : page.Description;
-        var origin = _settings.Origin(context);
         var socialImageUrl = ResolveSocialImage(page.Image ?? config?.Image ?? config?.BrandImage, origin, basePath);
         var siteName = config?.Brand ?? config?.Title;
         var modified = isHomePage ? null : page.LastModified;

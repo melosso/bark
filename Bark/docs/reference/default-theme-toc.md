@@ -5,11 +5,11 @@ description: The "On This Page" outline Bark builds from each page's headings
 
 # Table of Contents
 
-The server renders an "On this page" outline in the right-hand column of every document page, dynamically built from that page's own headings. You do not write it by hand nor have the option to customize it.
+The server automatically renders an "On this page" outline in the right-hand column of every document page, built from that page's headings.
 
 ## Content
 
-Every `##` and deeper heading becomes an entry. The page's own `#` heading is left out, since it is the title rather than a section of the page. Nesting stops at three levels, so a `#####` heading sits at the same indent as a `###` one rather than growing a fourth step.
+Every `##` and deeper heading becomes an entry. The pages title (`#`) is left out in the TOC. Nesting stops at three levels, so a `#####` heading sits at the same indent as a `###` one rather than growing a fourth step.
 
 A page with no subheadings at all still gets a single entry linking to its `#` heading, rather than an empty box. Anchors come from the same slug generation as the heading IDs, so an outline link always resolves to the heading it names.
 

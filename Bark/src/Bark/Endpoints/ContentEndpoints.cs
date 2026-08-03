@@ -7,9 +7,9 @@ internal static class ContentEndpoints
 {
     public static IEndpointRouteBuilder MapContentEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/raw/{**path}", GetRawMarkdown).RequireRateLimiting(RateLimitPolicies.Search);
+        app.MapMethods("/raw/{**path}", HttpVerbs.GetAndHead, GetRawMarkdown).RequireRateLimiting(RateLimitPolicies.Search);
         // Catch-all has lowest route precedence automatically; registered last for readability
-        app.MapGet("/{**path}", (string? path, HttpContext context, PageRequestHandler handler) =>
+        app.MapMethods("/{**path}", HttpVerbs.GetAndHead, (string? path, HttpContext context, PageRequestHandler handler) =>
             handler.HandleAsync(path, context));
         return app;
     }
@@ -28,7 +28,8 @@ internal static class ContentEndpoints
         if (page?.OriginalRelativePath is not { } relPath)
             return Results.NotFound();
 
-        var docsRoot = Path.GetFullPath(options.RootPath);
+        // Trailing separator matters: a bare prefix compare also accepts a sibling like /srv/docs-private
+        var docsRoot = Path.GetFullPath(options.RootPath).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         var filePath = Path.GetFullPath(Path.Combine(docsRoot, relPath.Replace('/', Path.DirectorySeparatorChar)));
         if (!filePath.StartsWith(docsRoot, StringComparison.Ordinal) || !File.Exists(filePath))
             return Results.NotFound();

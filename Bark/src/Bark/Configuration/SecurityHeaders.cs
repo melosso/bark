@@ -39,6 +39,11 @@ public static class SecurityHeaders
         context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
         context.Response.Headers.ContentSecurityPolicy = contentSecurityPolicy;
         context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()";
+        context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin";
+        // same-site, not same-origin: docs images and fonts are routinely embedded from a sibling
+        // host (blog.example.com pulling docs.example.com/assets), which same-origin would break.
+        context.Response.Headers["Cross-Origin-Resource-Policy"] = "same-site";
+        context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
 
         if (context.Request.IsHttps)
             context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
@@ -80,6 +85,13 @@ public static class SecurityHeaders
         return string.Join(";", result);
     }
 
+    /// <summary>
+    /// Puts the per-response nonce into <c>script-src</c>/<c>style-src</c>. Swaps out
+    /// <c>'unsafe-inline'</c> where it is present; where it is not — an operator who hardened
+    /// <c>Docs:ContentSecurityPolicy</c> — the nonce is appended instead. Appending matters:
+    /// silently skipping it would block Bark's own inline scripts and push the operator back
+    /// to a policy weaker than the default.
+    /// </summary>
     public static string BuildNonceCsp(string baseCsp, string nonce)
     {
         var noncePart = $"'nonce-{nonce}'";
@@ -87,9 +99,12 @@ public static class SecurityHeaders
         for (var i = 0; i < directives.Length; i++)
         {
             var trimmed = directives[i].TrimStart();
-            if ((trimmed.StartsWith("script-src ") || trimmed.StartsWith("style-src "))
-                && trimmed.Contains("'unsafe-inline'"))
-                directives[i] = directives[i].Replace("'unsafe-inline'", noncePart);
+            if (!trimmed.StartsWith("script-src ") && !trimmed.StartsWith("style-src "))
+                continue;
+
+            directives[i] = trimmed.Contains("'unsafe-inline'")
+                ? directives[i].Replace("'unsafe-inline'", noncePart)
+                : directives[i].TrimEnd() + " " + noncePart;
         }
         return string.Join(";", directives);
     }

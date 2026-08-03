@@ -12,10 +12,10 @@ internal static partial class SeoEndpoints
 {
     public static IEndpointRouteBuilder MapSeoEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/robots.txt", GetRobots);
-        app.MapGet("/llms.txt", GetLlms);
-        app.MapGet("/sitemap.xml", GetSitemap);
-        app.MapGet("/feed.xml", GetFeed).RequireRateLimiting(RateLimitPolicies.Search);
+        app.MapMethods("/robots.txt", HttpVerbs.GetAndHead, GetRobots);
+        app.MapMethods("/llms.txt", HttpVerbs.GetAndHead, GetLlms);
+        app.MapMethods("/sitemap.xml", HttpVerbs.GetAndHead, GetSitemap);
+        app.MapMethods("/feed.xml", HttpVerbs.GetAndHead, GetFeed).RequireRateLimiting(RateLimitPolicies.Search);
         return app;
     }
 

@@ -38,4 +38,7 @@ public class Config
 
     /// <summary>"Edit this page" link near the pagination footer. Null disables it.</summary>
     public EditLinkConfig? EditLink { get; set; }
+
+    /// <summary>Hosts a front-matter <c>redirect:</c> may send visitors to off-site. Same-host redirects always work.</summary>
+    public List<string>? RedirectHosts { get; set; }
 }

@@ -46,7 +46,9 @@ Bark does not currently support a per-page `sidebar: false` toggle. Every page t
 
 The `redirect` field is a convenient way to forward readers from an old URL to a new one without breaking existing bookmarks or inbound links. When Bark serves a page that has `redirect` set, it issues a temporary (307) redirect to the target URL instead of rendering any content, so the body of the `.md` file does not matter.
 
-Root-relative paths (starting with `/`) are automatically prefixed with your configured base path, so `redirect: /guide/getting-started` will resolve correctly whether Bark is served from the domain root or from a subpath like `/docs`. Absolute URLs starting with `http://` or `https://` are passed through exactly as written.
+Root-relative paths (starting with `/`) are automatically prefixed with your configured base path, so `redirect: /guide/getting-started` will resolve correctly whether Bark is served from the domain root or from a subpath like `/docs`.
+
+Absolute URLs starting with `http://` or `https://` are passed through as written, but only when they point at your own host or at a host you have listed in `redirectHosts` in [`config.json`](/reference/site-config). Any other target is ignored with a warning in the log and the page renders normally instead. Without that check, anyone who can add a Markdown file to your docs could turn your documentation domain into an open redirect for phishing links.
 
 ```yaml
 ---

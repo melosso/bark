@@ -5,7 +5,15 @@ namespace Bark.Services.Rendering;
 
 public static partial class IconProvider
 {
+    private const int MaxCacheEntries = 256;
+
     private static readonly ConcurrentDictionary<string, string?> _cache = new(StringComparer.OrdinalIgnoreCase);
+
+    private static void CacheIfRoom(string iconName, string? svg)
+    {
+        if (_cache.Count < MaxCacheEntries)
+            _cache.TryAdd(iconName, svg);
+    }
 
     public static async ValueTask<string> InlineSvgAsync(string iconName, string primaryDir, string? fallbackDir = null)
     {
@@ -20,14 +28,14 @@ public static partial class IconProvider
 
         if (!File.Exists(filePath))
         {
-            _cache.TryAdd(iconName, null);
+            CacheIfRoom(iconName, null);
             return string.Empty;
         }
 
         var svg = await File.ReadAllTextAsync(filePath);
         svg = StripFillAttr().Replace(svg, "");
         svg = svg.Replace("<svg", "<svg fill=\"currentColor\" aria-hidden=\"true\"");
-        _cache.TryAdd(iconName, svg);
+        CacheIfRoom(iconName, svg);
         return svg;
     }
 

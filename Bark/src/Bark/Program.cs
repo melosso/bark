@@ -133,6 +133,9 @@ try
 
     var app = builder.Build();
 
+    if (!app.Environment.IsDevelopment() && app.Services.GetRequiredService<PageRequestSettings>().PublicBaseUrl is null)
+        Log.Warning("Docs:PublicBaseUrl is not set; canonical URLs, feeds and robots.txt are built from the caller's Host header. Set it in production.");
+
     // Must finish before DocumentationService's async renders the pages
     await app.Services.GetRequiredService<ISyntaxHighlighter>().InitializeAsync(CancellationToken.None);
 
@@ -189,10 +192,16 @@ try
             ContentTypeProvider = assetContentTypes,
             ServeUnknownFileTypes = false,
             OnPrepareResponse = ctx =>
+            {
                 ctx.Context.Response.Headers.CacheControl =
                     !app.Environment.IsDevelopment() && ctx.Context.Request.Query.ContainsKey("v")
                         ? "public,max-age=31536000,immutable"
-                        : "no-cache"
+                        : "no-cache";
+
+                // An .svg navigated to directly runs its own inline script in this origin; the page route's nonce swap doesn't reach static responses.
+                if (ctx.File.Name.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                    ctx.Context.Response.Headers.ContentSecurityPolicy = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+            }
         });
     }
 

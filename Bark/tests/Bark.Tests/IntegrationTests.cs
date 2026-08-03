@@ -20,6 +20,9 @@ public sealed class BarkWebApplicationFactory : WebApplicationFactory<Program>
             "---\ntitle: Install\ndescription: Setup guide\n---\n\n# Install\n\nInstallation instructions here.\n");
         File.WriteAllText(Path.Combine(DocsDir, "config.json"),
             """{"promo": "**Big news!** See the [changelog](/guide/install)"}""");
+        Directory.CreateDirectory(Path.Combine(DocsDir, "assets"));
+        File.WriteAllText(Path.Combine(DocsDir, "assets", "logo.svg"),
+            """<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>""");
 
         // Port 0 keeps the pre-bind port probe from colliding with a running dev server
         builder.UseSetting("urls", "http://127.0.0.1:0");
