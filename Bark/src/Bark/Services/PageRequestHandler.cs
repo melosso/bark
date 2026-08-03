@@ -30,9 +30,7 @@ public sealed record PageRequestSettings(
         Normalize(cliBaseUrl) ?? Normalize(docsOption) ?? Normalize(alias);
 
     /// <summary>
-    /// Absolute origin for canonical URLs, feeds and sitemaps. <c>PublicBaseUrl</c> wins when set:
-    /// the Host header is caller-supplied, and ASP.NET leaves host filtering at <c>*</c> unless
-    /// <c>AllowedHosts</c> is configured, so an unconfigured deployment otherwise echoes whatever it is sent.
+    /// Absolute origin for canonical URLs, feeds and sitemaps; <c>PublicBaseUrl</c> wins because the Host header is caller-supplied and unfiltered unless <c>AllowedHosts</c> is set.
     /// </summary>
     public string Origin(HttpContext context) =>
         Normalize(PublicBaseUrl) ?? $"{context.Request.Scheme}://{context.Request.Host}";
@@ -165,10 +163,7 @@ public sealed class PageRequestHandler
             }
         }
 
-        // Folds in the BuildVersion (not limited to this page's own HTML) so content edits that don't touch this page's content still invalidate its cached ETag.
-        // CspNonce.ProcessSalt is folded in too: BuildVersion restarts at 0, so without it a restart would
-        // hand a 304 to a cached body whose baked-in nonce the new process no longer accepts.
-        // Origin too: with PublicBaseUrl unset the body's canonical/og:url come from the Host header, so an origin-independent ETag lets a shared cache serve one host's body under another host's key.
+        // Folds BuildVersion, CspNonce.ProcessSalt, and Origin into the ETag to invalidate the cache on edits, process restarts, or host changes.
         var origin = _settings.Origin(context);
         var etag = ComputeETag(origin, _docs.BuildVersion, page.HtmlContent);
         context.Response.Headers.ETag = $"\"{etag}\"";
@@ -179,8 +174,12 @@ public sealed class PageRequestHandler
         var extensions = _docs.Extensions;
 
         var nonce = CspNonce.Derive(etag);
+        var hasMermaid = page.HtmlContent.Contains("class=\"mermaid\"", StringComparison.Ordinal);
         var baseCsp = SecurityHeaders.WithExtraSources(_settings.CustomCsp ?? SecurityHeaders.DefaultCsp, extensions.CspSources);
-        context.Response.Headers.ContentSecurityPolicy = SecurityHeaders.BuildNonceCsp(baseCsp, nonce);
+        var pageCsp = SecurityHeaders.BuildNonceCsp(baseCsp, nonce);
+        context.Response.Headers.ContentSecurityPolicy = hasMermaid
+            ? SecurityHeaders.WithInlineStyleElements(pageCsp)
+            : pageCsp;
 
         if (context.Request.Headers.IfNoneMatch.ToString() == $"\"{etag}\"")
         {
@@ -302,7 +301,7 @@ public sealed class PageRequestHandler
             canonicalUrl: canonicalUrl,
             nonce: nonce,
             hasMath: page.HtmlContent.Contains("class=\"katex\"", StringComparison.Ordinal),
-            hasMermaid: page.HtmlContent.Contains("class=\"mermaid\"", StringComparison.Ordinal),
+            hasMermaid: hasMermaid,
             pageControlsHtml: pageControlsHtml,
             rssDiscoveryHtml: rssDiscoveryHtml,
             promoBarHtml: promoBarHtml,

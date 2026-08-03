@@ -9,11 +9,7 @@ public class NavEntry
     public string? Path { get; set; }
 
     /// <summary>
-    /// Collapse behavior for a group (ignored on leaf entries):
-    /// <c>null</c>/omitted -- not collapsible, always expanded
-    /// <c>false</c> -- collapsible, expanded by default.
-    /// <c>true</c> -- collapsible, collapsed by default.
-    /// A group containing the current page always renders expanded regardless of this setting.
+    /// Group collapse behavior: null is never collapsible, false starts expanded, true starts collapsed; a group holding the current page always renders expanded.
     /// </summary>
     public bool? Collapsed { get; set; }
 

@@ -89,8 +89,7 @@ public sealed partial class SearchIndex
         }
     }
 
-    // Projects the built index into a serializable form for static export. Docs are ordered
-    // by path so output is deterministic; postings reference docs by that index.
+    // Serializable form for static export; docs ordered by path so postings index deterministically.
     public SearchIndexExport ExportSnapshot()
     {
         var docs = _pages.Values
@@ -263,8 +262,7 @@ public sealed partial class SearchIndex
     private static string GetPlainText(string html) =>
         HtmlTagRegex().Replace(html, " ");
 
-    // Strip tags to spaces then decode entities -- same shape GetExcerpt slices, so a client
-    // slicing the exported text with identical window math produces the same excerpt.
+    // Same shape GetExcerpt slices, so a client using identical window math gets the same excerpt.
     internal static string PlainText(string html) =>
         System.Net.WebUtility.HtmlDecode(HtmlTagRegex().Replace(html, " "));
 

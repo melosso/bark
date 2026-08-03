@@ -4,8 +4,7 @@ using System.Text;
 namespace Bark.Configuration;
 
 /// <summary>
-/// Derives a secure, unpredictable CSP nonce from the ETag.
-/// Keeps nonces unique per response while ensuring 304 Not Modified responses stay consistent.
+/// Derives an unpredictable CSP nonce from the ETag, so it stays unique per response and consistent across 304s.
 /// </summary>
 public static class CspNonce
 {
@@ -40,8 +39,7 @@ public static class SecurityHeaders
         context.Response.Headers.ContentSecurityPolicy = contentSecurityPolicy;
         context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()";
         context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin";
-        // same-site, not same-origin: docs images and fonts are routinely embedded from a sibling
-        // host (blog.example.com pulling docs.example.com/assets), which same-origin would break.
+        // same-site, not same-origin: sibling hosts routinely embed docs images and fonts.
         context.Response.Headers["Cross-Origin-Resource-Policy"] = "same-site";
         context.Response.Headers["X-Permitted-Cross-Domain-Policies"] = "none";
 
@@ -86,11 +84,26 @@ public static class SecurityHeaders
     }
 
     /// <summary>
-    /// Puts the per-response nonce into <c>script-src</c>/<c>style-src</c>. Swaps out
-    /// <c>'unsafe-inline'</c> where it is present; where it is not — an operator who hardened
-    /// <c>Docs:ContentSecurityPolicy</c> — the nonce is appended instead. Appending matters:
-    /// silently skipping it would block Bark's own inline scripts and push the operator back
-    /// to a policy weaker than the default.
+    /// Allows unnonced <c>&lt;style&gt;</c> elements, for the diagram pages where Mermaid injects its own; scripts stay nonce-only.
+    /// </summary>
+    public static string WithInlineStyleElements(string csp)
+    {
+        var directives = csp.Split(';');
+        for (var i = 0; i < directives.Length; i++)
+        {
+            if (!directives[i].TrimStart().StartsWith("style-src-elem ", StringComparison.Ordinal))
+                continue;
+
+            return directives[i].Contains("'unsafe-inline'", StringComparison.Ordinal)
+                ? csp
+                : string.Join(";", directives.Select((d, j) => j == i ? d.TrimEnd() + " 'unsafe-inline'" : d));
+        }
+
+        return csp + "; style-src-elem 'self' 'unsafe-inline'";
+    }
+
+    /// <summary>
+    /// Appends or swaps per-response nonces into script-src/style-src CSP directives to avoid breaking inline scripts.
     /// </summary>
     public static string BuildNonceCsp(string baseCsp, string nonce)
     {

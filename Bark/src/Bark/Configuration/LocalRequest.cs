@@ -3,14 +3,10 @@ using System.Net;
 namespace Bark.Configuration;
 
 /// <summary>
-/// Decides whether a request really came from the machine Bark runs on, for controls that expose
-/// server-side detail (the "Open in editor" links carry the absolute docs root path).
+/// Decides whether a request came from the machine Bark runs on, for controls that expose server-side detail.
 /// </summary>
 /// <remarks>
-/// A loopback <c>RemoteIpAddress</c> alone is not enough: the usual production shape is a reverse
-/// proxy on the same host forwarding to Kestrel over loopback, which makes every visitor look local.
-/// Bark registers no forwarded-headers middleware, so the connection IP is the proxy's either way.
-/// The request must therefore also carry no proxy hop markers and address Bark by a loopback host.
+/// Loopback alone is not enough: a same-host reverse proxy makes every visitor look local, so the request must also carry no proxy hop markers and address Bark by a loopback host.
 /// </remarks>
 public static class LocalRequest
 {

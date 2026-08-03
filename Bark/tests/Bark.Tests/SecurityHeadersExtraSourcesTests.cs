@@ -35,4 +35,26 @@ public sealed class SecurityHeadersExtraSourcesTests
         Assert.Contains("'nonce-nonce123'", scriptSrc);
         Assert.DoesNotContain("'unsafe-inline'", scriptSrc);
     }
+
+    [Fact]
+    public void WithInlineStyleElements_AddsStyleSrcElemAndLeavesScriptSrcNonceOnly()
+    {
+        var final = SecurityHeaders.WithInlineStyleElements(
+            SecurityHeaders.BuildNonceCsp(SecurityHeaders.DefaultCsp, "nonce123"));
+
+        var directives = final.Split(';').Select(d => d.Trim()).ToArray();
+
+        Assert.Contains(directives, d => d == "style-src-elem 'self' 'unsafe-inline'");
+        Assert.Contains(directives, d => d.StartsWith("script-src ") && !d.Contains("'unsafe-inline'"));
+    }
+
+    [Fact]
+    public void WithInlineStyleElements_WidensAnOperatorsOwnStyleSrcElemInsteadOfAppendingASecond()
+    {
+        var custom = "default-src 'self'; style-src-elem 'self' https://cdn.example.com";
+
+        var directives = SecurityHeaders.WithInlineStyleElements(custom).Split(';').Select(d => d.Trim()).ToArray();
+
+        Assert.Equal("style-src-elem 'self' https://cdn.example.com 'unsafe-inline'", Assert.Single(directives, d => d.StartsWith("style-src-elem ")));
+    }
 }

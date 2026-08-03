@@ -323,8 +323,7 @@ public sealed partial class MarkdownService
         return $"{basePath}{path}";
     }
 
-    // Renders inline markdown to plain text: strips links/bold/italic/code tags so
-    // frontmatter descriptions are searchable and safe for <meta name="description">.
+    // Strips inline markup so frontmatter descriptions are searchable and safe for <meta name="description">.
     private static readonly MarkdownPipeline _plainTextPipeline = new MarkdownPipelineBuilder().Build();
 
     public static string ToPlainText(string markdown)

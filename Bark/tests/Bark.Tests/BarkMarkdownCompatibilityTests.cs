@@ -363,8 +363,7 @@ const x = 1;
 
         var lines = highlighter.TokenizeLines(["/* start", "still a comment", "end */ var x = 1;"], "csharp");
 
-        // The whole comment body (lines 0-1, and the "end */" prefix of line 2) must resolve to
-        // the same comment color, proving rule-stack continuation works across TokenizeLines calls.
+        // One comment color across all three lines proves the rule stack carries between TokenizeLines calls.
         var line1Color = lines[1][0].LightColor;
         var commentTailToken = lines[2].First(t => t.Text.Contains("end"));
 

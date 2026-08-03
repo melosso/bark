@@ -5,9 +5,7 @@ namespace Bark.Services.Rendering;
 public static class UrlPaths
 {
     /// <summary>
-    /// True when a configured nav/sidebar target is an absolute web URL rather than a docs page path.
-    /// Deliberately limited to http/https: any other scheme falls through to <see cref="Href"/> and is
-    /// rewritten as a relative path, so <c>javascript:</c> targets stay inert.
+    /// True for an absolute http/https nav target; every other scheme falls through to <see cref="Href"/> as a relative path, keeping <c>javascript:</c> inert.
     /// </summary>
     public static bool IsExternal(string? link) =>
         link is not null

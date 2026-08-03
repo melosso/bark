@@ -8,10 +8,7 @@ using TextMateSharp.Themes;
 namespace Bark.Services.MarkdownExtensions;
 
 /// <summary>
-/// Grammar-based <see cref="ISyntaxHighlighter"/> backed by TextMateSharp, tokenizing against a
-/// github-light/dark theme pair. Each line is tokenized once (scopes are theme-independent) and
-/// resolved to a light and dark color per token, emitted as <c>--shiki-light</c>/<c>--shiki-dark</c>
-/// CSS vars so Bark's `[data-theme]` toggle drives token color for free.
+/// TextMateSharp highlighter: each line is tokenized once, then resolved against the github-light/dark pair into <c>--shiki-light</c>/<c>--shiki-dark</c> vars the theme toggle drives.
 /// </summary>
 public sealed class TextMateSyntaxHighlighter : ISyntaxHighlighter
 {
@@ -52,9 +49,7 @@ public sealed class TextMateSyntaxHighlighter : ISyntaxHighlighter
             LightName: LightThemeName,
             DarkName: DarkThemeName,
             LightForeground: GetGuiColor(rawLight, "editor.foreground") ?? "#24292e",
-            DarkForeground: GetGuiColor(rawDark, "editor.foreground") ?? "#e1e4e8",
-            LightBackground: GetGuiColor(rawLight, "editor.background") ?? "#ffffff",
-            DarkBackground: GetGuiColor(rawDark, "editor.background") ?? "#24292e");
+            DarkForeground: GetGuiColor(rawDark, "editor.foreground") ?? "#e1e4e8");
 
         return Task.CompletedTask;
     }

@@ -8,8 +8,7 @@ public sealed record DocsOptions
     public string? BasePath { get; init; }
 
     /// <summary>
-    /// Public origin (e.g. <c>https://docs.example.com</c>) for canonical URLs, feeds and robots.txt.
-    /// Leave unset only for local use: without it those URLs are built from the caller-supplied Host header.
+    /// Public origin for canonical URLs, feeds and robots.txt; unset builds them from the caller-supplied Host header.
     /// </summary>
     public string? PublicBaseUrl { get; init; }
 

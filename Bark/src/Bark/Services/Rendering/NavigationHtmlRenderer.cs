@@ -231,8 +231,7 @@ public static class NavigationHtmlRenderer
         return char.ToUpperInvariant(display[0]) + display[1..];
     }
 
-    // Prev/next must walk pages in the same order as whatever sidebar is actually showing for this
-    // page, not always the auto-generated folder tree -- same precedence as BuildNavigationHtml.
+    // Prev/next walks the sidebar actually showing for this page, same precedence as BuildNavigationHtml.
     public static List<string?> GetOrderedPaths(NavigationNode node, Config? config, string currentPath)
     {
         if (config?.Sidebar is { Count: > 0 } sidebars)

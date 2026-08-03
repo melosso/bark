@@ -13,15 +13,13 @@ public sealed record TocNode(HeadingInfo Heading)
 
 public static class TocHtmlRenderer
 {
-    // Excludes the page's own H1; everything else collapses onto a 3-level scale (deeper headings
-    // flatten onto level 3) so the TOC never grows a fourth visual indent.
+    // Excludes the page's own H1; deeper headings flatten onto level 3, so there is never a fourth indent.
     public static string BuildTocHtml(IReadOnlyList<HeadingInfo> headings)
     {
         var items = headings.Where(h => h.Level >= 2).ToList();
         if (items.Count == 0)
         {
-            // No subheadings -- fall back to a single entry linking to the page's own H1 (if any)
-            // so the TOC sidebar isn't just an empty "On This Page" box.
+            // No subheadings: link the page's own H1 rather than show an empty "On This Page" box.
             var titleHeading = headings.FirstOrDefault(h => h.Level == 1);
             if (titleHeading is null)
                 return string.Empty;
