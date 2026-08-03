@@ -942,27 +942,20 @@ public static partial class LayoutProvider
         .content div[class^=""language-""].has-title pre {{
             padding-top: 0.75rem;
         }}
-        /* Resolves the --shiki-light/dark vars TextMateSyntaxHighlighter writes per token,
-           same prefers-color-scheme + [data-theme] override pattern as the rest of the theme. */
+        /* Token colors come from the grammar theme, the ground from --code-bg, so blocks sit on the active theme in both modes. */
         .shiki, .shiki span {{
             color: var(--shiki-light);
         }}
         .shiki {{
-            background-color: var(--shiki-light-bg);
+            background-color: var(--code-bg);
         }}
         @media (prefers-color-scheme: dark) {{
             :root:not([data-theme=""light""]) .shiki, :root:not([data-theme=""light""]) .shiki span {{
                 color: var(--shiki-dark);
             }}
-            :root:not([data-theme=""light""]) .shiki {{
-                background-color: var(--shiki-dark-bg);
-            }}
         }}
         :root[data-theme=""dark""] .shiki, :root[data-theme=""dark""] .shiki span {{
             color: var(--shiki-dark);
-        }}
-        :root[data-theme=""dark""] .shiki {{
-            background-color: var(--shiki-dark-bg);
         }}
         @media (prefers-color-scheme: dark) {{
             :root:not([data-theme=""light""]) .tab-icon {{ filter: brightness(0) invert(1); }}

@@ -85,8 +85,6 @@ public sealed class FencedCodeBlockRenderer(ISyntaxHighlighter syntaxHighlighter
             renderer.Write("<pre class=\"shiki shiki-themes ").Write(t.LightName).Write(' ').Write(t.DarkName)
                 .Write("\" style=\"--shiki-light:").Write(t.LightForeground)
                 .Write(";--shiki-dark:").Write(t.DarkForeground)
-                .Write(";--shiki-light-bg:").Write(t.LightBackground)
-                .Write(";--shiki-dark-bg:").Write(t.DarkBackground)
                 .Write(";\" tabindex=\"0\" dir=\"ltr\"><code>");
         }
         else

@@ -52,9 +52,7 @@ public sealed class TextMateSyntaxHighlighter : ISyntaxHighlighter
             LightName: LightThemeName,
             DarkName: DarkThemeName,
             LightForeground: GetGuiColor(rawLight, "editor.foreground") ?? "#24292e",
-            DarkForeground: GetGuiColor(rawDark, "editor.foreground") ?? "#e1e4e8",
-            LightBackground: GetGuiColor(rawLight, "editor.background") ?? "#ffffff",
-            DarkBackground: GetGuiColor(rawDark, "editor.background") ?? "#24292e");
+            DarkForeground: GetGuiColor(rawDark, "editor.foreground") ?? "#e1e4e8");
 
         return Task.CompletedTask;
     }

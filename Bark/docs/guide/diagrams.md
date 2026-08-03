@@ -94,5 +94,5 @@ pie title Search ranking weight
 Diagrams on this site render client-side after the initial page load. Consequently, they are not visible in the raw HTML source or to automated tools that only scrape text, including many search engine crawlers and text-based indexing files like `sitemap.xml` or `llms.txt`. If a diagram is essential to the reader's understanding of the content, please ensure that the core information is also provided in the surrounding text.
 
 ::: note
-Mermaid bakes its colors into the rendered SVG, it doesn't follow CSS variables the way the rest of the page does. Toggling dark mode on a page with diagrams triggers a full reload so they redraw with the right theme.
+Diagrams take their colors from the active theme's palette, but Mermaid bakes those colors into the rendered SVG rather than following CSS variables the way the rest of the page does. Toggling dark mode on a page with diagrams triggers a full reload so they redraw with the right theme.
 :::

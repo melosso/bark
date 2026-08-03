@@ -5,6 +5,4 @@ public readonly record struct SyntaxTheme(
     string LightName,
     string DarkName,
     string LightForeground,
-    string DarkForeground,
-    string LightBackground,
-    string DarkBackground);
+    string DarkForeground);

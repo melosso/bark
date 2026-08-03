@@ -590,13 +590,50 @@ public static partial class LayoutProvider
                 }});
             }});
 
-            // Mermaid ignores CSS variables; current theme must be passed in explicitly.
+            // Mermaid ignores CSS variables, so the theme's tokens are read once and passed in.
             var mermaidBlocks = document.querySelectorAll('.mermaid');
             if (mermaidBlocks.length && window.mermaid) {{
                 var currentTheme = document.documentElement.getAttribute('data-theme');
                 var prefersDarkNow = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 var mermaidIsDark = currentTheme ? currentTheme === 'dark' : prefersDarkNow;
-                window.mermaid.initialize({{ theme: mermaidIsDark ? 'dark' : 'default' }});
+                var rootStyle = getComputedStyle(document.documentElement);
+                function themeToken(name) {{ return rootStyle.getPropertyValue(name).trim(); }}
+                window.mermaid.initialize({{
+                    theme: 'base',
+                    themeVariables: {{
+                        darkMode: mermaidIsDark,
+                        fontFamily: themeToken('--font-sans'),
+                        background: themeToken('--bg-color'),
+                        primaryColor: themeToken('--accent-light'),
+                        primaryTextColor: themeToken('--text-color'),
+                        primaryBorderColor: themeToken('--accent'),
+                        secondaryColor: themeToken('--code-bg'),
+                        tertiaryColor: themeToken('--sidebar-bg'),
+                        mainBkg: themeToken('--accent-light'),
+                        nodeBorder: themeToken('--accent'),
+                        clusterBkg: themeToken('--sidebar-bg'),
+                        clusterBorder: themeToken('--border'),
+                        lineColor: themeToken('--text-muted'),
+                        textColor: themeToken('--text-color'),
+                        titleColor: themeToken('--text-color'),
+                        edgeLabelBackground: themeToken('--bg-color'),
+                        noteBkgColor: themeToken('--code-bg'),
+                        noteTextColor: themeToken('--text-color'),
+                        noteBorderColor: themeToken('--border'),
+                        // Alert hues, not accent tints: slices derived from one accent are indistinguishable.
+                        pie1: themeToken('--accent'),
+                        pie2: themeToken('--alert-note'),
+                        pie3: themeToken('--alert-tip'),
+                        pie4: themeToken('--alert-warning'),
+                        pie5: themeToken('--alert-important'),
+                        pie6: themeToken('--alert-caution'),
+                        pieStrokeColor: themeToken('--bg-color'),
+                        pieOuterStrokeColor: themeToken('--border'),
+                        pieSectionTextColor: themeToken('--bg-color'),
+                        pieTitleTextColor: themeToken('--text-color'),
+                        pieLegendTextColor: themeToken('--text-color')
+                    }}
+                }});
                 window.mermaid.run();
             }}
 

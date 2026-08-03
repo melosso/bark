@@ -86,11 +86,26 @@ public static class SecurityHeaders
     }
 
     /// <summary>
-    /// Puts the per-response nonce into <c>script-src</c>/<c>style-src</c>. Swaps out
-    /// <c>'unsafe-inline'</c> where it is present; where it is not — an operator who hardened
-    /// <c>Docs:ContentSecurityPolicy</c> — the nonce is appended instead. Appending matters:
-    /// silently skipping it would block Bark's own inline scripts and push the operator back
-    /// to a policy weaker than the default.
+    /// Allows unnonced <c>&lt;style&gt;</c> elements, for the diagram pages where Mermaid injects its own; scripts stay nonce-only.
+    /// </summary>
+    public static string WithInlineStyleElements(string csp)
+    {
+        var directives = csp.Split(';');
+        for (var i = 0; i < directives.Length; i++)
+        {
+            if (!directives[i].TrimStart().StartsWith("style-src-elem ", StringComparison.Ordinal))
+                continue;
+
+            return directives[i].Contains("'unsafe-inline'", StringComparison.Ordinal)
+                ? csp
+                : string.Join(";", directives.Select((d, j) => j == i ? d.TrimEnd() + " 'unsafe-inline'" : d));
+        }
+
+        return csp + "; style-src-elem 'self' 'unsafe-inline'";
+    }
+
+    /// <summary>
+    /// Appends or swaps per-response nonces into script-src/style-src CSP directives to avoid breaking inline scripts.
     /// </summary>
     public static string BuildNonceCsp(string baseCsp, string nonce)
     {
