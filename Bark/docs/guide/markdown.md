@@ -252,6 +252,14 @@ $$
 \sum_{i=1}^{n} i = \frac{n(n+1)}{2}
 $$
 
+## Abbreviations
+
+Define abbreviations by providing the reference at the bottom of your document, which will automatically wrap matching terms in an `<abbr>` tag:
+
+*[HTML]: HyperText Markup Language
+
+You can use HTML anywhere in your text.
+
 ## Citations
 
 Wrap your text in double quotes `""` to create a citation element:
