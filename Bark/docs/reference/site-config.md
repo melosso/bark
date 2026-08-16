@@ -77,7 +77,7 @@ These settings shape how your site presents itself to readers, search engines, a
 | `favicon` | `string?` | A URL or path to an icon file, or a single emoji character to use as an inline SVG favicon. |
 | `lastUpdated` | `bool` | Site-wide toggle for the "Last updated" timestamp. Off by default. When enabled, the date shown for each page comes from the file's last-modified time on disk unless the page sets `date` or `updated` in its frontmatter, which takes priority. See [Last Updated Timestamp](../default-theme-last-updated) and [Frontmatter Config](/reference/frontmatter-config#dates). |
 | `editLink` | `EditLinkConfig?` | "Edit this page" link displayed near the pagination footer. See [Edit Link](../default-theme-edit-link). |
-| `pageControls` | `PageControlsConfig?` | Per-page action menu shown in the breadcrumb bar. When configured, a small button appears that opens a dropdown with actions like downloading the page's Markdown source or opening it in an external editor. |
+| `pageControls` | `PageControlsConfig?` | Per-page action menu shown in the breadcrumb bar. When configured, a small button appears that opens a dropdown with actions like downloading the page's Markdown source or subscribing to the RSS feed. |
 | `redirectHosts` | `string[]?` | Allowlist of external hosts that a page's frontmatter `redirect:` may point to, for example `["docs.example.org"]`. Your own host is always allowed. Redirects to any other host are ignored and logged as a warning. See [Frontmatter Config](/reference/frontmatter-config#redirects). |
 
 **`HeadTag`**

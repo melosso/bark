@@ -66,13 +66,6 @@ public static partial class LayoutProvider
             width: 18px;
             height: 18px;
         }}
-        .social-links .icon-btn {{
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }}
-        .social-links .icon-btn:hover {{
-            border-color: var(--accent);
-        }}
         .promo-bar {{
             display: grid; grid-template-rows: 1fr;
             background-color: var(--promo-bg); color: var(--promo-text);
@@ -122,7 +115,7 @@ public static partial class LayoutProvider
             display: flex; align-items: center; gap: 0.75rem;
         }}
         .topbar-right {{
-            display: flex; align-items: center; gap: 1rem;
+            display: flex; align-items: center; gap: 0.25rem;
         }}
         .top-nav {{
             position: absolute; left: 50%; transform: translateX(-50%);
@@ -221,42 +214,20 @@ public static partial class LayoutProvider
         .brand img {{
             height: 22px; width: auto; vertical-align: middle; margin-right: 0.75rem;
         }}
-        .theme-toggle {{
-            position: relative; flex-shrink: 0; width: 34px; height: 34px;
-            border: 1px solid var(--border); border-radius: 50%; padding: 0;
-            background-color: transparent; cursor: pointer;
-            transition: border-color 0.15s ease;
-        }}
-        .theme-toggle:hover {{
-            border-color: var(--accent);
-        }}
-        .theme-toggle-thumb {{
-            width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-        }}
-        .theme-toggle-thumb svg {{
-            width: 16px;
-            height: 16px;
-            color: var(--text-muted);
-            transition: color 0.15s ease;
-        }}
-        .theme-toggle:hover .theme-toggle-thumb svg {{
-            color: var(--accent);
-        }}
-        .theme-toggle-thumb .icon-moon {{
+        .theme-toggle .icon-moon {{
             display: none;
         }}
-        :root[data-theme=""dark""] .theme-toggle-thumb .icon-sun {{
+        :root[data-theme=""dark""] .theme-toggle .icon-sun {{
             display: none;
         }}
-        :root[data-theme=""dark""] .theme-toggle-thumb .icon-moon {{
+        :root[data-theme=""dark""] .theme-toggle .icon-moon {{
             display: block;
         }}
         @media (prefers-color-scheme: dark) {{
-            :root:not([data-theme=""light""]) .theme-toggle-thumb .icon-sun {{
+            :root:not([data-theme=""light""]) .theme-toggle .icon-sun {{
                 display: none;
             }}
-            :root:not([data-theme=""light""]) .theme-toggle-thumb .icon-moon {{
+            :root:not([data-theme=""light""]) .theme-toggle .icon-moon {{
                 display: block;
             }}
         }}
@@ -1368,10 +1339,6 @@ public static partial class LayoutProvider
             .icon-btn {{
                 width: 44px;
                 height: 44px;
-            }}
-            .theme-toggle::after {{
-                content: ""; position: absolute; left: 0; right: 0;
-                top: 50%; transform: translateY(-50%); height: 44px;
             }}
             .nav-item a, .toc-item a {{
                 min-height: 44px; display: flex; align-items: center;

@@ -244,9 +244,8 @@ public sealed class PageRequestHandler
         var pageControlsEditIcon = !isHomePage && config?.PageControls?.EditLink?.Icon is { Length: > 0 } pcIconName
             ? await IconProvider.InlineSvgAsync(pcIconName, _iconsDir, _fallbackIconsDir)
             : null;
-        var isLocalRequest = LocalRequest.IsLocal(context);
         var pageControlsHtml = !isHomePage
-            ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, config?.EditLink, basePath, _settings.DocsRootAbsolute, pageControlsEditIcon, isLocalRequest)
+            ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, config?.EditLink, basePath, _settings.DocsRootAbsolute, pageControlsEditIcon)
             : string.Empty;
 
         var promoBarHtml = config?.Promo is { Length: > 0 } promoSource

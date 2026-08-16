@@ -22,20 +22,18 @@ public static class PageControlsHtmlRenderer
         EditLinkConfig? barkEditLink,
         string basePath,
         string docsRoot,
-        string? resolvedEditIcon = null,
-        bool isLocalRequest = false)
+        string? resolvedEditIcon = null)
     {
         if (config is null) return string.Empty;
 
         var hasRelPath = page.OriginalRelativePath is not null;
         var hasFileGroup = config.DownloadMarkdown && hasRelPath;
         var hasRss = config.SubscribeRss;
-        var hasEditors = isLocalRequest && config.OpenInEditor is { Count: > 0 } && hasRelPath;
         var hasEditLink = config.EditLink is not null
                        && barkEditLink is { Pattern.Length: > 0 }
                        && hasRelPath;
 
-        if (!hasFileGroup && !hasRss && !hasEditors && !hasEditLink)
+        if (!hasFileGroup && !hasRss && !hasEditLink)
             return string.Empty;
 
         var relPath = page.OriginalRelativePath ?? string.Empty;
@@ -77,31 +75,10 @@ public static class PageControlsHtmlRenderer
               .Append("</svg>Copy RSS feed URL</a>");
         }
 
-        // ── Group 2: editors ──
-        if (hasEditors)
-        {
-            if (hasFileGroup || hasRss) sb.Append(Divider);
-
-            foreach (var editor in config.OpenInEditor!)
-            {
-                if (string.IsNullOrEmpty(editor.Template)) continue;
-                var resolved = editor.Template
-                    .Replace("{docsRoot}", docsRoot)
-                    .Replace("{path}", relPath);
-                var href = LayoutProvider.HtmlEncode(resolved);
-                var label = LayoutProvider.HtmlEncode(editor.Label);
-                sb.Append($"<a class=\"page-controls-item\" role=\"menuitem\" href=\"{href}\" target=\"_blank\" rel=\"noopener noreferrer\">")
-                  .Append("<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" width=\"14\" height=\"14\">")
-                  .Append("<path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/>")
-                  .Append("<path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/>")
-                  .Append($"</svg>{label}</a>");
-            }
-        }
-
-        // ── Group 3: edit link (URL from top-level editLink config; label/icon from pageControls.editLink) ──
+        // ── Group 2: edit link (URL from top-level editLink config; label/icon from pageControls.editLink) ──
         if (hasEditLink)
         {
-            if (hasFileGroup || hasRss || hasEditors) sb.Append(Divider);
+            if (hasFileGroup || hasRss) sb.Append(Divider);
 
             var encodedPath = string.Join("/", relPath.Split('/').Select(Uri.EscapeDataString));
             var editHref = LayoutProvider.HtmlEncode(barkEditLink!.Pattern.Replace(":path", encodedPath));

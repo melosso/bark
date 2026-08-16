@@ -4,15 +4,7 @@ public sealed record PageControlsConfig
 {
     public bool DownloadMarkdown { get; init; }
     public bool SubscribeRss { get; init; }
-    public IReadOnlyList<OpenInEditorConfig>? OpenInEditor { get; init; }
     public PageControlsEditLinkConfig? EditLink { get; init; }
-}
-
-public sealed record OpenInEditorConfig
-{
-    /// <summary>URL template; <c>{path}</c> and <c>{docsRoot}</c> are substituted at render time.</summary>
-    public required string Template { get; init; }
-    public string Label { get; init; } = "Open in editor";
 }
 
 public sealed record PageControlsEditLinkConfig
