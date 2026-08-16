@@ -199,7 +199,6 @@ public static partial class LayoutProvider
         }}
         .sidebar-left {{
             background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border);
             padding: 2.75rem 1.75rem;
             position: sticky; top: var(--topbar-height); align-self: start;
             height: calc(100vh - var(--topbar-height)); overflow-y: auto;
@@ -546,7 +545,7 @@ public static partial class LayoutProvider
         }}
         .bark-hero-text {{
             font-size: 3rem; font-weight: 700; color: var(--text-color);
-            letter-spacing: -0.03em; margin-bottom: 1.1rem;
+            letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 1.1rem;
         }}
         .bark-hero-tagline {{
             font-size: 1.15rem; color: var(--text-muted); max-width: 540px;
@@ -607,12 +606,16 @@ public static partial class LayoutProvider
         a.bark-feature:hover .bark-feature-title {{
             color: var(--accent);
         }}
+        a.bark-feature:hover .bark-feature-icon {{
+            color: var(--accent);
+        }}
         .bark-feature-icon {{
             grid-column: 1; grid-row: 1;
             display: inline-flex; align-items: center;
             font-size: 1.15rem;
             color: var(--text-muted);
             background: none;
+            transition: color 0.15s ease;
         }}
         .bark-feature-icon img {{
             width: 1.15rem; height: 1.15rem; object-fit: contain;
@@ -725,7 +728,7 @@ public static partial class LayoutProvider
         }}
         /* Element-scoped prose outranks the .bark-* classes; excluding them keeps themes able to override. */
         .content h1:not(.bark-hero-text):not(.bark-hero-name) {{
-            font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em;
+            font-size: 2.35rem; font-weight: 650; letter-spacing: -0.035em;
             margin-bottom: 1rem; scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         .content h2, .content h3, .content h4, .content h5, .content h6 {{
@@ -817,7 +820,7 @@ public static partial class LayoutProvider
         }}
         .content h2:not(.bark-feature-title) {{
             font-size: 1.4rem; font-weight: 500; letter-spacing: -0.02em;
-            margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.3rem;
+            margin-top: 2.75rem; margin-bottom: 1rem; padding-bottom: 0.3rem;
             border-bottom: 1px solid var(--border); scroll-margin-top: calc(var(--topbar-height) + 1rem);
         }}
         .content p:not(.bark-hero-tagline):not(.bark-feature-details) {{
@@ -832,7 +835,7 @@ public static partial class LayoutProvider
         .content a:hover {{
             text-decoration-color: var(--accent);
         }}
-        .content a.bark-hero-action, .content a.bark-feature {{
+        .content a.bark-hero-action, .content a.bark-feature, .content a.pagination-link {{
             text-decoration: none;
         }}
         .content a.bark-feature {{
@@ -1223,20 +1226,22 @@ public static partial class LayoutProvider
             vertical-align: middle;
         }}
         .pagination {{
-            display: flex; justify-content: space-between;
+            display: flex; justify-content: space-between; gap: 1rem;
             margin-top: 5rem; padding-top: 2rem;
             border-top: 1px solid var(--border);
         }}
         .pagination-link {{
             text-decoration: none; color: var(--text-muted);
-            display: flex; flex-direction: column; gap: 0.25rem;
-            transition: color 0.2s ease;
+            display: flex; flex-direction: column; gap: 0.3rem;
+            flex: 1 1 0; min-width: 0; max-width: 22rem;
+            padding: 0.85rem 1.1rem; border: 1px solid var(--border); border-radius: 8px;
+            transition: color 0.15s ease, border-color 0.15s ease;
         }}
         .pagination-link:hover {{
-            color: var(--accent);
+            color: var(--accent); border-color: var(--accent);
         }}
         .pagination-link .label {{
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+            font-size: 0.80rem; font-weight: 600;
         }}
         .pagination-link .title {{
             font-size: 1rem; font-weight: 500; color: var(--text-color);
@@ -1439,6 +1444,7 @@ public static partial class LayoutProvider
                 position: fixed; top: var(--topbar-height); left: 0;
                 height: calc(100dvh - var(--topbar-height)); width: 280px;
                 max-width: 85vw; z-index: 1003;
+                box-shadow: var(--shadow-lg);
                 transform: translateX(-100%);
                 transition: transform 0.2s ease;
             }}
