@@ -44,7 +44,7 @@ fn main() {
 SELECT id, title FROM pages WHERE published = true ORDER BY title;
 ```
 
-Use the real language id (`csharp`, not `c#`); the shorthand doesn't work the same.
+Shorthands work alongside the full ids: `c#`, `cs` and `dotnet` all reach the C# grammar, as do `f#` for F# and `c++` for C++. A name Bark has no grammar for still renders, just without colors.
 
 ## Title bars
 
