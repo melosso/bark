@@ -256,9 +256,22 @@ $$
 
 Define abbreviations by providing the reference at the bottom of your document, which will automatically wrap matching terms in an `<abbr>` tag:
 
-*[HTML]: HyperText Markup Language
+````md
+The spec is written by the WHATWG and served here over HTTP.
 
-You can use HTML anywhere in your text.
+*[WHATWG]: Web Hypertext Application Technology Working Group
+*[HTTP]: HyperText Transfer Protocol
+````
+
+Renders as:
+
+The spec is written by the WHATWG and served here over HTTP.
+
+*[HTML]: HyperText Markup Language
+*[WHATWG]: Web Hypertext Application Technology Working Group
+*[HTTP]: HyperText Transfer Protocol
+
+A definition covers the whole page, so every later mention picks it up: you can use HTML anywhere in your text and it stays explained. Terms carry a dotted underline. On a desktop the explanation appears on hover; on a phone, tap the term and it appears just above it.
 
 ## Citations
 

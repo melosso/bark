@@ -89,6 +89,7 @@ public sealed partial class MarkdownService
 
         var html = UnescapeBraces(AddHeadingAnchors(Markdown.ToHtml(markdown, _pipeline)));
         html = PrefixBodyContent(html, _basePath);
+        html = RewriteAbbreviations(html);
 
         if (frontMatter?.Layout == "home")
             html = RenderHomePage(frontMatter, _basePath) + html;
@@ -270,6 +271,17 @@ public sealed partial class MarkdownService
 
     public string ToHtml(string markdown) =>
         PrefixBodyContent(UnescapeBraces(Markdown.ToHtml(markdown, _pipeline)), _basePath);
+
+    // The browser's own abbr tooltip is hover-only, so touch never sees it, and it cannot be styled or
+    // suppressed. The expansion moves to data-tip for the CSS tooltip, tabindex lets a tap open it, and
+    // the visually hidden copy carries it to screen readers, which read a title attribute inconsistently.
+    private static string RewriteAbbreviations(string html) =>
+        AbbrTagRegex().Replace(html, m =>
+            $"<abbr tabindex=\"0\" data-tip=\"{m.Groups[1].Value}\">{m.Groups[2].Value}" +
+            $"<span class=\"sr-only\"> ({m.Groups[1].Value})</span></abbr>");
+
+    [GeneratedRegex(@"<abbr title=""([^""]*)"">(.*?)</abbr>", RegexOptions.Singleline)]
+    private static partial Regex AbbrTagRegex();
 
     [GeneratedRegex(@"``[^`\n]*``|`[^`\n]*`")]
     private static partial Regex InlineCodeSpanRegex();
