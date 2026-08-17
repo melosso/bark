@@ -153,9 +153,9 @@ public sealed class ThemeContrastTests
 
 public sealed partial class ThemeCssIntegrityTests
 {
-    /// <summary>Set inline by the syntax highlighter on the elements that read them, not by any theme.</summary>
+    /// <summary>Set inline on the elements that read them, not by any theme.</summary>
     private static readonly string[] ExternallyDefined =
-        ["--shiki-light", "--shiki-dark"];
+        ["--shiki-light", "--shiki-dark", "--tip-shift"];
 
     public static TheoryData<string> ThemeNames() => [.. ThemeRegistry.All.Select(t => t.Name)];
 

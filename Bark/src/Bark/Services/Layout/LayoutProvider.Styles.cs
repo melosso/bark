@@ -766,7 +766,7 @@ public static partial class LayoutProvider
         .content abbr[data-tip]::after {{
             content: attr(data-tip);
             position: absolute; left: 50%; bottom: calc(100% + 0.45rem);
-            transform: translateX(-50%) translateY(0.2rem); z-index: 20;
+            transform: translateX(calc(-50% + var(--tip-shift, 0px))) translateY(0.2rem); z-index: 20;
             width: max-content; max-width: min(15rem, 60vw);
             padding: 0.4rem 0.6rem;
             background-color: var(--sidebar-bg); color: var(--text-color);
@@ -779,7 +779,7 @@ public static partial class LayoutProvider
         }}
         .content abbr[data-tip]:hover::after,
         .content abbr[data-tip]:focus::after {{
-            opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
+            opacity: 1; visibility: visible; transform: translateX(calc(-50% + var(--tip-shift, 0px))) translateY(0);
         }}
         @media (prefers-reduced-motion: reduce) {{
             .content abbr[data-tip]::after {{
