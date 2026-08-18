@@ -273,10 +273,10 @@ public sealed class LayoutProviderTests
     }
 
     [Fact]
-    public void ResolveAssetUrl_Empty_ReturnsEmpty()
+    public void ResolveAssetUrl_Empty_ReturnsNull()
     {
         var result = LayoutProvider.ResolveAssetUrl("", "/docs");
-        Assert.Equal("", result);
+        Assert.Null(result);
     }
 
     [Fact]
@@ -318,6 +318,20 @@ public sealed class LayoutProviderTests
             basePath: "/docs");
 
         Assert.Contains("<img src=\"https://cdn.example.com/logo.svg\"", html);
+    }
+
+    [Fact]
+    public void GetLayout_BlankBrandImage_RendersNoImg()
+    {
+        var html = LayoutProvider.GetLayout(
+            "Title", "<p>content</p>",
+            "<nav>nav</nav>", "<li>toc</li>",
+            "<a href='/'>Home</a>", "<nav>pagination</nav>",
+            null,
+            brandImage: "",
+            basePath: "/docs");
+
+        Assert.DoesNotContain("<img src=\"\"", html);
     }
 
     [Fact]

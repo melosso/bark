@@ -316,7 +316,7 @@ public static partial class LayoutProvider
     public static string? ResolveAssetUrl(string? url, string basePath)
     {
         if (string.IsNullOrWhiteSpace(url))
-            return url;
+            return null;
 
         if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
             || url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
