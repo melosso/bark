@@ -23,7 +23,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./docs:/app/docs
+      - ./docs:/app/docs:ro,Z
 ```
 
 The `./docs` volume is your content: Markdown files plus an optional `config.json`. Bark reads everything from there.

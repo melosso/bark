@@ -19,7 +19,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./docs:/app/docs
+      - ./docs:/app/docs:ro,Z
     environment:
       PublicBaseUrl: https://docs.example.com
       AllowedHosts: docs.example.com
