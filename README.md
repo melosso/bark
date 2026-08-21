@@ -57,6 +57,8 @@ A Linux x64 self-contained-runtime build (`*-Linux_x64.zip`) is published alongs
 
 ## Configuration
 
+Keeping `docs/` in sync with a Git remote, including private-repos, is covered in [Deploy](Bark/docs/guide/deploy.md#keeping-docs-in-sync-with-git).
+
 #### Writing documentation
 
 Drop Markdown files into `docs/`. Folder structure becomes the navigation tree; `index.md` becomes a section's landing page.

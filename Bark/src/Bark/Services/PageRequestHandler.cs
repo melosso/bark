@@ -118,7 +118,8 @@ public sealed class PageRequestHandler
         var config = _docs.SiteConfig;
 
         // Per request, not at startup: config.json hot-reloads, appsettings does not.
-        var theme = ThemeRegistry.Resolve(_settings.CliTheme ?? _themeOptions.Name ?? config?.Theme);
+        var (themeName, themeMode) = ThemeSelection.Split(_settings.CliTheme ?? _themeOptions.Name ?? config?.Theme);
+        var theme = ThemeRegistry.Resolve(themeName);
 
         var page = await _docs.GetPageAsync(path, context.RequestAborted);
         if (page == null && isRootRequest)
@@ -128,7 +129,7 @@ public sealed class PageRequestHandler
         {
             context.Response.StatusCode = 404;
             context.Response.ContentType = "text/html; charset=utf-8";
-            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath, config?.Lang ?? "en", theme));
+            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath, config?.Lang ?? "en", theme, themeMode));
             return;
         }
 
@@ -306,7 +307,8 @@ public sealed class PageRequestHandler
             promoBarHtml: promoBarHtml,
             socialMetaHtml: socialMetaHtml,
             structuredDataHtml: structuredDataHtml,
-            theme: theme
+            theme: theme,
+            themeMode: themeMode
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";

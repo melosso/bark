@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Bark.Models;
 using Bark.Services.Layout;
 using Bark.Services.Theming;
 
@@ -237,4 +238,59 @@ public sealed partial class ThemeCssIntegrityTests
 
     [GeneratedRegex(@"<style[^>]*>(.*?)</style>", RegexOptions.Singleline)]
     private static partial Regex StyleBlockPattern();
+}
+
+public sealed class ThemeSelectionTests
+{
+    [Theory]
+    [InlineData("forest-ledger dark", "forest-ledger", ThemeMode.Dark)]
+    [InlineData("forest-ledger light", "forest-ledger", ThemeMode.Light)]
+    [InlineData("dark forest-ledger", "forest-ledger", ThemeMode.Dark)]
+    [InlineData("forest-ledger", "forest-ledger", ThemeMode.Auto)]
+    [InlineData("dark", null, ThemeMode.Dark)]
+    [InlineData(null, null, ThemeMode.Auto)]
+    [InlineData("  ", null, ThemeMode.Auto)]
+    public void Split_SeparatesNameFromMode(string? value, string? expectedName, ThemeMode expectedMode)
+    {
+        var (name, mode) = ThemeSelection.Split(value);
+        Assert.Equal(expectedName, name);
+        Assert.Equal(expectedMode, mode);
+    }
+
+    [Theory]
+    [InlineData(ThemeMode.Dark, "data-theme=\"dark\"")]
+    [InlineData(ThemeMode.Light, "data-theme=\"light\"")]
+    public void GetLayout_ForcedMode_SetsHtmlAttributeAndHidesToggle(ThemeMode mode, string expectedAttr)
+    {
+        var html = LayoutProvider.GetLayout(
+            title: "Test",
+            content: "<p>body</p>",
+            navigationHtml: "",
+            tocHtml: null,
+            breadcrumbHtml: "",
+            paginationHtml: "",
+            theme: ThemeRegistry.Default,
+            themeMode: mode);
+
+        Assert.Contains(expectedAttr, html, StringComparison.Ordinal);
+        Assert.DoesNotContain("id=\"theme-toggle\"", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void GetLayout_AutoMode_ShowsToggleAndNoForcedAttribute()
+    {
+        var html = LayoutProvider.GetLayout(
+            title: "Test",
+            content: "<p>body</p>",
+            navigationHtml: "",
+            tocHtml: null,
+            breadcrumbHtml: "",
+            paginationHtml: "",
+            theme: ThemeRegistry.Default,
+            themeMode: ThemeMode.Auto);
+
+        Assert.Contains("id=\"theme-toggle\"", html, StringComparison.Ordinal);
+        var htmlTag = html.Substring(html.IndexOf("<html", StringComparison.Ordinal), 200);
+        Assert.DoesNotContain("data-theme=", htmlTag, StringComparison.Ordinal);
+    }
 }

@@ -26,6 +26,8 @@ Set `theme` in `docs/config.json`:
 
 That is the whole opt-in. Leave it out and you get `default`. The value hot-reloads with the rest of `config.json`, so you can flip between themes without restarting.
 
+Add ` dark` or ` light` to pin the color scheme, e.g. `"theme": "forest-ledger dark"`. That hides the in-page toggle and ignores the visitor's OS preference; leaving the mode off keeps the toggle and follows the OS, same as today.
+
 | Name | Look |
 |---|---|
 | `default` | Off-white ground, centred hero under a green kicker, deep green accent, flat monochrome outline icons under a hairline rule. |

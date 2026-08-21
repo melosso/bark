@@ -1,4 +1,5 @@
 using System.Text;
+using Bark.Models;
 using Bark.Services.Theming;
 
 namespace Bark.Services.Layout;
@@ -42,8 +43,17 @@ public static partial class LayoutProvider
         string? promoBarHtml = null,
         string? socialMetaHtml = null,
         string? structuredDataHtml = null,
-        IBarkTheme? theme = null)
+        IBarkTheme? theme = null,
+        ThemeMode themeMode = ThemeMode.Auto)
     {
+        // "dark"/"light" in the theme value pins the scheme; no toggle to show, no client sync to run against it
+        var toggleEnabled = enableDarkMode && themeMode == ThemeMode.Auto;
+        var forcedThemeAttr = themeMode switch
+        {
+            ThemeMode.Dark => " data-theme=\"dark\"",
+            ThemeMode.Light => " data-theme=\"light\"",
+            _ => "",
+        };
         var scrollIndicatorHtml = showScrollIndicator ? @"<div id=""scroll-indicator""></div>" : "";
         var faviconHtml = BuildFaviconLink(favicon, basePath);
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
@@ -117,20 +127,24 @@ public static partial class LayoutProvider
 
         var nonceAttr = nonce is { Length: > 0 } ? $" nonce=\"{nonce}\"" : "";
         // Pre-<style> so no transition can fire; without a stored theme, data-theme stays unset so CSS follows live OS changes.
-        var themeInitScript = enableDarkMode
+        var themeInitScript = toggleEnabled
             ? "<script" + nonceAttr + ">(function(){try{var t=localStorage.getItem('bark-theme');if(t==='dark'||t==='light'){var r=document.documentElement;r.setAttribute('data-theme',t);r.style.colorScheme=t;}}catch(e){}})();</script>"
             : "";
 
-        var themeToggleHtml = enableDarkMode
+        var themeToggleHtml = toggleEnabled
             ? @"<button type=""button"" class=""icon-btn theme-toggle"" id=""theme-toggle"" role=""switch"" aria-checked=""false"" aria-label=""Toggle dark mode"">
                 <svg class=""icon-sun"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><circle cx=""12"" cy=""12"" r=""4""/><path d=""M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41""/></svg>
                 <svg class=""icon-moon"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z""/></svg>
             </button>"
             : "";
 
-        var colorSchemeMeta = enableDarkMode
-            ? "<meta name=\"color-scheme\" content=\"light dark\">"
-            : "<meta name=\"color-scheme\" content=\"light\">";
+        var colorSchemeMeta = themeMode switch
+        {
+            ThemeMode.Dark => "<meta name=\"color-scheme\" content=\"dark\">",
+            ThemeMode.Light => "<meta name=\"color-scheme\" content=\"light\">",
+            _ when enableDarkMode => "<meta name=\"color-scheme\" content=\"light dark\">",
+            _ => "<meta name=\"color-scheme\" content=\"light\">",
+        };
 
         var canonicalLink = canonicalUrl is { Length: > 0 }
             ? $"<link rel=\"canonical\" href=\"{HtmlEncode(canonicalUrl)}\">"
@@ -138,7 +152,7 @@ public static partial class LayoutProvider
 
         return $@"
 <!DOCTYPE html>
-<html lang=""{HtmlEncode(lang)}"" class=""theme-{HtmlEncode(activeTheme.Name)}"">
+<html lang=""{HtmlEncode(lang)}"" class=""theme-{HtmlEncode(activeTheme.Name)}""{forcedThemeAttr}>
 <head>
     <meta charset=""UTF-8"">
     {themeInitScript}
@@ -229,33 +243,42 @@ public static partial class LayoutProvider
         </main>
         {sidebarRightHtml}
     </div>
-    {GetScripts(enableLiveReload, enableDarkMode, buildVersion, basePath, nonce, staticSearch)}
+    {GetScripts(enableLiveReload, toggleEnabled, buildVersion, basePath, nonce, staticSearch)}
 </body>
 </html>";
     }
 
-    public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "", string lang = "en", IBarkTheme? theme = null)
+    public static string Get404Layout(Func<string?, string> htmlEncode, string basePath = "", string lang = "en", IBarkTheme? theme = null, ThemeMode themeMode = ThemeMode.Auto)
     {
         var homeHref = basePath.Length == 0 ? "/" : $"{basePath}/";
         var activeTheme = theme ?? ThemeRegistry.Default;
         // Built outside the interpolated block so JS/CSS braces don't need escaping.
         var darkVars = ThemeCssBuilder.BuildMinimalTokenCss(activeTheme);
         var lightVars = ThemeCssBuilder.BuildMinimalLightTokenCss(activeTheme);
-        const string themeInit = "<script>(function(){" +
-            "function apply(){try{var t=localStorage.getItem('bark-theme');var r=document.documentElement;" +
-            "if(t==='dark'||t==='light'){r.setAttribute('data-theme',t);r.style.colorScheme=t;}" +
-            "else{r.removeAttribute('data-theme');r.style.colorScheme='';}" +
-            "}catch(e){}}" +
-            "apply();" +
-            "window.addEventListener('pageshow',function(e){if(e.persisted)apply();});" +
-            "})()</script>";
+        var forcedThemeAttr = themeMode switch
+        {
+            ThemeMode.Dark => " data-theme=\"dark\"",
+            ThemeMode.Light => " data-theme=\"light\"",
+            _ => "",
+        };
+        // forced mode: no client sync, the SSR data-theme attribute already pins it
+        var themeInit = themeMode == ThemeMode.Auto
+            ? "<script>(function(){" +
+              "function apply(){try{var t=localStorage.getItem('bark-theme');var r=document.documentElement;" +
+              "if(t==='dark'||t==='light'){r.setAttribute('data-theme',t);r.style.colorScheme=t;}" +
+              "else{r.removeAttribute('data-theme');r.style.colorScheme='';}" +
+              "}catch(e){}}" +
+              "apply();" +
+              "window.addEventListener('pageshow',function(e){if(e.persisted)apply();});" +
+              "})()</script>"
+            : "";
         var darkCss = "@media (prefers-color-scheme: dark) {" +
             ":root:not([data-theme=\"light\"]) {" + darkVars + "}" +
             "}" +
             ":root[data-theme=\"dark\"] {" + darkVars + "}";
         return $@"
 <!DOCTYPE html>
-<html lang=""{htmlEncode(lang)}"">
+<html lang=""{htmlEncode(lang)}""{forcedThemeAttr}>
 <head>
     <meta charset=""UTF-8"">
     {themeInit}

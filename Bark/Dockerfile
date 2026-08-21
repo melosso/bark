@@ -12,6 +12,11 @@ RUN dotnet publish src/Bark/Bark.csproj -c Release -o /app --no-self-contained
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
+
+# only needed for the opt-in Git:Enabled content sync (see GitContentSyncService)
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app .
 
 # Ensure wwwroot is writable by the app user so theme files
