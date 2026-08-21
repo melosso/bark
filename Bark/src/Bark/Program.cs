@@ -30,6 +30,7 @@ try
     builder.Host.UseSerilog();
 
     var docsOptions = builder.Configuration.GetSection("Docs").Get<DocsOptions>() ?? new DocsOptions();
+    docsOptions = docsOptions with { RootPath = Environment.GetEnvironmentVariable("DOCS_ROOT_PATH") ?? docsOptions.RootPath };
     if (exportDir != null)
         // No server survives the export, so the hot-reload poll and /api/search have nothing to talk to.
         docsOptions = docsOptions with { EnableHotReload = false, IsStaticExport = true };
@@ -39,9 +40,32 @@ try
     var basePath = NormalizeBasePath(cliArgs.BasePath ?? docsOptions.BasePath);
     var docsRootAbsolute = Path.GetFullPath(docsOptions.RootPath).Replace(Path.DirectorySeparatorChar, '/');
 
+    // WebRootPath is null when wwwroot/ is missing (e.g. under test hosts); fall back to the conventional path
+    var webRootPath = builder.Environment.WebRootPath
+        ?? Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+
+    var gitSyncOptions = new GitSyncOptions
+    {
+        Enabled = Environment.GetEnvironmentVariable("GIT_ENABLED") is "true" or "1",
+        Url = Environment.GetEnvironmentVariable("GIT_URL"),
+        Username = Environment.GetEnvironmentVariable("GIT_USERNAME"),
+        Password = Environment.GetEnvironmentVariable("GIT_PASSWORD"),
+        Root = Environment.GetEnvironmentVariable("GIT_ROOT"),
+        Cron = Environment.GetEnvironmentVariable("GIT_CRON") ?? "*/5 * * * *",
+    };
+    var gitRoot = string.IsNullOrWhiteSpace(gitSyncOptions.Root)
+        ? docsRootAbsolute
+        : Path.GetFullPath(gitSyncOptions.Root).Replace(Path.DirectorySeparatorChar, '/');
+
+    // theme/ inside the git-synced repo wins over wwwroot/theme when the repo actually has one
+    var gitThemeDir = Path.Combine(gitRoot, "theme");
+    var usingGitTheme = !string.IsNullOrWhiteSpace(gitSyncOptions.Root) && Directory.Exists(gitThemeDir);
+    var themeDir = usingGitTheme ? gitThemeDir : Path.Combine(webRootPath, "theme");
+    try { Directory.CreateDirectory(themeDir); } catch (IOException) { }
+
     // appsettings.json's Docs:Themes wins if present; theme.json is the file-only alternative.
     var themeOptions = builder.Configuration.GetSection("Docs:Themes").Get<ThemeOptions>()
-        ?? ThemeJsonLoader.Load(builder.Environment.WebRootPath)
+        ?? ThemeJsonLoader.Load(themeDir)
         ?? new ThemeOptions();
     builder.Services.AddSingleton(themeOptions);
 
@@ -60,31 +84,14 @@ try
     builder.Services.AddHostedService(sp => sp.GetRequiredService<DocumentationService>());
     builder.Services.AddSingleton<IExtensionSource>(sp => sp.GetRequiredService<DocumentationService>());
 
-    // plain GIT_URL/GIT_USERNAME/GIT_PASSWORD/GIT_CRON/GIT_ENABLED aliases, so a docker-compose .env file
-    // doesn't need the Git__ double-underscore convention; Git__* still wins when both are set
-    var gitSyncOptions = builder.Configuration.GetSection("Git").Get<GitSyncOptions>() ?? new GitSyncOptions();
-    gitSyncOptions = gitSyncOptions with
-    {
-        Enabled = gitSyncOptions.Enabled || Environment.GetEnvironmentVariable("GIT_ENABLED") is "true" or "1",
-        Url = gitSyncOptions.Url ?? Environment.GetEnvironmentVariable("GIT_URL"),
-        Username = gitSyncOptions.Username ?? Environment.GetEnvironmentVariable("GIT_USERNAME"),
-        Password = gitSyncOptions.Password ?? Environment.GetEnvironmentVariable("GIT_PASSWORD"),
-        Cron = Environment.GetEnvironmentVariable("Git__Cron") ?? Environment.GetEnvironmentVariable("GIT_CRON") ?? gitSyncOptions.Cron,
-    };
     if (exportDir is null) // no background pulls during a one-shot static export
         builder.Services.AddHostedService(sp => new GitContentSyncService(
-            gitSyncOptions, docsRootAbsolute, sp.GetRequiredService<ILogger<GitContentSyncService>>()));
+            gitSyncOptions, gitRoot, sp.GetRequiredService<ILogger<GitContentSyncService>>()));
 
     var customCspRaw = builder.Configuration["Docs:ContentSecurityPolicy"];
     var customCsp = string.IsNullOrWhiteSpace(customCspRaw) ? null : customCspRaw;
 
-    // WebRootPath is null when wwwroot/ is missing (e.g. under test hosts); fall back to the conventional path
-    var webRootPath = builder.Environment.WebRootPath
-        ?? Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
-
-    // Drop files at wwwroot/theme/custom.{css,js} and they're picked up at startup, no config edit needed. Does NOT support hot reloading.
-    var themeDir = Path.Combine(webRootPath, "theme");
-    try { Directory.CreateDirectory(themeDir); } catch (IOException) { }
+    // Drop files at theme/custom.{css,js} and they're picked up at startup, no config edit needed. Does NOT support hot reloading.
     var autoCustomCssUrl = File.Exists(Path.Combine(themeDir, "custom.css")) ? $"{basePath}/theme/custom.css" : null;
     var autoCustomJsUrl = File.Exists(Path.Combine(themeDir, "custom.js")) ? $"{basePath}/theme/custom.js" : null;
 
@@ -173,6 +180,10 @@ try
     {
         app.UseStaticFiles();
     }
+
+    // when theme/ lives in the git-synced repo rather than wwwroot, wwwroot's static file provider can't see it
+    if (usingGitTheme)
+        app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(themeDir), RequestPath = "/theme" });
 
     // Serve user-hosted media/files from /assets/
     var assetsDir = Path.Combine(Path.GetFullPath(docsOptions.RootPath), "assets");
