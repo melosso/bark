@@ -36,7 +36,7 @@ public sealed class CspNonceAndOriginTests
         Assert.False(string.IsNullOrWhiteSpace(CspNonce.ProcessSalt));
 
     private static PageRequestSettings Settings(string? publicBaseUrl) =>
-        new("", null, null, null, "wwwroot", "/docs", publicBaseUrl);
+        new("", null, "wwwroot/theme", "wwwroot", "/docs", publicBaseUrl);
 
     private static HttpContext Request(string host, string scheme = "https")
     {

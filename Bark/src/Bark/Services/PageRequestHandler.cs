@@ -14,8 +14,7 @@ namespace Bark.Services;
 public sealed record PageRequestSettings(
     string BasePath,
     string? CustomCsp,
-    string? AutoCustomCssUrl,
-    string? AutoCustomJsUrl,
+    string ThemeDir,
     string WebRootPath,
     string DocsRootAbsolute,
     string? PublicBaseUrl,
@@ -213,8 +212,8 @@ public sealed class PageRequestHandler
         }
 
         var themeCss = ThemeProvider.BuildThemeCss(_themeOptions);
-        var customCssLink = ThemeProvider.BuildCustomCssLink(_themeOptions, _settings.AutoCustomCssUrl, basePath);
-        var customJsScript = ThemeProvider.BuildCustomJsScript(_themeOptions, _settings.AutoCustomJsUrl, basePath);
+        var customCssLink = ThemeProvider.BuildCustomCssLink(_themeOptions, _settings.ThemeDir, basePath);
+        var customJsScript = ThemeProvider.BuildCustomJsScript(_themeOptions, _settings.ThemeDir, basePath);
         var brandText = config?.Brand ?? config?.Title ?? ThemeProvider.GetBrandText(_themeOptions);
         var brandImage = config?.BrandImage;
         var combinedThemeCss = themeCss + customCssLink + customJsScript;
