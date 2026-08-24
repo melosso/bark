@@ -27,6 +27,7 @@ public static class StaticSiteExporter
 
         var originPrefix = address.TrimEnd('/');
         var publicPrefix = string.IsNullOrEmpty(baseUrl) ? null : baseUrl.TrimEnd('/');
+        var basePath = app.Services.GetRequiredService<PageRequestSettings>().BasePath;
 
         foreach (var page in pages)
         {
@@ -36,6 +37,10 @@ public static class StaticSiteExporter
                 await response.Content.ReadAsStringAsync(cancellationToken), response);
             if (publicPrefix is not null)
                 html = html.Replace(originPrefix, publicPrefix);
+            var depth = page.Path == "index" ? 0 : page.Path.Split('/').Length;
+            var relativePrefix = string.Concat(Enumerable.Repeat("../", depth));
+            html = html.Replace($"{basePath}/bark.css", $"{relativePrefix}bark.css")
+                       .Replace($"{basePath}/bark.js", $"{relativePrefix}bark.js");
             var targetFile = page.Path == "index"
                 ? Path.Combine(outputDir, "index.html")
                 : Path.Combine(outputDir, page.Path, "index.html");
@@ -49,6 +54,13 @@ public static class StaticSiteExporter
             if (publicPrefix is not null)
                 content = content.Replace(originPrefix, publicPrefix);
             await File.WriteAllTextAsync(Path.Combine(outputDir, extra), content, cancellationToken);
+        }
+
+        foreach (var asset in new[] { "bark.css", "bark.js" })
+        {
+            using var assetResponse = await client.GetAsync($"/{asset}", cancellationToken);
+            var bytes = await assetResponse.Content.ReadAsByteArrayAsync(cancellationToken);
+            await File.WriteAllBytesAsync(Path.Combine(outputDir, asset), bytes, cancellationToken);
         }
 
         using var notFoundResponse = await client.GetAsync("/__bark_export_404__", cancellationToken);

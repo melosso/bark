@@ -212,6 +212,7 @@ try
 
     app.MapApiEndpoints();
     app.MapSeoEndpoints();
+    app.MapAssetEndpoints();
     app.MapContentEndpoints();
 
     if (exportDir != null)

@@ -2,8 +2,17 @@ namespace Bark.Services.Layout;
 
 public static partial class LayoutProvider
 {
-    /// <summary>Theme palette then component overrides, appended last so they win. One nonce'd style element, no second tag.</summary>
-    private static string GetStyles(string themeTokenCss, string themeComponentCss, string? nonce = null) => $@"    <style{GetNonceAttr(nonce)}>
+    private static GeneratedAsset? _cssAsset;
+
+    private static string GetStylesLink(string themeTokenCss, string themeComponentCss, string basePath)
+    {
+        var asset = GetStylesAsset(themeTokenCss, themeComponentCss, basePath);
+        return $"<link rel=\"stylesheet\" href=\"{basePath}/bark.css?v={asset.Version}\">";
+    }
+
+    internal static GeneratedAsset GetStylesAsset(string themeTokenCss, string themeComponentCss, string basePath) =>
+        GetOrBuildAsset(ref _cssAsset, themeTokenCss + " " + themeComponentCss + " " + basePath,
+            () => MinifyCss($@"
 {themeTokenCss}        * {{
             box-sizing: border-box;
             margin: 0;
@@ -1376,7 +1385,7 @@ public static partial class LayoutProvider
             }}
             .toc-inline summary::-webkit-details-marker {{ display: none; }}
             .toc-inline summary::after {{
-                content: ""; display: inline-block; width: 6px; height: 6px; flex-shrink: 0;
+                content: """"; display: inline-block; width: 6px; height: 6px; flex-shrink: 0;
                 border-right: 2px solid var(--text-muted); border-bottom: 2px solid var(--text-muted);
                 transform: rotate(-45deg); transition: transform 0.2s ease;
             }}
@@ -1482,6 +1491,11 @@ public static partial class LayoutProvider
             }}
         }}
 {themeComponentCss}
-</style>
-";
+"));
+
+    // CSS has no line comments or ASI to break, so collapsing all whitespace is safe here unlike in MinifyJs
+    private static string MinifyCss(string css) =>
+        System.Text.RegularExpressions.Regex.Replace(
+            System.Text.RegularExpressions.Regex.Replace(css, @"/\*[\s\S]*?\*/", ""),
+            @"[ \t]*[\r\n]+[ \t]*|[ \t]{2,}", " ").Trim();
 }
