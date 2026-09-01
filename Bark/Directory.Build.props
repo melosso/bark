@@ -1,12 +1,12 @@
 <Project>
   <PropertyGroup>
-    <Authors>Your Team</Authors>
-    <Company>Your Company</Company>
-    <Copyright>Copyright © 2020-$([System.DateTime]::Now.Year) Your Company</Copyright>
+    <Authors>hawkinslabdev</Authors>
+    <Company>hawkinslabdev</Company>
+    <Copyright>Copyright © 2020-$([System.DateTime]::Now.Year) hawkinslabdev</Copyright>
     <Product>Bark</Product>
-    <PackageProjectUrl>https://github.com/yourorg/bark</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/yourorg/bark</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/hawkinslabdev/bark</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/hawkinslabdev/bark</RepositoryUrl>
+    <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup>

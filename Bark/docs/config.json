@@ -17,8 +17,8 @@
   "favicon": "🌳",
   "lastUpdated": true,
   "theme": "default",
-  "promo": "**New:** version 0.0.1 is available. Read the [release notes](https://github.com/melosso/bark/releases).",
-  "footer": "Built with Bark · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE). Host your own instance now! [Learn more](https://github.com/melosso/bark){target=\"_blank\" rel=\"noopener\"}.",
+  "promo": "**New:** version 0.0.1 is available. Read the [release notes](https://github.com/hawkinslabdev/bark/releases).",
+  "footer": "Built with Bark · [EUPL-1.2](https://github.com/hawkinslabdev/bark/blob/main/LICENSE). Host your own instance now! [Learn more](https://github.com/hawkinslabdev/bark){target=\"_blank\" rel=\"noopener\"}.",
   "topNav": [
     {
       "text": "Home",
@@ -37,11 +37,11 @@
       "items": [
         {
           "text": "GitHub",
-          "link": "https://github.com/melosso/bark"
+          "link": "https://github.com/hawkinslabdev/bark"
         },
         {
           "text": "Releases",
-          "link": "https://github.com/melosso/bark/releases"
+          "link": "https://github.com/hawkinslabdev/bark/releases"
         },
         {
           "text": "Changelog",
@@ -199,7 +199,7 @@
   "socialLinks": [
     {
       "icon": "github",
-      "url": "https://github.com/melosso/bark",
+      "url": "https://github.com/hawkinslabdev/bark",
       "title": "GitHub"
     },
     {
@@ -209,7 +209,7 @@
     }
   ],
   "editLink": {
-    "pattern": "https://github.com/melosso/bark/edit/main/Bark/docs/:path",
+    "pattern": "https://github.com/hawkinslabdev/bark/edit/main/Bark/docs/:path",
     "text": "Edit this page on GitHub"
   },
   "pageControls": {

@@ -14,7 +14,7 @@ Prebuilt images are published to GHCR on every tagged release.
 ```yaml
 services:
   bark:
-    image: ghcr.io/melosso/bark:latest
+    image: ghcr.io/hawkinslabdev/bark:latest
     container_name: bark
     ports:
       - "8080:8080"
@@ -40,7 +40,7 @@ Bark can clone and pull `docs/` for you, entirely from env vars: no manual `git 
 ```yaml [docker-compose.yml]
 services:
   bark:
-    image: ghcr.io/melosso/bark:latest
+    image: ghcr.io/hawkinslabdev/bark:latest
     env_file: .env
     volumes:
       - ./docs:/app/docs:Z
@@ -79,7 +79,7 @@ volumes:
 ## Option B: Windows / IIS
 
 1. Install the [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/en-us/download/dotnet/10.0){target="_blank" rel="noopener"} on the server. This is what gives IIS the ASP.NET Core Module.
-2. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"} and extract it to your site folder, for example `C:\inetpub\bark`.
+2. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/hawkinslabdev/bark/releases){target="_blank" rel="noopener"} and extract it to your site folder, for example `C:\inetpub\bark`.
 3. In IIS, create a site pointing at that folder with the **No Managed Code** .NET CLR version. Bark hosts itself through the ASP.NET Core Module and needs nothing from the CLR.
 4. Start the site and browse to it.
 
@@ -89,7 +89,7 @@ The zip comes with a `web.config` set up for in-process hosting, so no manual ed
 
 A self-contained Linux x64 build comes with every release.
 
-1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"} and extract it:
+1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/hawkinslabdev/bark/releases){target="_blank" rel="noopener"} and extract it:
 
 ```bash
 mkdir -p /srv/bark && unzip Bark-*-Linux_x64.zip -d /srv/bark

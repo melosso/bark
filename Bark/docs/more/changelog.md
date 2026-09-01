@@ -7,7 +7,7 @@ toc: false
 
 # Changelog
 
-You can find the changelog of Bark in [our repository](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"} on GitHub.  
+You can find the changelog of Bark in [our repository](https://github.com/hawkinslabdev/bark/releases){target="_blank" rel="noopener"} on GitHub.  
 
 ::: tip Make sure to leave a star on GitHub
 You can help the repository grow by leaving a star on the GitHub repository.

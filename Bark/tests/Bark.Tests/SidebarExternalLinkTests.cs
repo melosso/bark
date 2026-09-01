@@ -13,7 +13,7 @@ public sealed class SidebarExternalLinkTests
             Items =
             [
                 new NavEntry { Title = "Intro", Path = "guide/intro" },
-                new NavEntry { Title = "GitHub", Path = "https://github.com/melosso/bark" },
+                new NavEntry { Title = "GitHub", Path = "https://github.com/hawkinslabdev/bark" },
                 new NavEntry { Title = "Outro", Path = "guide/outro" },
             ],
         },
@@ -24,7 +24,7 @@ public sealed class SidebarExternalLinkTests
     {
         var html = NavigationHtmlRenderer.BuildNavFromConfig(Sidebar(), "guide/intro", basePath: "/docs");
 
-        Assert.Contains("href=\"https://github.com/melosso/bark\"", html);
+        Assert.Contains("href=\"https://github.com/hawkinslabdev/bark\"", html);
         Assert.DoesNotContain("/docs/https:", html);
     }
 
@@ -50,8 +50,8 @@ public sealed class SidebarExternalLinkTests
     public void ExternalPath_NeverMarkedActive()
     {
         var html = NavigationHtmlRenderer.BuildNavFromConfig(
-            [new NavEntry { Title = "GitHub", Path = "https://github.com/melosso/bark" }],
-            currentPath: "https://github.com/melosso/bark",
+            [new NavEntry { Title = "GitHub", Path = "https://github.com/hawkinslabdev/bark" }],
+            currentPath: "https://github.com/hawkinslabdev/bark",
             basePath: "");
 
         Assert.DoesNotContain("is-active", html);

@@ -62,8 +62,8 @@ Navigation has three levels of control, and they mix:
     {
       "text": "More",
       "items": [
-        { "text": "GitHub", "link": "https://github.com/melosso/bark" },
-        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" }
+        { "text": "GitHub", "link": "https://github.com/hawkinslabdev/bark" },
+        { "text": "Releases", "link": "https://github.com/hawkinslabdev/bark/releases" }
       ]
     }
   ],
@@ -91,7 +91,7 @@ Navigation has three levels of control, and they mix:
     ]
   },
   "socialLinks": [
-    { "icon": "github", "url": "https://github.com/melosso/bark", "title": "GitHub" }
+    { "icon": "github", "url": "https://github.com/hawkinslabdev/bark", "title": "GitHub" }
   ]
 }
 ```

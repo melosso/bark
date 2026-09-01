@@ -67,7 +67,7 @@ A `path` starting with `http://` or `https://` is treated as an external link ra
         "title": "Resources",
         "items": [
           { "title": "Getting Started", "path": "guide/getting-started" },
-          { "title": "Source on GitHub", "path": "https://github.com/melosso/bark" }
+          { "title": "Source on GitHub", "path": "https://github.com/hawkinslabdev/bark" }
         ]
       }
     ]

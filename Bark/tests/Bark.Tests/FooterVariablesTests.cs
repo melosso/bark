@@ -35,8 +35,8 @@ public sealed class FooterVariablesTests
     [Fact]
     public void ExpandFooterVariables_AllVariables_ReplacesEach()
     {
-        var result = PageRequestHandler.ExpandFooterVariables("© {year} {brand} — {title}", "Melosso", "Bark Docs");
-        Assert.Equal($"© {DateTime.UtcNow.Year} Melosso — Bark Docs", result);
+        var result = PageRequestHandler.ExpandFooterVariables("© {year} {brand} — {title}", "hawkinslabdev", "Bark Docs");
+        Assert.Equal($"© {DateTime.UtcNow.Year} hawkinslabdev — Bark Docs", result);
     }
 
     [Fact]

@@ -20,7 +20,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/melosso/bark
+      link: https://github.com/hawkinslabdev/bark
 features:
   - icon: ⚡
     title: Hot reload

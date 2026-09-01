@@ -152,7 +152,7 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
   "favicon": "🌳",
   "lastUpdated": true,
   "editLink": {
-    "pattern": "https://github.com/melosso/bark/edit/main/docs/:path",
+    "pattern": "https://github.com/hawkinslabdev/bark/edit/main/docs/:path",
     "text": "Edit this page on GitHub"
   },
   "topNav": [
@@ -162,8 +162,8 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
     {
       "text": "More",
       "items": [
-        { "text": "GitHub", "link": "https://github.com/melosso/bark" },
-        { "text": "Releases", "link": "https://github.com/melosso/bark/releases" }
+        { "text": "GitHub", "link": "https://github.com/hawkinslabdev/bark" },
+        { "text": "Releases", "link": "https://github.com/hawkinslabdev/bark/releases" }
       ]
     }
   ],
@@ -195,7 +195,7 @@ A `TopNavItem` is either a direct link (`text` + `link`) or a dropdown (`text` +
     ]
   },
   "socialLinks": [
-    { "icon": "github", "url": "https://github.com/melosso/bark", "title": "GitHub" },
+    { "icon": "github", "url": "https://github.com/hawkinslabdev/bark", "title": "GitHub" },
     { "icon": "mastodon", "url": "https://fosstodon.org/@example", "title": "Mastodon" }
   ],
   "pageControls": {
@@ -236,4 +236,4 @@ Bark keeps its configuration surface intentionally small. There are no build pip
 
 Features like math rendering, syntax highlighting, and custom containers are part of the core and are always active.
 
-If you find yourself needing custom asset pipelines or structural layout changes, the recommended approach is to fork the source and modify it directly. Feel free to contribute by opening an issue in our open source [repository](https://github.com/melosso/bark/issues).
+If you find yourself needing custom asset pipelines or structural layout changes, the recommended approach is to fork the source and modify it directly. Feel free to contribute by opening an issue in our open source [repository](https://github.com/hawkinslabdev/bark/issues).

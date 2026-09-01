@@ -1,15 +1,15 @@
 # 🌳 Bark
 
 [![License](https://img.shields.io/badge/license-EUPL%201.2-blue)]( LICENSE)
-[![Last commit](https://img.shields.io/github/last-commit/melosso/bark)](https://github.com/melosso/bark/commits/main)
-[![Docker](https://img.shields.io/badge/ghcr.io-melosso%2Fbark-blue?logo=docker)](https://github.com/melosso/bark/pkgs/container/bark)
+[![Last commit](https://img.shields.io/github/last-commit/hawkinslabdev/bark)](https://github.com/hawkinslabdev/bark/commits/main)
+[![Docker](https://img.shields.io/badge/ghcr.io-hawkinslabdev%2Fbark-blue?logo=docker)](https://github.com/hawkinslabdev/bark/pkgs/container/bark)
 
 Meet Bark: your new favorite way to serve documentation. If you have a folder full of [Markdown](https://www.markdownguide.org/getting-started/) files, you have a beautiful, searchable documentation site ready to go.
 
 Built on the modern .NET stack, Bark is designed for those who want a powerful, self-hosted solution without being tethered to the traditional Microsoft ecosystem.
 
 <div>
-      <p align="center"><strong>🔍 <a href="https://melosso.github.io/bark/">See it in action!</a></strong></p>
+      <p align="center"><strong>🔍 <a href="https://hawkinslabdev.github.io/bark/">See it in action!</a></strong></p>
 </div>
 
 ![Screenshot of Bark](.github/images/preview.webp)
@@ -27,7 +27,7 @@ Prebuilt images are published to GHCR on every tagged release. Create a `docker-
 ```yaml
 services:
   bark:
-    image: ghcr.io/melosso/bark:latest
+    image: ghcr.io/hawkinslabdev/bark:latest
     container_name: bark
     ports:
       - "8080:8080"
@@ -46,7 +46,7 @@ Running locally only? Drop the `environment:` block. Left unset, absolute URLs f
 
 For those running Windows, follow the following steps:
 
-1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/melosso/bark/releases).
+1. Download the latest `*-Windows_x64.zip` from [Releases](https://github.com/hawkinslabdev/bark/releases).
 2. Extract it to your site folder (e.g. `C:\inetpub\bark`).
 3. In IIS, create a site (or app) pointing at that folder, with the **No Managed Code** .NET CLR version.
 4. The zip already includes a `web.config` wired for in-process hosting. No manual edits needed.

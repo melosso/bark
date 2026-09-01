@@ -18,7 +18,7 @@ Create a `docker-compose.yml`:
 ```yaml
 services:
   bark:
-    image: ghcr.io/melosso/bark:latest
+    image: ghcr.io/hawkinslabdev/bark:latest
     container_name: bark
     ports:
       - "8080:8080"

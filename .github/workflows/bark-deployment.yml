@@ -42,7 +42,7 @@ jobs:
     - name: Generate static site
       working-directory: ${{ github.workspace }}/publish
       run: |
-        ./Bark --export ${{ github.workspace }}/site --base-url https://melosso.github.io --base-path /bark
+        ./Bark --export ${{ github.workspace }}/site --base-url https://hawkinslabdev.github.io --base-path /bark
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
