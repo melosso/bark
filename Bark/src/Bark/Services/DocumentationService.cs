@@ -553,7 +553,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
             .Skip(localePrefix.Length == 0 ? 0 : 1)
             .Where(s => !s.Equals("index", StringComparison.OrdinalIgnoreCase))
             .ToArray();
-        var crumbs = new List<BreadcrumbItem> { new((localization ?? snapshotForHome.Locales.Root).BreadcrumbHome, homeHref) };
+        var table = localization ?? snapshotForHome.Locales.Root;
+        var crumbs = new List<BreadcrumbItem> { new(table.BreadcrumbHome, homeHref) };
 
         var snapshot = _snapshot;
         var accumulated = localePrefix;
@@ -564,13 +565,13 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
             if (snapshot.Pages.TryGetValue(accumulated, out var page))
                 crumbs.Add(new BreadcrumbItem(page.Title, $"/{accumulated}"));
             else if (snapshot.NavTitles.TryGetValue(accumulated, out var navTitle))
-                crumbs.Add(new BreadcrumbItem((localization ?? snapshotForHome.Locales.Root).Label(navTitle), null));
+                crumbs.Add(new BreadcrumbItem(table.Label(navTitle), null));
             else
             {
                 var title = segment.Replace('-', ' ').Replace('_', ' ');
                 if (title.Length > 0)
                     title = char.ToUpperInvariant(title[0]) + title[1..];
-                crumbs.Add(new BreadcrumbItem(title, null));
+                crumbs.Add(new BreadcrumbItem(table.Label(title), null));
             }
         }
 

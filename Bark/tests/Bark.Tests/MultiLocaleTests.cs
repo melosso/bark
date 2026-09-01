@@ -33,6 +33,7 @@ public sealed class MultiLocaleWebApplicationFactory : WebApplicationFactory<Pro
                 "Guide": "Handleiding",
                 "Install": "Installeren",
                 "Deploy": "Uitrollen",
+                "Guide": "Handleiding",
                 "Docs": "Documentatie",
                 "Written in English.": "Geschreven in het Nederlands.",
                 "**New:** an English announcement.": "**Nieuw:** een Nederlandse aankondiging."
@@ -350,6 +351,17 @@ public sealed class MultiLocaleTests : IClassFixture<MultiLocaleWebApplicationFa
 
         Assert.Equal("/nl/guide/install/", dutch.Headers.Location?.OriginalString);
         Assert.Equal("/guide/install/", english.Headers.Location?.OriginalString);
+    }
+
+    [Fact]
+    public async Task BreadcrumbSegmentsUseTheDictionary()
+    {
+        var html = await _factory.CreateClient().GetStringAsync("/nl/guide/install");
+        var start = html.IndexOf("class=\"breadcrumb\"", StringComparison.Ordinal);
+        var crumbs = html[start..html.IndexOf("</nav>", start, StringComparison.Ordinal)];
+
+        Assert.Contains("Handleiding", crumbs);
+        Assert.DoesNotContain(">Guide<", crumbs);
     }
 
     [Fact]
