@@ -12,17 +12,28 @@ public static class NavigationHtmlRenderer
 
     internal const string ExternalLinkRel = " target=\"_blank\" rel=\"noopener noreferrer\"";
 
-    public static string BuildNavigationHtml(NavigationNode node, string currentPath, Config? config, string basePath)
+    internal static string LocalizeLink(string localePrefix, string path)
     {
+        if (localePrefix.Length == 0 || path.Length == 0 || path.StartsWith('#') || UrlPaths.IsExternal(path))
+            return path;
+
+        return LocaleRouting.Localize(localePrefix, path);
+    }
+
+    public static string BuildNavigationHtml(NavigationNode node, string currentPath, Config? config, string basePath, string localePrefix = "", Localization? localization = null)
+    {
+        var l = localization ?? Localization.Default;
+        var configPath = LocaleRouting.Delocalize(localePrefix, currentPath);
+
         if (config?.Sidebar is { Count: > 0 } sidebars)
         {
-            var matchedSections = SidebarResolver.Resolve(sidebars, currentPath);
+            var matchedSections = SidebarResolver.Resolve(sidebars, configPath);
             if (matchedSections is not null)
-                return BuildNavFromConfig(matchedSections, currentPath, basePath);
+                return BuildNavFromConfig(matchedSections, configPath, basePath, localePrefix, l);
         }
 
         if (config?.Nav is { Count: > 0 } sections)
-            return BuildNavFromConfig(sections, currentPath, basePath);
+            return BuildNavFromConfig(sections, configPath, basePath, localePrefix, l);
 
         if (node.Children.Count == 0) return string.Empty;
 
@@ -53,12 +64,13 @@ public static class NavigationHtmlRenderer
         return html.ToString();
     }
 
-    public static string BuildNavFromConfig(List<NavEntry> entries, string currentPath, string basePath)
+    public static string BuildNavFromConfig(List<NavEntry> entries, string currentPath, string basePath, string localePrefix = "", Localization? localization = null)
     {
+        var l = localization ?? Localization.Default;
         var html = new StringBuilder();
         html.AppendLine("<div class=\"sidebar-tree\">");
         foreach (var entry in entries)
-            AppendSidebarEntry(html, entry, currentPath, level: 0, basePath);
+            AppendSidebarEntry(html, entry, currentPath, level: 0, basePath, localePrefix, l);
         html.AppendLine("</div>");
         return html.ToString();
     }
@@ -80,18 +92,19 @@ public static class NavigationHtmlRenderer
         return entry.Items?.Any(child => ContainsActiveDescendant(child, currentPath)) ?? false;
     }
 
-    public static void AppendSidebarEntry(StringBuilder html, NavEntry entry, string currentPath, int level, string basePath)
+    public static void AppendSidebarEntry(StringBuilder html, NavEntry entry, string currentPath, int level, string basePath, string localePrefix = "", Localization? localization = null)
     {
+        var l = localization ?? Localization.Default;
         if (entry.Items is not { Count: > 0 } children)
         {
             var path = entry.Path ?? string.Empty;
             var isExternal = UrlPaths.IsExternal(path);
             var isActive = SidebarPathMatches(path, currentPath);
-            var href = isExternal ? LayoutProvider.HtmlEncode(path) : UrlPaths.Href(basePath, path);
+            var href = isExternal ? LayoutProvider.HtmlEncode(path) : UrlPaths.Href(basePath, LocalizeLink(localePrefix, path));
             html.AppendLine(
                 $"<div class=\"sidebar-link level-{level}{(isActive ? " is-active" : "")}\">" +
                 $"<a href=\"{href}\"{(isExternal ? ExternalLinkRel : "")}>" +
-                $"{LayoutProvider.HtmlEncode(entry.Title)}{(isExternal ? ExternalLinkIcon : "")}</a></div>");
+                $"{LayoutProvider.HtmlEncode(l.Label(entry.Title))}{(isExternal ? ExternalLinkIcon : "")}</a></div>");
             return;
         }
 
@@ -100,7 +113,7 @@ public static class NavigationHtmlRenderer
             html.AppendLine("<div class=\"sidebar-group no-caret\">")
                 .AppendLine("<div class=\"sidebar-group-items\">");
             foreach (var child in children)
-                AppendSidebarEntry(html, child, currentPath, level + 1, basePath);
+                AppendSidebarEntry(html, child, currentPath, level + 1, basePath, localePrefix, l);
             html.AppendLine("</div>").AppendLine("</div>");
             return;
         }
@@ -118,79 +131,85 @@ public static class NavigationHtmlRenderer
         if (isCollapsible)
             html.AppendLine($"<details class=\"sidebar-group\"{(startsOpen ? " open" : "")}>")
                 .AppendLine("<summary class=\"sidebar-group-summary\">")
-                .AppendLine($"<div class=\"{headerClass}\"><{headingTag}>{LayoutProvider.HtmlEncode(entry.Title)}</{headingTag}>{caretSvg}</div>")
+                .AppendLine($"<div class=\"{headerClass}\"><{headingTag}>{LayoutProvider.HtmlEncode(l.Label(entry.Title))}</{headingTag}>{caretSvg}</div>")
                 .AppendLine("</summary>");
         else
             html.AppendLine("<div class=\"sidebar-group no-caret\">")
-                .AppendLine($"<div class=\"{headerClass}\"><{headingTag}>{LayoutProvider.HtmlEncode(entry.Title)}</{headingTag}></div>");
+                .AppendLine($"<div class=\"{headerClass}\"><{headingTag}>{LayoutProvider.HtmlEncode(l.Label(entry.Title))}</{headingTag}></div>");
 
         html.AppendLine("<div class=\"sidebar-group-items\">");
         foreach (var child in children)
-            AppendSidebarEntry(html, child, currentPath, level + 1, basePath);
+            AppendSidebarEntry(html, child, currentPath, level + 1, basePath, localePrefix, l);
         html.AppendLine("</div>");
         html.AppendLine(isCollapsible ? "</details>" : "</div>");
     }
 
-    public static string BuildTopNavHtml(List<TopNavItem>? topNav, string currentPath, string basePath)
+    public static string BuildTopNavHtml(List<TopNavItem>? topNav, string currentPath, string basePath, Localization? localization = null, string localePrefix = "")
     {
+        var l = localization ?? Localization.Default;
         if (topNav is null || topNav.Count == 0)
             return string.Empty;
 
+        var configPath = LocaleRouting.Delocalize(localePrefix, currentPath);
         var html = new StringBuilder();
-        html.AppendLine("<nav class=\"top-nav\" aria-label=\"Main navigation\">");
+        html.AppendLine($"<nav class=\"top-nav\" aria-label=\"{LayoutProvider.HtmlEncode(l.TopNavAria)}\">");
         foreach (var item in topNav)
-            AppendTopNavItem(html, item, currentPath, isMobile: false, basePath);
+            AppendTopNavItem(html, item, configPath, isMobile: false, basePath, localePrefix, l);
         html.AppendLine("</nav>");
         return html.ToString();
     }
 
-    public static string BuildMobileTopNavHtml(List<TopNavItem>? topNav, string currentPath, string basePath)
+    public static string BuildMobileTopNavHtml(List<TopNavItem>? topNav, string currentPath, string basePath, Localization? localization = null, string localePrefix = "")
     {
+        var l = localization ?? Localization.Default;
         if (topNav is null || topNav.Count == 0)
             return string.Empty;
 
+        var configPath = LocaleRouting.Delocalize(localePrefix, currentPath);
         var html = new StringBuilder();
-        html.AppendLine("<nav class=\"mobile-top-nav\" aria-label=\"Main navigation\">");
+        html.AppendLine($"<nav class=\"mobile-top-nav\" aria-label=\"{LayoutProvider.HtmlEncode(l.TopNavAria)}\">");
         foreach (var item in topNav)
-            AppendTopNavItem(html, item, currentPath, isMobile: true, basePath);
+            AppendTopNavItem(html, item, configPath, isMobile: true, basePath, localePrefix, l);
         html.AppendLine("</nav>");
         return html.ToString();
     }
 
-    public static void AppendTopNavItem(StringBuilder html, TopNavItem item, string currentPath, bool isMobile, string basePath)
+    public static void AppendTopNavItem(StringBuilder html, TopNavItem item, string currentPath, bool isMobile, string basePath, string localePrefix = "", Localization? localization = null)
     {
+        var l = localization ?? Localization.Default;
         if (item.Items is { Count: > 0 } children)
         {
             if (isMobile)
             {
                 html.AppendLine("<details class=\"mobile-top-nav-group\">");
-                html.AppendLine($"<summary>{LayoutProvider.HtmlEncode(item.Text)}</summary>");
+                html.AppendLine($"<summary>{LayoutProvider.HtmlEncode(l.Label(item.Text))}</summary>");
                 foreach (var child in children)
-                    AppendTopNavLink(html, child, currentPath, "mobile-top-nav-link", basePath);
+                    AppendTopNavLink(html, child, currentPath, "mobile-top-nav-link", basePath, localePrefix: localePrefix, localization: l);
                 html.AppendLine("</details>");
             }
             else
             {
                 html.AppendLine("<div class=\"top-nav-item has-dropdown\">");
-                html.AppendLine($"<button type=\"button\" class=\"top-nav-link\" aria-expanded=\"false\" aria-haspopup=\"true\">{LayoutProvider.HtmlEncode(item.Text)} " +
+                html.AppendLine($"<button type=\"button\" class=\"top-nav-link\" aria-expanded=\"false\" aria-haspopup=\"true\">{LayoutProvider.HtmlEncode(l.Label(item.Text))} " +
                     "<svg class=\"top-nav-chevron\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></button>");
                 html.AppendLine("<div class=\"top-nav-dropdown-menu\">");
                 foreach (var child in children)
-                    AppendTopNavLink(html, child, currentPath, "top-nav-dropdown-link", basePath);
+                    AppendTopNavLink(html, child, currentPath, "top-nav-dropdown-link", basePath, localePrefix: localePrefix, localization: l);
                 html.AppendLine("</div>");
                 html.AppendLine("</div>");
             }
             return;
         }
 
-        AppendTopNavLink(html, item, currentPath, isMobile ? "mobile-top-nav-link" : "top-nav-link", basePath, wrapInItemDiv: !isMobile);
+        AppendTopNavLink(html, item, currentPath, isMobile ? "mobile-top-nav-link" : "top-nav-link", basePath, wrapInItemDiv: !isMobile, localePrefix: localePrefix, localization: l);
     }
 
-    public static void AppendTopNavLink(StringBuilder html, TopNavItem item, string currentPath, string cssClass, string basePath, bool wrapInItemDiv = false)
+    public static void AppendTopNavLink(StringBuilder html, TopNavItem item, string currentPath, string cssClass, string basePath, bool wrapInItemDiv = false, string localePrefix = "", Localization? localization = null)
     {
+        var l = localization ?? Localization.Default;
         var link = item.Link ?? "#";
         var isExternal = UrlPaths.IsExternal(link);
-        var normalizedLink = isExternal ? link : UrlPaths.Href(basePath, link);
+        var normalizedLink = isExternal ? link : UrlPaths.Href(basePath, LocalizeLink(localePrefix, link));
         var isActive = !isExternal && IsTopNavActive(link, currentPath);
         var activeClass = isActive ? " active" : "";
         var relAttr = isExternal ? ExternalLinkRel : "";
@@ -199,7 +218,7 @@ public static class NavigationHtmlRenderer
         if (wrapInItemDiv)
             html.AppendLine("<div class=\"top-nav-item\">");
 
-        var label = LayoutProvider.HtmlEncode(item.Text);
+        var label = LayoutProvider.HtmlEncode(l.Label(item.Text));
         html.AppendLine(
             $"<a href=\"{LayoutProvider.HtmlEncode(normalizedLink)}\" class=\"{cssClass}{activeClass}\"{relAttr}>" +
             $"<span class=\"top-nav-label\" data-label=\"{label}\">{label}</span>{(isExternal ? externalIcon : "")}</a>");
@@ -232,20 +251,27 @@ public static class NavigationHtmlRenderer
     }
 
     // Prev/next walks the sidebar actually showing for this page, same precedence as BuildNavigationHtml.
-    public static List<string?> GetOrderedPaths(NavigationNode node, Config? config, string currentPath)
+    public static List<string?> GetOrderedPaths(NavigationNode node, Config? config, string currentPath, string localePrefix = "")
     {
+        var configPath = LocaleRouting.Delocalize(localePrefix, currentPath);
+
         if (config?.Sidebar is { Count: > 0 } sidebars)
         {
-            var matchedSections = SidebarResolver.Resolve(sidebars, currentPath);
+            var matchedSections = SidebarResolver.Resolve(sidebars, configPath);
             if (matchedSections is not null)
-                return FlattenNavEntries(matchedSections);
+                return Localize(FlattenNavEntries(matchedSections), localePrefix);
         }
 
         if (config?.Nav is { Count: > 0 } sections)
-            return FlattenNavEntries(sections);
+            return Localize(FlattenNavEntries(sections), localePrefix);
 
         return FlattenNavigation(node);
     }
+
+    private static List<string?> Localize(List<string?> paths, string localePrefix) =>
+        localePrefix.Length == 0
+            ? paths
+            : paths.Select(path => path is null ? null : LocalizeLink(localePrefix, path)).ToList();
 
     public static List<string?> FlattenNavigation(NavigationNode node)
     {

@@ -1,5 +1,7 @@
 namespace Bark.Models;
 
+using System.Text.Json.Serialization;
+
 public class Config
 {
     public string? Title { get; set; }
@@ -7,6 +9,22 @@ public class Config
     public string? Description { get; set; }
     public string? Lang { get; set; }
     public List<HeadTag>? Head { get; set; }
+
+    [JsonConverter(typeof(LocaleOptionsConverter))]
+    public LocaleOptions? Locale { get; set; }
+
+    public Dictionary<string, LocaleEntry>? Locales { get; set; }
+
+    public static LocaleOptions? ResolveLocale(Config? config)
+    {
+        if (config is null || (config.Locale is null && config.Lang is null))
+            return null;
+
+        return new LocaleOptions
+        {
+            Code = config.Locale?.Code ?? config.Lang
+        };
+    }
 
     /// <summary>Theme name, e.g. <c>"forest-ledger"</c>. Unknown names fall back to the default theme.</summary>
     public string? Theme { get; set; }

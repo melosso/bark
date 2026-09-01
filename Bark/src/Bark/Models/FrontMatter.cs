@@ -38,4 +38,6 @@ public sealed record FrontMatter
     /// <summary>Last-modified date (ISO 8601). Takes priority over <see cref="Date"/> and
     /// file system mtime for the "Last updated" display.</summary>
     public DateTime? Updated { get; init; }
+
+    public bool? MachineTranslated { get; init; }
 }

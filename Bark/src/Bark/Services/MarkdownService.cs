@@ -8,7 +8,9 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bark.Models;
+using Bark.Services.Layout;
 using Bark.Services.MarkdownExtensions;
+using Bark.Services.Rendering;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
@@ -70,7 +72,8 @@ public sealed partial class MarkdownService
     public MarkdownParseResult Parse(
         string markdown,
         string? defaultTitle = null,
-        string? filePath = null)
+        string? filePath = null,
+        string localePrefix = "")
     {
         markdown = EscapeBracesInCodeSpans(markdown);
         var document = Markdown.Parse(markdown, _pipeline);
@@ -96,7 +99,7 @@ public sealed partial class MarkdownService
         html = RewriteAbbreviations(html);
 
         if (frontMatter?.Layout == "home")
-            html = RenderHomePage(frontMatter, _basePath) + html;
+            html = RenderHomePage(frontMatter, _basePath, localePrefix) + html;
 
         return new MarkdownParseResult(
             html,
@@ -110,7 +113,8 @@ public sealed partial class MarkdownService
             frontMatter?.Redirect,
             frontMatter?.Updated ?? frontMatter?.Date,
             frontMatter?.Toc ?? true,
-            frontMatter?.Image);
+            frontMatter?.Image,
+            frontMatter?.MachineTranslated ?? false);
     }
 
     // Attributes `{...}` may set. Anything added here is contributor-writable: no handlers, no href/src.
@@ -129,7 +133,7 @@ public sealed partial class MarkdownService
         }
     }
 
-    private static string RenderHomePage(FrontMatter frontMatter, string basePath)
+    private static string RenderHomePage(FrontMatter frontMatter, string basePath, string localePrefix)
     {
         var sb = new StringBuilder();
         sb.Append("<div class=\"bark-home\">");
@@ -167,7 +171,7 @@ public sealed partial class MarkdownService
                 {
                     var theme = action.Theme == "alt" ? "alt" : "brand";
                     sb.Append("<a class=\"bark-hero-action ").Append(theme).Append("\" href=\"")
-                        .Append(WebUtility.HtmlEncode(PrefixInternalLink(action.Link ?? "#", basePath))).Append("\">")
+                        .Append(WebUtility.HtmlEncode(PrefixInternalLink(action.Link ?? "#", basePath, localePrefix))).Append("\">")
                         .Append(WebUtility.HtmlEncode(action.Text ?? string.Empty)).Append("</a>");
                 }
                 sb.Append("</div>");
@@ -183,7 +187,7 @@ public sealed partial class MarkdownService
             {
                 var hasLink = !string.IsNullOrWhiteSpace(feature.Link);
                 sb.Append(hasLink
-                    ? $"<a class=\"bark-feature\" href=\"{WebUtility.HtmlEncode(PrefixInternalLink(feature.Link!, basePath))}\">"
+                    ? $"<a class=\"bark-feature\" href=\"{WebUtility.HtmlEncode(PrefixInternalLink(feature.Link!, basePath, localePrefix))}\">"
                     : "<div class=\"bark-feature\">");
 
                 AppendFeatureIcon(sb, feature, basePath);
@@ -242,7 +246,7 @@ public sealed partial class MarkdownService
             var inner = match.Groups[3].Value;
             var plainText = TagRegex().Replace(inner, string.Empty);
             return $"<h{level} id=\"{id}\" tabindex=\"-1\">{inner} " +
-                   $"<a class=\"header-anchor\" href=\"#{id}\" aria-label=\"Permalink to &quot;{plainText}&quot;\">&#8203;</a></h{level}>";
+                   $"<a class=\"header-anchor\" href=\"#{id}\" aria-label=\"{LayoutProvider.HtmlEncode(Localization.Default.PermalinkTo(plainText))}\">&#8203;</a></h{level}>";
         });
 
     [GeneratedRegex(@"<h([2-6]) id=""([^""]+)"">(.*?)</h\1>", RegexOptions.Singleline)]
@@ -331,16 +335,21 @@ public sealed partial class MarkdownService
     [GeneratedRegex(@"(href|src)=""(/(?!/)[^""]*)""")]
     private static partial Regex BodyContentUrlRegex();
 
-    // Frontmatter hero/feature links: root-relative, needs same basePath treatment as chrome links.
-    private static string PrefixInternalLink(string path, string basePath)
+    // Frontmatter hero/feature links resolve against the page's own tree, so a bare "guide/x" stays inside /nl/.
+    private static string PrefixInternalLink(string path, string basePath, string localePrefix = "")
     {
-        if (!path.StartsWith('/') || path.StartsWith("//"))
+        if (path.Length == 0 || path.StartsWith('#') || path.StartsWith("//") || path.Contains("://", StringComparison.Ordinal)
+            || path.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith("tel:", StringComparison.OrdinalIgnoreCase))
             return path;
 
-        if (PrefixHasBasePath(path, basePath))
+        if (path.StartsWith('/') && PrefixHasBasePath(path, basePath))
             return path;
 
         var trimmed = path.Trim('/');
+        if (localePrefix.Length > 0)
+            trimmed = LocaleRouting.Localize(localePrefix, trimmed);
+
         return trimmed.Length == 0 ? $"{basePath}/" : $"{basePath}/{trimmed}/";
     }
 

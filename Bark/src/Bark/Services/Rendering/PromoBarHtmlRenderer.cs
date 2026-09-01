@@ -1,13 +1,16 @@
 using System.Security.Cryptography;
 using System.Text;
 
+using Bark.Services.Layout;
+
 namespace Bark.Services.Rendering;
 
 public static class PromoBarHtmlRenderer
 {
     /// <summary>Builds the announcement bar; dismissal is keyed on a hash of the source markdown so editing the promo re-shows it</summary>
-    public static string BuildPromoBarHtml(string? promoHtml, string promoSource, string? nonce)
+    public static string BuildPromoBarHtml(string? promoHtml, string promoSource, string? nonce, Localization? localization = null)
     {
+        var l = localization ?? Localization.Default;
         if (string.IsNullOrWhiteSpace(promoHtml))
             return string.Empty;
 
@@ -20,10 +23,10 @@ public static class PromoBarHtmlRenderer
             "document.documentElement.classList.add('promo-dismissed');}catch(e){}})();</script>";
 
         return checkScript +
-            $"<div class=\"promo-bar\" id=\"promo-bar\" data-promo-id=\"{promoId}\" role=\"region\" aria-label=\"Announcement\">" +
+            $"<div class=\"promo-bar\" id=\"promo-bar\" data-promo-id=\"{promoId}\" role=\"region\" aria-label=\"{LayoutProvider.HtmlEncode(l.PromoAria)}\">" +
             "<div class=\"promo-bar-inner\">" +
             $"<div class=\"promo-bar-content\">{promoHtml}</div>" +
-            "<button type=\"button\" class=\"promo-bar-close icon-btn\" id=\"promo-bar-close\" aria-label=\"Dismiss announcement\">" +
+            $"<button type=\"button\" class=\"promo-bar-close icon-btn\" id=\"promo-bar-close\" aria-label=\"{LayoutProvider.HtmlEncode(l.PromoDismiss)}\">" +
             "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M18 6L6 18M6 6l12 12\"/></svg>" +
             "</button></div></div>";
     }

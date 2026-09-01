@@ -2,12 +2,22 @@
   "title": "Bark",
   "description": "A fast, lightweight Markdown documentation server built on .NET.",
   "lang": "en",
+  "locales": {
+    "root": {
+      "label": "English",
+      "lang": "en"
+    },
+    "nl": {
+      "label": "Nederlands",
+      "lang": "nl"
+    }
+  },
   "brand": "Bark",
   "brandImage": "/brand-image.svg",
   "favicon": "🌳",
   "lastUpdated": true,
   "theme": "default",
-  "promo": "**New:** version 0.0.16 is available. Read the [release notes](https://github.com/melosso/bark/releases).",
+  "promo": "**New:** version 0.0.1 is available. Read the [release notes](https://github.com/melosso/bark/releases).",
   "footer": "Built with Bark · [EUPL-1.2](https://github.com/melosso/bark/blob/main/LICENSE). Host your own instance now! [Learn more](https://github.com/melosso/bark){target=\"_blank\" rel=\"noopener\"}.",
   "topNav": [
     {

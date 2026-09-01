@@ -1,21 +1,24 @@
+using Bark.Services.Rendering;
+
 namespace Bark.Services.Layout;
 
 public static partial class LayoutProvider
 {
-    private static GeneratedAsset? _jsAsset;
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, GeneratedAsset> _jsAssets = new(StringComparer.OrdinalIgnoreCase);
 
-    private static string GetScriptsTag(bool enableLiveReload, bool enableDarkMode, long buildVersion, string basePath, bool staticSearch = false)
+    private static string GetScriptsTag(bool enableLiveReload, bool enableDarkMode, long buildVersion, string basePath, bool staticSearch, Localization localization, bool isRootLocale)
     {
-        var asset = GetScriptsAsset(enableLiveReload, enableDarkMode, buildVersion, basePath, staticSearch);
-        return $"<script defer src=\"{basePath}/bark.js?v={asset.Version}\"></script>";
+        var asset = GetScriptsAsset(enableLiveReload, enableDarkMode, buildVersion, basePath, staticSearch, localization, isRootLocale);
+        return $"<script defer src=\"{basePath}/bark.js?v={asset.Version}&amp;locale={Uri.EscapeDataString(localization.Code)}\"></script>";
     }
 
-    internal static GeneratedAsset GetScriptsAsset(bool enableLiveReload, bool enableDarkMode, long buildVersion, string basePath, bool staticSearch) =>
-        GetOrBuildAsset(ref _jsAsset, $"{enableLiveReload} {enableDarkMode} {buildVersion} {basePath} {staticSearch}",
-            () => BuildScriptsBody(enableLiveReload, enableDarkMode, buildVersion, basePath, staticSearch));
+    internal static GeneratedAsset GetScriptsAsset(bool enableLiveReload, bool enableDarkMode, long buildVersion, string basePath, bool staticSearch, Localization localization, bool isRootLocale) =>
+        GetOrBuildAsset(_jsAssets, localization.Code, $"{enableLiveReload} {enableDarkMode} {buildVersion} {basePath} {staticSearch} {localization.Code} {isRootLocale}",
+            () => BuildScriptsBody(enableLiveReload, enableDarkMode, buildVersion, basePath, staticSearch, localization, isRootLocale));
 
-    private static string BuildScriptsBody(bool enableLiveReload, bool enableDarkMode, long buildVersion, string basePath, bool staticSearch)
+    private static string BuildScriptsBody(bool enableLiveReload, bool enableDarkMode, long buildVersion, string basePath, bool staticSearch, Localization localization, bool isRootLocale)
     {
+        var l = localization;
         // Non-toggle theme swaps (bfcache/other tab/OS flip) hit an already-painted page: suppress transitions or every element cross-fades.
         var themeSyncScript = enableDarkMode
             ? @"var themeRoot = document.documentElement;
@@ -237,7 +240,8 @@ public static partial class LayoutProvider
 
             // Static export: search runs in-browser against a prebuilt index, mirroring SearchIndex.
             var barkStaticSearch = {(staticSearch ? "true" : "false")};
-            var barkSearchIndexUrl = '{basePath}/search-index.json';
+            var barkLocale = '{Localization.JsEncode(localization.Code)}';
+            var barkSearchIndexUrl = '{basePath}{(isRootLocale ? "" : "/" + localization.Code)}/search-index.json';
             var barkSearchIndexPromise = null;
             var BARK_MAX_QUERY_LENGTH = 128, BARK_MAX_QUERY_TERMS = 8, BARK_MAX_FUZZY = 3, BARK_FUZZY_THRESHOLD = 0.5;
 
@@ -333,7 +337,7 @@ public static partial class LayoutProvider
                 if (barkStaticSearch) {{
                     return barkLoadSearchIndex().then(function(index) {{ return barkSearchStatic(index, query); }});
                 }}
-                return fetch('{basePath}/api/search?q=' + encodeURIComponent(query)).then(function(r) {{ return r.json(); }});
+                return fetch('{basePath}/api/search?q=' + encodeURIComponent(query) + '&locale=' + encodeURIComponent(barkLocale)).then(function(r) {{ return r.json(); }});
             }}
 
             if (searchTriggerKbd && /Mac|iPhone|iPad/.test(navigator.platform || '')) {{
@@ -479,15 +483,15 @@ public static partial class LayoutProvider
                     searchModalStatus.textContent = '';
                     return;
                 }}
-                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">Searching&hellip;</div>';
+                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">{Localization.JsEncode(l.SearchSearching)}</div>';
                 var requestId = searchRequestId;
                 searchTimeout = setTimeout(function() {{
                     barkRunSearch(query)
                         .then(function(data) {{
                             if (requestId !== searchRequestId) return; // a newer keystroke superseded this request
                             if (data.length === 0) {{
-                                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">No results found.</div>';
-                                searchModalStatus.textContent = 'No results found.';
+                                searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">{Localization.JsEncode(l.SearchNoResults)}</div>';
+                                searchModalStatus.textContent = '{Localization.JsEncode(l.SearchNoResults)}';
                             }} else {{
                                 var terms = query.split(/\s+/).filter(Boolean);
                                 var html = '';
@@ -498,14 +502,14 @@ public static partial class LayoutProvider
                                         '</a>';
                                 }});
                                 searchModalResults.innerHTML = html;
-                                searchModalStatus.textContent = data.length + (data.length === 1 ? ' result found.' : ' results found.');
+                                searchModalStatus.textContent = data.length + (data.length === 1 ? ' {Localization.JsEncode(l.SearchResultSingular)}' : ' {Localization.JsEncode(l.SearchResultPlural)}');
                             }}
                             searchModalInput.setAttribute('aria-expanded', 'true');
                         }})
                         ['catch'](function() {{
                             if (requestId !== searchRequestId) return;
-                            searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">Something went wrong. Try again.</div>';
-                            searchModalStatus.textContent = 'Search failed.';
+                            searchModalResults.innerHTML = '<div class=""search-result-empty"" role=""status"">{Localization.JsEncode(l.SearchError)}</div>';
+                            searchModalStatus.textContent = '{Localization.JsEncode(l.SearchFailed)}';
                         }});
                 }}, 200);
             }});
@@ -558,6 +562,26 @@ public static partial class LayoutProvider
                         btn.classList.remove(cls);
                     }}, 2000);
                 }}
+                var iconResult = '<svg xmlns=""http://www.w3.org/2000/svg"" width=""17"" height=""17"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z""/><circle cx=""12"" cy=""12"" r=""3""/></svg>';
+                var iconDiff = '<svg xmlns=""http://www.w3.org/2000/svg"" width=""17"" height=""17"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M12 3v6M9 6h6""/><path d=""M9 18h6""/><path d=""M4 12h16""/></svg>';
+
+                var diffBlock = pre.closest('[class^=""language-""]');
+                if (diffBlock && pre.querySelector('.line.diff.remove')) {{
+                    var resultBtn = document.createElement('button');
+                    resultBtn.innerHTML = iconResult;
+                    resultBtn.setAttribute('aria-pressed', 'false');
+                    resultBtn.setAttribute('aria-label', 'Show result');
+                    resultBtn.setAttribute('title', 'Show result');
+                    resultBtn.addEventListener('click', function() {{
+                        var showing = diffBlock.classList.toggle('show-result');
+                        resultBtn.innerHTML = showing ? iconDiff : iconResult;
+                        resultBtn.setAttribute('aria-pressed', showing ? 'true' : 'false');
+                        resultBtn.setAttribute('aria-label', showing ? 'Show diff' : 'Show result');
+                        resultBtn.setAttribute('title', showing ? 'Show diff' : 'Show result');
+                    }});
+                    buttons.appendChild(resultBtn);
+                }}
+
                 var copyBtn = document.createElement('button');
                 copyBtn.innerHTML = iconCopy;
                 copyBtn.setAttribute('aria-label', 'Copy code');
@@ -664,6 +688,40 @@ public static partial class LayoutProvider
                 window.mermaid.run();
             }}
 
+            var localeToggle = document.getElementById('locale-toggle');
+            var localeDropdown = document.getElementById('locale-dropdown');
+            if (localeToggle && localeDropdown) {{
+                function closeLocaleMenu() {{
+                    localeDropdown.hidden = true;
+                    localeToggle.setAttribute('aria-expanded', 'false');
+                }}
+                function openLocaleMenu() {{
+                    localeDropdown.hidden = false;
+                    localeToggle.setAttribute('aria-expanded', 'true');
+                    var first = localeDropdown.querySelector('.locale-option');
+                    if (first) first.focus();
+                }}
+                localeToggle.addEventListener('click', function(e) {{
+                    e.stopPropagation();
+                    if (localeDropdown.hidden) openLocaleMenu(); else closeLocaleMenu();
+                }});
+                document.addEventListener('click', function(e) {{
+                    if (!localeDropdown.hidden && !localeDropdown.contains(e.target) && e.target !== localeToggle)
+                        closeLocaleMenu();
+                }});
+                document.addEventListener('keydown', function(e) {{
+                    if (e.key === 'Escape' && !localeDropdown.hidden) {{ closeLocaleMenu(); localeToggle.focus(); }}
+                }});
+                localeDropdown.addEventListener('keydown', function(e) {{
+                    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+                    e.preventDefault();
+                    var items = Array.prototype.slice.call(localeDropdown.querySelectorAll('.locale-option'));
+                    var idx = items.indexOf(document.activeElement);
+                    idx = e.key === 'ArrowDown' ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+                    items[idx].focus();
+                }});
+            }}
+
             var pageControlsToggle = document.querySelector('.page-controls-toggle');
             var pageControlsMenu = document.querySelector('.page-controls-menu');
             if (pageControlsToggle && pageControlsMenu) {{
@@ -712,8 +770,8 @@ public static partial class LayoutProvider
                     }}
                 }});
 
-                var copiedHtml = '<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true"" width=""14"" height=""14""><polyline points=""20 6 9 17 4 12""/></svg>Copied!';
-                var errorHtml = '<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true"" width=""14"" height=""14""><line x1=""18"" y1=""6"" x2=""6"" y2=""18""/><line x1=""6"" y1=""6"" x2=""18"" y2=""18""/></svg>Failed';
+            var copiedHtml = '<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true"" width=""14"" height=""14""><polyline points=""20 6 9 17 4 12""/></svg>{Localization.JsEncode(l.Copied)}';
+                var errorHtml = '<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true"" width=""14"" height=""14""><line x1=""18"" y1=""6"" x2=""6"" y2=""18""/><line x1=""6"" y1=""6"" x2=""18"" y2=""18""/></svg>{Localization.JsEncode(l.CopyFailed)}';
                 function showCopied(btn, savedHtml) {{
                     btn.innerHTML = copiedHtml;
                     setTimeout(function() {{ closePageControls(); }}, 600);

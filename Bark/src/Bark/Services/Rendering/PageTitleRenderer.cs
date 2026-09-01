@@ -7,10 +7,12 @@ public static class PageTitleRenderer
 {
     private static readonly Regex TokenPattern = new(@":title|:siteName", RegexOptions.Compiled);
 
-    public static string ComputeTitle(string pageTitle, Config? config)
+    public static string ComputeTitle(string pageTitle, Config? config, Localization? localization = null)
     {
-        var template = config?.TitleTemplate;
-        var siteName = config?.Title;
+        var l = localization ?? Localization.Default;
+        var template = l.Label(config?.TitleTemplate);
+        var siteName = l.Label(config?.Title);
+
 
         if (template is not null)
         {

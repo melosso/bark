@@ -6,7 +6,7 @@ namespace Bark.Services.Rendering;
 
 public static class SocialLinksHtmlRenderer
 {
-    public static async ValueTask<string> BuildSocialLinksHtmlAsync(IReadOnlyList<SocialLink>? links, string primaryIconsDir, string? fallbackIconsDir = null)
+    public static async ValueTask<string> BuildSocialLinksHtmlAsync(IReadOnlyList<SocialLink>? links, string primaryIconsDir, string? fallbackIconsDir, Localization? localization = null)
     {
         if (links is not { Count: > 0 }) return string.Empty;
 
@@ -19,7 +19,7 @@ public static class SocialLinksHtmlRenderer
                 ? iconSvg
                 : $"<span class=\"social-icon-text\" aria-hidden=\"true\">{LayoutProvider.HtmlEncode(link.Icon)}</span>";
 
-            var tooltip = link.Title ?? link.Icon;
+            var tooltip = localization?.Label(link.Title) ?? link.Title ?? link.Icon;
             var label = $"{tooltip} (opens in new tab)";
             html.AppendLine($"<a href=\"{LayoutProvider.HtmlEncode(link.Url)}\" class=\"icon-btn\" target=\"_blank\" rel=\"noopener noreferrer\" title=\"{LayoutProvider.HtmlEncode(tooltip)}\" aria-label=\"{LayoutProvider.HtmlEncode(label)}\">{icon}</a>");
         }

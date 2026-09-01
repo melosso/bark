@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Bark.Configuration;
+using Bark.Models;
 using Bark.Services;
 using Bark.Services.Rendering;
 
@@ -30,8 +31,11 @@ internal static partial class SeoEndpoints
     {
         var basePath = settings.BasePath;
         var baseUrl = settings.Origin(context);
-        var pages = await docs.GetAllPagesAsync(context.RequestAborted);
+        var allPages = await docs.GetAllPagesAsync(context.RequestAborted);
         var config = docs.SiteConfig;
+        var pages = allPages
+            .Where(p => LocaleRouting.LocaleOf(p.Path, docs.LocaleCodes, docs.RootLocale) == docs.RootLocale)
+            .ToList();
         var sb = new StringBuilder();
         sb.AppendLine($"# {config?.Brand ?? "Bark"}");
         sb.AppendLine();
@@ -51,20 +55,56 @@ internal static partial class SeoEndpoints
     {
         var basePath = settings.BasePath;
         var pages = await docs.GetAllPagesAsync(context.RequestAborted);
+        var config = docs.SiteConfig;
+        var localeCodes = docs.LocaleCodes;
+        var rootLocale = docs.RootLocale;
+        var pagePaths = pages.Select(p => p.Path).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         var sb = new StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+        sb.AppendLine(localeCodes.Count > 0
+            ? "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">"
+            : "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
         sb.AppendLine($"  <url><loc>{UrlPaths.Href(basePath, "")}</loc><priority>1.0</priority></url>");
 
         foreach (var page in pages.OrderBy(p => p.Path))
         {
             if (page.Path == "index") continue;
             var lastMod = page.LastModified?.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-            sb.AppendLine($"  <url><loc>{UrlPaths.Href(basePath, page.Path)}</loc><lastmod>{lastMod}</lastmod><priority>0.8</priority></url>");
+            sb.Append($"  <url><loc>{UrlPaths.Href(basePath, page.Path)}</loc><lastmod>{lastMod}</lastmod><priority>0.8</priority>");
+            sb.Append(BuildAlternates(page.Path, localeCodes, rootLocale, pagePaths, config, basePath));
+            sb.AppendLine("</url>");
         }
 
         sb.AppendLine("</urlset>");
         return TypedResults.Text(sb.ToString(), "application/xml", Encoding.UTF8);
+    }
+
+    private static string BuildAlternates(
+        string path,
+        IReadOnlyList<string> localeCodes,
+        string rootLocale,
+        HashSet<string> pagePaths,
+        Config? config,
+        string basePath)
+    {
+        if (localeCodes.Count == 0)
+            return string.Empty;
+
+        var pageLocale = LocaleRouting.LocaleOf(path, localeCodes, rootLocale);
+        var rootPath = LocaleRouting.Delocalize(pageLocale == rootLocale ? string.Empty : pageLocale, path);
+
+        var sb = new StringBuilder();
+        foreach (var code in localeCodes.Prepend(rootLocale))
+        {
+            var candidate = LocaleRouting.Localize(code == rootLocale ? string.Empty : code, rootPath);
+            if (!pagePaths.Contains(candidate))
+                continue;
+
+            sb.Append($"<xhtml:link rel=\"alternate\" hreflang=\"{LocaleRouting.LangOf(config, code)}\" href=\"{UrlPaths.Href(basePath, candidate)}\"/>");
+        }
+
+        return sb.ToString();
     }
 
     internal static async Task<ContentHttpResult> GetFeed(DocumentationService docs, PageRequestSettings settings, HttpContext context)

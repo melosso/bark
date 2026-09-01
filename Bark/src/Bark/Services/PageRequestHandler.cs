@@ -120,15 +120,27 @@ public sealed class PageRequestHandler
         var (themeName, themeMode) = ThemeSelection.Split(_settings.CliTheme ?? _themeOptions.Name ?? config?.Theme);
         var theme = ThemeRegistry.Resolve(themeName);
 
-        var page = await _docs.GetPageAsync(path, context.RequestAborted);
+        var route = LocaleRouting.Resolve(config, path);
+        var l = _docs.Locales.For(route.Code);
+        var htmlLang = LocaleRouting.LangOf(config, route.Code);
+        path = route.ContentPath;
+
+        var page = await _docs.GetPageAsync(route.ContentPath, context.RequestAborted);
+        var servedFallback = false;
+        if (page == null && route.FallbackPath is { Length: > 0 } fallbackPath)
+        {
+            page = await _docs.GetPageAsync(fallbackPath, context.RequestAborted);
+            servedFallback = page != null;
+        }
+
         if (page == null && isRootRequest)
-            page = await BuildSafeRootPage(_docs, basePath, context.RequestAborted);
+            page = await BuildSafeRootPage(_docs, basePath, l, context.RequestAborted);
 
         if (page == null)
         {
             context.Response.StatusCode = 404;
             context.Response.ContentType = "text/html; charset=utf-8";
-            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath, config?.Lang ?? "en", theme, themeMode));
+            await context.Response.WriteAsync(LayoutProvider.Get404Layout(LayoutProvider.HtmlEncode, basePath, htmlLang, theme, themeMode, l, route.Prefix));
             return;
         }
 
@@ -152,7 +164,7 @@ public sealed class PageRequestHandler
                 }
                 else
                 {
-                    var trimmed = redirectTarget.Trim('/');
+                    var trimmed = LocaleRouting.Localize(route.Prefix, redirectTarget);
                     resolvedRedirect = trimmed.Length == 0
                         ? (basePath.Length == 0 ? "/" : $"{basePath}/")
                         : (basePath.Length == 0 ? $"/{trimmed}/" : $"{basePath}/{trimmed}/");
@@ -187,44 +199,47 @@ public sealed class PageRequestHandler
             return;
         }
 
-        var nav = await _docs.GetNavigationAsync(context.RequestAborted);
-        var navHtml = NavigationHtmlRenderer.BuildNavigationHtml(nav, path, config, basePath);
-        var topNavHtml = NavigationHtmlRenderer.BuildTopNavHtml(config?.TopNav, path, basePath);
-        var mobileTopNavHtml = NavigationHtmlRenderer.BuildMobileTopNavHtml(config?.TopNav, path, basePath);
+        var nav = await _docs.GetNavigationAsync(route.Code, context.RequestAborted);
+        var navHtml = NavigationHtmlRenderer.BuildNavigationHtml(nav, path, config, basePath, route.Prefix, l);
+        var topNavHtml = NavigationHtmlRenderer.BuildTopNavHtml(config?.TopNav, path, basePath, l, route.Prefix);
+        var mobileTopNavHtml = NavigationHtmlRenderer.BuildMobileTopNavHtml(config?.TopNav, path, basePath, l, route.Prefix);
 
         var tocHtml = page.ShowToc ? TocHtmlRenderer.BuildTocHtml(page.Headings) : null;
 
-        var crumbs = await _docs.GetBreadcrumbsAsync(path, context.RequestAborted);
+        var crumbs = await _docs.GetBreadcrumbsAsync(path, l, context.RequestAborted);
         var breadcrumbHtml = BreadcrumbHtmlRenderer.BuildBreadcrumbHtml(crumbs, page.Title, basePath);
 
         var isHomePage = page.Layout == "home";
         var paginationHtml = string.Empty;
         if (!isHomePage && page.ShowPagination)
         {
-            var orderedPaths = NavigationHtmlRenderer.GetOrderedPaths(nav, config, path).Where(p => p != null && p != "index").ToList();
+            var indexPath = LocaleRouting.Localize(route.Prefix, "index");
+            var orderedPaths = NavigationHtmlRenderer.GetOrderedPaths(nav, config, path, route.Prefix)
+                .Where(p => p != null && p != "index" && p != indexPath)
+                .ToList();
             var currentIndex = orderedPaths.IndexOf(path);
             string? prevPath = currentIndex > 0 ? orderedPaths[currentIndex - 1] : null;
             string? nextPath = currentIndex < orderedPaths.Count - 1 ? orderedPaths[currentIndex + 1] : null;
-            string? prevTitle = prevPath != null ? (await _docs.GetPageAsync(prevPath, context.RequestAborted))?.Title : null;
-            string? nextTitle = nextPath != null ? (await _docs.GetPageAsync(nextPath, context.RequestAborted))?.Title : null;
+            string? prevTitle = prevPath != null ? (await ResolveInLocaleAsync(prevPath, route.Prefix, context.RequestAborted))?.Title : null;
+            string? nextTitle = nextPath != null ? (await ResolveInLocaleAsync(nextPath, route.Prefix, context.RequestAborted))?.Title : null;
 
-            paginationHtml = PaginationHtmlRenderer.BuildPaginationHtml(prevTitle, prevPath, nextTitle, nextPath, basePath);
+            paginationHtml = PaginationHtmlRenderer.BuildPaginationHtml(prevTitle, prevPath, nextTitle, nextPath, basePath, l);
         }
 
         var themeCss = ThemeProvider.BuildThemeCss(_themeOptions);
         var customCssLink = ThemeProvider.BuildCustomCssLink(_themeOptions, _settings.ThemeDir, basePath);
         var customJsScript = ThemeProvider.BuildCustomJsScript(_themeOptions, _settings.ThemeDir, basePath);
-        var brandText = config?.Brand ?? config?.Title ?? ThemeProvider.GetBrandText(_themeOptions);
+        var brandText = l.Label(config?.Brand ?? config?.Title ?? ThemeProvider.GetBrandText(_themeOptions));
         var brandImage = config?.BrandImage;
         var combinedThemeCss = themeCss + customCssLink + customJsScript;
 
-        var socialLinksHtml = await SocialLinksHtmlRenderer.BuildSocialLinksHtmlAsync(config?.SocialLinks, _iconsDir, _fallbackIconsDir);
+        var socialLinksHtml = await SocialLinksHtmlRenderer.BuildSocialLinksHtmlAsync(config?.SocialLinks, _iconsDir, _fallbackIconsDir, l);
         var footerHtml = config?.Footer is { } footer
-            ? $"<div class=\"content-footer\">{_markdown.ToHtml(ExpandFooterVariables(footer, brandText, config.Title))}</div>"
+            ? $"<div class=\"content-footer\">{_markdown.ToHtml(ExpandFooterVariables(l.Label(footer), brandText, config?.Title))}</div>"
             : string.Empty;
 
         var lastUpdatedHtml = !isHomePage && config?.LastUpdated == true && page.ShowLastUpdated && page.LastModified is { } lastModified
-            ? $"<div class=\"last-updated\">Last updated: {lastModified:yyyy-MM-dd}</div>"
+            ? $"<div class=\"last-updated\">{LayoutProvider.HtmlEncode(l.LastUpdated)} {lastModified:yyyy-MM-dd}</div>"
             : string.Empty;
 
         const string editLinkIcon = "<svg class=\"edit-link-icon\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"currentColor\" aria-hidden=\"true\">" +
@@ -234,7 +249,7 @@ public sealed class PageRequestHandler
         var encodedEditPath = string.Join("/", editPath.Split('/').Select(Uri.EscapeDataString));
         var editLinkHtml = !isHomePage && config?.EditLink is { Pattern: { Length: > 0 } pattern } editLink
             ? $"<a class=\"edit-link\" href=\"{LayoutProvider.HtmlEncode(pattern.Replace(":path", encodedEditPath))}\" " +
-              $"target=\"_blank\" rel=\"noopener noreferrer nofollow\">{editLinkIcon}{LayoutProvider.HtmlEncode(editLink.Text)}</a>"
+              $"target=\"_blank\" rel=\"noopener noreferrer nofollow\">{editLinkIcon}{LayoutProvider.HtmlEncode(l.Label(editLink.Text))}</a>"
             : string.Empty;
 
         var keywordsHtml = page.Keywords is { Count: > 0 } kw
@@ -245,11 +260,11 @@ public sealed class PageRequestHandler
             ? await IconProvider.InlineSvgAsync(pcIconName, _iconsDir, _fallbackIconsDir)
             : null;
         var pageControlsHtml = !isHomePage
-            ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, config?.EditLink, basePath, _settings.DocsRootAbsolute, pageControlsEditIcon)
+            ? PageControlsHtmlRenderer.BuildPageControlsHtml(page, config?.PageControls, config?.EditLink, basePath, _settings.DocsRootAbsolute, pageControlsEditIcon, l)
             : string.Empty;
 
         var promoBarHtml = config?.Promo is { Length: > 0 } promoSource
-            ? PromoBarHtmlRenderer.BuildPromoBarHtml(_markdown.ToHtml(promoSource), promoSource, nonce)
+            ? PromoBarHtmlRenderer.BuildPromoBarHtml(_markdown.ToHtml(l.Label(promoSource)), promoSource, nonce, l)
             : string.Empty;
 
         var feedUrl = $"{origin}{basePath}/feed.xml";
@@ -261,17 +276,41 @@ public sealed class PageRequestHandler
 
         var metaDescription = string.IsNullOrEmpty(page.Description) ? config?.Description : page.Description;
         var socialImageUrl = ResolveSocialImage(page.Image ?? config?.Image ?? config?.BrandImage, origin, basePath);
-        var siteName = config?.Brand ?? config?.Title;
+        var siteName = l.Label(config?.Brand ?? config?.Title);
         var modified = isHomePage ? null : page.LastModified;
 
         var socialMetaHtml = SocialMetaRenderer.BuildSocialMeta(
-            canonicalUrl, page.Title, metaDescription, isHomePage, socialImageUrl, siteName, config?.Lang ?? "en", modified);
+            canonicalUrl, page.Title, metaDescription, isHomePage, socialImageUrl, siteName, htmlLang, modified);
         var structuredDataHtml = StructuredDataRenderer.BuildJsonLd(
             canonicalUrl, page.Title, metaDescription, isHomePage, origin, basePath, crumbs, socialImageUrl, siteName, modified, nonce);
 
+        var originalHref = route.FallbackPath is { Length: > 0 } original
+            ? UrlPaths.Href(basePath, original)
+            : null;
+
+        var translatedOriginal = !servedFallback && route.Prefix.Length > 0 && route.FallbackPath is { Length: > 0 } sourcePath
+            ? await _docs.GetPageAsync(sourcePath, context.RequestAborted)
+            : null;
+
+        var noticeHtml = isHomePage
+            ? string.Empty
+            : servedFallback && originalHref is not null
+            ? TranslationNoticeRenderer.Missing(l, originalHref)
+            : page.MachineTranslated && originalHref is not null
+            ? TranslationNoticeRenderer.Machine(l, originalHref)
+            : translatedOriginal is { LastModified: { } sourceModified }
+              && page.LastModified is { } translationModified
+              && sourceModified > translationModified
+              && originalHref is not null
+                ? TranslationNoticeRenderer.Stale(l, originalHref)
+                : string.Empty;
+
+        var localeSwitcherHtml = LocaleSwitcherRenderer.Build(
+            config, route.Code, route.ContentPath, basePath, l);
+
         var fullHtml = LayoutProvider.GetLayout(
-            title: PageTitleRenderer.ComputeTitle(page.Title, config),
-            content: page.HtmlContent,
+            title: PageTitleRenderer.ComputeTitle(page.Title, config, l),
+            content: noticeHtml + page.HtmlContent,
             navigationHtml: navHtml,
             topNavHtml: topNavHtml,
             mobileTopNavHtml: mobileTopNavHtml,
@@ -294,7 +333,7 @@ public sealed class PageRequestHandler
             lastUpdatedHtml: lastUpdatedHtml,
             editLinkHtml: editLinkHtml,
             basePath: basePath,
-            lang: config?.Lang ?? "en",
+            lang: htmlLang,
             headTagsHtml: HeadTagHtmlRenderer.BuildHeadTagsHtml(config?.Head) + ExtensionHeadRenderer.Build(extensions, nonce),
             keywordsHtml: keywordsHtml,
             canonicalUrl: canonicalUrl,
@@ -307,27 +346,40 @@ public sealed class PageRequestHandler
             socialMetaHtml: socialMetaHtml,
             structuredDataHtml: structuredDataHtml,
             theme: theme,
-            themeMode: themeMode
+            themeMode: themeMode,
+            localization: l,
+            localeSwitcherHtml: localeSwitcherHtml,
+            isRootLocale: route.Prefix.Length == 0,
+            localePrefix: route.Prefix
         );
 
         context.Response.ContentType = "text/html; charset=utf-8";
         await context.Response.WriteAsync(fullHtml);
     }
 
-    private static async Task<DocumentationPage> BuildSafeRootPage(DocumentationService docs, string basePath, CancellationToken cancellationToken)
+    private async Task<DocumentationPage?> ResolveInLocaleAsync(string path, string localePrefix, CancellationToken cancellationToken)
+    {
+        var page = await _docs.GetPageAsync(path, cancellationToken);
+        if (page is not null || localePrefix.Length == 0)
+            return page;
+
+        return await _docs.GetPageAsync(LocaleRouting.Delocalize(localePrefix, path), cancellationToken);
+    }
+
+    private static async Task<DocumentationPage> BuildSafeRootPage(DocumentationService docs, string basePath, Localization l, CancellationToken cancellationToken)
     {
         var pages = await docs.GetAllPagesAsync(cancellationToken);
         var linksHtml = pages.Count > 0
-            ? "<p>In the meantime, here are the pages you have already written:</p><ul>" + string.Join("", pages.OrderBy(p => p.Path)
+            ? $"<p>{l.SetupExistingPages}</p><ul>" + string.Join("", pages.OrderBy(p => p.Path)
                 .Select(p => $"<li><a href=\"{UrlPaths.Href(basePath, p.Path)}\">{LayoutProvider.HtmlEncode(p.Title)}</a></li>")) + "</ul>"
-            : "<p>It looks like there are not any Markdown files just yet. Whenever you are ready, you can simply drop a <code>.md</code> file into your docs folder, and it will appear here instantly, with no build step to wait on.</p>";
+            : $"<p>{l.SetupNoFiles}</p>";
 
         var html = $"""
             <h1>
-                Let's set up your homepage
+                {l.SetupHeading}
             </h1>
             <p>
-                You are up and running. Whenever you would like to choose what appears on this page, you can create an <code>index.md</code> file inside your docs folder, and it will be rendered here as your homepage automatically.
+                {l.SetupBody}
             </p>
             {linksHtml}
             """;

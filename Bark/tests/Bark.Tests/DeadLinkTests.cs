@@ -139,8 +139,7 @@ public sealed partial class DeadLinkTests : IDisposable
                 if (resolved.Length == 0)
                     continue;
 
-                var target = await _service!.GetPageAsync(resolved);
-                if (target == null)
+                if (!_service!.PathResolves(resolved))
                     deadLinks.Add((page.Path, href));
             }
         }

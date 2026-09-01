@@ -11,6 +11,8 @@ using Bark.Models;
 using Bark.Serialization;
 using Bark.Services;
 using Bark.Services.Extensions;
+using Bark.Services.Rendering;
+using Bark.Services.Translation;
 using Bark.Services.MarkdownExtensions;
 
 Directory.CreateDirectory("log");
@@ -214,6 +216,32 @@ try
     app.MapSeoEndpoints();
     app.MapAssetEndpoints();
     app.MapContentEndpoints();
+
+    if (cliArgs.TranslateTo is { Length: > 0 } translateTo)
+    {
+        var translationDocs = app.Services.GetRequiredService<DocumentationService>();
+        await translationDocs.StartAsync(CancellationToken.None);
+
+        var sourceCode = cliArgs.TranslateFrom ?? LocaleRouting.RootCode(translationDocs.SiteConfig);
+        using var translateHttp = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
+        var translateClient = new LibreTranslateClient(
+            translateHttp,
+            cliArgs.TranslateEndpoint ?? "http://localhost:5000",
+            sourceCode,
+            translateTo,
+            cliArgs.TranslateApiKey);
+
+        var outcome = await TranslationRunner.RunAsync(
+            new TranslationRequest(docsOptions.RootPath, translateTo, cliArgs.TranslateOverwrite),
+            translationDocs.SiteConfig,
+            translateClient.TranslateAsync,
+            app.Logger,
+            CancellationToken.None);
+
+        Log.Information("Translated {Written} pages into {Code}, skipped {Skipped} that already existed",
+            outcome.Written, translateTo, outcome.Skipped);
+        return;
+    }
 
     if (exportDir != null)
     {

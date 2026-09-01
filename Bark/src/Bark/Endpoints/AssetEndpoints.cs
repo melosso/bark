@@ -2,6 +2,7 @@ using Bark.Configuration;
 using Bark.Models;
 using Bark.Services;
 using Bark.Services.Layout;
+using Bark.Services.Rendering;
 using Bark.Services.Theming;
 
 namespace Bark.Endpoints;
@@ -35,7 +36,9 @@ internal static class AssetEndpoints
         var (themeName, themeMode) = ThemeSelection.Split(settings.CliTheme ?? themeOptions.Name ?? config?.Theme);
         var enableDarkMode = ThemeProvider.UseDarkMode(themeOptions) && themeMode == ThemeMode.Auto;
 
-        var asset = LayoutProvider.GetScriptsAsset(docsOptions.EnableHotReload, enableDarkMode, docs.BuildVersion, settings.BasePath, docsOptions.IsStaticExport);
+        var localization = docs.Locales.For(ctx.Request.Query["locale"].ToString());
+        var isRootLocale = string.Equals(localization.Code, docs.RootLocale, StringComparison.OrdinalIgnoreCase);
+        var asset = LayoutProvider.GetScriptsAsset(docsOptions.EnableHotReload, enableDarkMode, docs.BuildVersion, settings.BasePath, docsOptions.IsStaticExport, localization, isRootLocale);
         WriteCacheHeaders(ctx);
         ctx.Response.ContentType = "text/javascript; charset=utf-8";
         await ctx.Response.WriteAsync(asset.Body);

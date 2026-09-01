@@ -14,7 +14,8 @@ public sealed record DocumentationPage(
     bool ShowPagination = true,
     string? Redirect = null,
     bool ShowToc = true,
-    string? Image = null
+    string? Image = null,
+    bool MachineTranslated = false
 )
 {
     public DocumentationPage(

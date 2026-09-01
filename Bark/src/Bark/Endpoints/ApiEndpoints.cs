@@ -17,12 +17,12 @@ internal static class ApiEndpoints
         return app;
     }
 
-    internal static Ok<IReadOnlyList<SearchResult>> Search(string? q, DocumentationService docs)
+    internal static Ok<IReadOnlyList<SearchResult>> Search(string? q, string? locale, DocumentationService docs)
     {
         if (string.IsNullOrWhiteSpace(q) || q.Length < 2)
             return TypedResults.Ok<IReadOnlyList<SearchResult>>(Array.Empty<SearchResult>());
 
-        return TypedResults.Ok(docs.Search(q));
+        return TypedResults.Ok(docs.Search(q, locale));
     }
 
     // Public page metadata only; no OriginalRelativePath or other server file paths

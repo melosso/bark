@@ -685,6 +685,40 @@ public static partial class LayoutProvider
         .page-controls-divider {{
             height: 1px; background: var(--border); margin: 0.25rem 0;
         }}
+        .locale-switcher {{
+            position: relative;
+        }}
+        .locale-dropdown {{
+            position: absolute; top: calc(100% + 4px); right: 0; z-index: 200;
+            background: var(--sidebar-bg); border: 1px solid var(--border);
+            border-radius: 6px; box-shadow: var(--shadow-md);
+            min-width: 9rem; padding: 0.25rem 0;
+            display: flex; flex-direction: column;
+        }}
+        .locale-dropdown[hidden] {{
+            display: none;
+        }}
+        .locale-option {{
+            padding: 0.4rem 0.75rem; font-size: 0.875rem;
+            color: var(--text-color); text-decoration: none; white-space: nowrap;
+        }}
+        .locale-option:hover, .locale-option:focus-visible {{
+            background: var(--accent-light); color: var(--accent);
+        }}
+        .locale-option--current {{
+            color: var(--accent); font-weight: 600;
+        }}
+        .translation-notice {{
+            margin: 0 0 1.5rem; padding: 0.75rem 1rem; border-radius: 8px;
+            background-color: var(--accent-light);
+            font-size: 0.9rem; color: var(--text-muted);
+        }}
+        .translation-notice a {{
+            color: var(--accent); font-weight: 500;
+        }}
+        .translation-notice--stale, .translation-notice--machine {{
+            border-left-color: var(--alert-warning);
+        }}
         .page-meta {{
             display: flex; justify-content: space-between; align-items: center; gap: 1rem;
             margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border);
@@ -1153,6 +1187,15 @@ public static partial class LayoutProvider
         .code-block-buttons button.failed {{
             opacity: 0.5;
         }}
+        .code-block-buttons button[aria-pressed=""true""] {{
+            color: var(--code-button-hover); border-color: var(--code-button-hover);
+        }}
+        .content div[class^=""language-""].show-result .line.diff.remove {{
+            display: none;
+        }}
+        .content div[class^=""language-""].show-result .line.diff.add {{
+            background-color: transparent;
+        }}
         .code-block-buttons button:disabled {{
             cursor: default;
         }}
@@ -1167,7 +1210,6 @@ public static partial class LayoutProvider
         }}
         .markdown-alert {{
             padding: 0.75rem 1rem; margin: 1.5rem 0;
-            border-left: 4px solid var(--accent);
             border-radius: 0 8px 8px 0;
             background-color: var(--accent-light);
         }}

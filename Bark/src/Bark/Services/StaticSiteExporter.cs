@@ -72,6 +72,14 @@ public static class StaticSiteExporter
         var searchIndex = docs.GetSearchIndexExport();
         var searchJson = JsonSerializer.Serialize(searchIndex, BarkJsonContext.Default.SearchIndexExport);
         await File.WriteAllTextAsync(Path.Combine(outputDir, "search-index.json"), searchJson, cancellationToken);
+
+        foreach (var localeCode in docs.LocaleCodes)
+        {
+            var localeDir = Path.Combine(outputDir, localeCode);
+            Directory.CreateDirectory(localeDir);
+            var localeJson = JsonSerializer.Serialize(docs.GetSearchIndexExport(localeCode), BarkJsonContext.Default.SearchIndexExport);
+            await File.WriteAllTextAsync(Path.Combine(localeDir, "search-index.json"), localeJson, cancellationToken);
+        }
         app.Logger.LogInformation(
             "Static search index written: {Docs} docs, {Bytes:N0} bytes",
             searchIndex.Docs.Count, System.Text.Encoding.UTF8.GetByteCount(searchJson));

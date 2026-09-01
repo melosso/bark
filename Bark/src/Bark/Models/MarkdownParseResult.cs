@@ -13,7 +13,8 @@ public sealed record MarkdownParseResult(
     string? Redirect = null,
     DateTime? FrontmatterDate = null,
     bool ShowToc = true,
-    string? Image = null)
+    string? Image = null,
+    bool MachineTranslated = false)
 {
     public void Deconstruct(out string html, out string? title, out string? description, out List<HeadingInfo> headings)
     {

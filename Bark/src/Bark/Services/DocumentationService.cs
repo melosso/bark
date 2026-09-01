@@ -25,19 +25,25 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
     // All read state lives in one immutable snapshot swapped atomically after a full build; readers never see half-built state
     private sealed record ContentSnapshot(
         IReadOnlyDictionary<string, DocumentationPage> Pages,
-        NavigationNode Navigation,
         IReadOnlyDictionary<string, string> NavTitles,
         Config? Config,
-        SearchIndex SearchIndex,
-        ExtensionSet Extensions);
+        ExtensionSet Extensions,
+        IReadOnlyDictionary<string, NavigationNode> NavigationByLocale,
+        IReadOnlyDictionary<string, SearchIndex> SearchByLocale,
+        IReadOnlyList<string> LocaleCodes,
+        string RootLocale,
+        LocaleTables Locales);
 
     private static readonly ContentSnapshot EmptySnapshot = new(
         ImmutableDictionary<string, DocumentationPage>.Empty,
-        new NavigationNode("Root", null, Array.Empty<NavigationNode>()),
         ImmutableDictionary<string, string>.Empty,
         null,
-        new SearchIndex(),
-        ExtensionSet.Empty);
+        ExtensionSet.Empty,
+        ImmutableDictionary<string, NavigationNode>.Empty,
+        ImmutableDictionary<string, SearchIndex>.Empty,
+        [],
+        "en",
+        LocaleTables.Empty);
 
     private volatile ContentSnapshot _snapshot = EmptySnapshot;
     private string? _lastContentHash;
@@ -221,7 +227,10 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
 
         // Loaded up front so title fallback can consult config.json before the filename.
         var config = LoadConfig(docsPath);
+        var locales = Localization.BuildAll(docsPath, config, _logger);
         var navTitlesByPath = BuildNavTitleLookup(config);
+        var configuredLocales = LocaleRouting.TreeCodes(config);
+        var configuredRootLocale = LocaleRouting.RootCode(config);
 
         // Sorted for deterministic hashing, regardless of FS enumeration order.
         var allFiles = Directory.GetFiles(docsPath, "*.md", SearchOption.AllDirectories).Order().ToArray();
@@ -251,7 +260,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
                 }
                 else
                 {
-                    defaultTitle = "Home";
+                    defaultTitle = locales.Root.BreadcrumbHome;
                 }
             }
 
@@ -259,7 +268,9 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
                 defaultTitle = navTitle;
 
             var normalizedRelativePath = relativePath.Replace('\\', '/');
-            var parsed = _markdown.Parse(content, defaultTitle, filePath: normalizedRelativePath);
+            var pageLocale = LocaleRouting.LocaleOf(pagePath, configuredLocales, configuredRootLocale);
+            var localePrefix = pageLocale == configuredRootLocale ? string.Empty : pageLocale;
+            var parsed = _markdown.Parse(content, defaultTitle, filePath: normalizedRelativePath, localePrefix: localePrefix);
 
             var html = WrapTables(parsed.Html);
             html = VersionAssets(html);
@@ -279,7 +290,8 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
                 ShowPagination: parsed.ShowPagination,
                 Redirect: parsed.Redirect,
                 ShowToc: parsed.ShowToc,
-                Image: parsed.Image
+                Image: parsed.Image,
+                MachineTranslated: parsed.MachineTranslated
             );
 
             pageMap[pagePath] = page;
@@ -304,16 +316,43 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
 
         var contentHash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(hashInput.ToString())));
 
+        var localeCodes = configuredLocales;
+        var rootLocale = configuredRootLocale;
+
+        var rootPages = pages.Where(p => LocaleRouting.LocaleOf(p.Path, localeCodes, rootLocale) == rootLocale).ToList();
         var searchIndex = new SearchIndex();
-        searchIndex.Build(pages);
+        searchIndex.Build(rootPages);
+
+        var navigationByLocale = new Dictionary<string, NavigationNode>(StringComparer.OrdinalIgnoreCase);
+        var searchByLocale = new Dictionary<string, SearchIndex>(StringComparer.OrdinalIgnoreCase)
+        {
+            [rootLocale] = searchIndex
+        };
+
+        foreach (var code in localeCodes)
+        {
+            var treeDir = Path.Combine(docsPath, code);
+            navigationByLocale[code] = Directory.Exists(treeDir)
+                ? BuildNodeFromDirectory(docsPath, treeDir, pages.ToDictionary(p => p.Path), localeCodes, locales.For(code))
+                : new NavigationNode(locales.For(code).BreadcrumbHome, null, Array.Empty<NavigationNode>());
+
+            var treeIndex = new SearchIndex();
+            treeIndex.Build(pages.Where(p => LocaleRouting.LocaleOf(p.Path, localeCodes, rootLocale) == code).ToList());
+            searchByLocale[code] = treeIndex;
+        }
+
+        navigationByLocale[rootLocale] = BuildNavigation(docsPath, pages, localeCodes, locales.Root);
 
         var snapshot = new ContentSnapshot(
             pageMap,
-            BuildNavigation(docsPath, pages),
             navTitlesByPath,
             config,
-            searchIndex,
-            extensions);
+            extensions,
+            navigationByLocale,
+            searchByLocale,
+            localeCodes,
+            rootLocale,
+            locales);
 
         _snapshot = snapshot;
 
@@ -343,7 +382,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
                     continue;
 
                 var resolved = ResolveHref(page.Path, href);
-                if (resolved.Length == 0 || pageMap.ContainsKey(resolved))
+                if (resolved.Length == 0 || PathResolves(resolved))
                     continue;
 
                 deadSources.Add(page.Path);
@@ -395,24 +434,33 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
     [GeneratedRegex(@"<a\s[^>]*href=""([^""]+)""", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex HrefRegex();
 
-    private NavigationNode BuildNavigation(string docsPath, IEnumerable<DocumentationPage> pages)
+    private NavigationNode BuildNavigation(string docsPath, IEnumerable<DocumentationPage> pages, IReadOnlyList<string> localeCodes, Localization localization)
     {
         var pageMap = pages.ToDictionary(p => p.Path);
-        return BuildNodeFromDirectory(docsPath, docsPath, pageMap);
+        return BuildNodeFromDirectory(docsPath, docsPath, pageMap, localeCodes, localization, skipLocaleDirectories: true);
     }
 
-    private NavigationNode BuildNodeFromDirectory(string basePath, string currentDir, Dictionary<string, DocumentationPage> pageMap)
+    private NavigationNode BuildNodeFromDirectory(
+        string basePath,
+        string currentDir,
+        Dictionary<string, DocumentationPage> pageMap,
+        IReadOnlyList<string> localeCodes,
+        Localization localization,
+        bool skipLocaleDirectories = false)
     {
         var relativePath = Path.GetRelativePath(basePath, currentDir).Replace('\\', '/');
         var title = Path.GetFileName(currentDir);
         if (relativePath == ".")
-            title = "Home";
+            title = localization.BreadcrumbHome;
 
         var children = new List<NavigationNode>();
 
         foreach (var subDir in Directory.GetDirectories(currentDir))
         {
-            var node = BuildNodeFromDirectory(basePath, subDir, pageMap);
+            if (skipLocaleDirectories && localeCodes.Contains(Path.GetFileName(subDir), StringComparer.OrdinalIgnoreCase))
+                continue;
+
+            var node = BuildNodeFromDirectory(basePath, subDir, pageMap, localeCodes, localization);
             if (node.Children.Count > 0 || pageMap.Values.Any(p =>
                 p.Path.StartsWith(Path.GetRelativePath(basePath, subDir).Replace('\\', '/').ToLowerInvariant())))
             {
@@ -437,10 +485,20 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
         return new NavigationNode(title, null, children);
     }
 
-    public Task<NavigationNode> GetNavigationAsync(CancellationToken cancellationToken = default)
+    public Task<NavigationNode> GetNavigationAsync(string? localeCode = null, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(_snapshot.Navigation);
+        var snapshot = _snapshot;
+        var code = localeCode is { Length: > 0 } ? localeCode : snapshot.RootLocale;
+        return Task.FromResult(snapshot.NavigationByLocale.TryGetValue(code, out var navigation)
+            ? navigation
+            : new NavigationNode(snapshot.Locales.Root.BreadcrumbHome, null, Array.Empty<NavigationNode>()));
     }
+
+    public LocaleTables Locales => _snapshot.Locales;
+
+    public IReadOnlyList<string> LocaleCodes => _snapshot.LocaleCodes;
+
+    public string RootLocale => _snapshot.RootLocale;
 
     public ValueTask<DocumentationPage?> GetPageAsync(string path, CancellationToken cancellationToken = default)
     {
@@ -452,32 +510,53 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
         return ValueTask.FromResult(page);
     }
 
+    public bool PathResolves(string path)
+    {
+        var snapshot = _snapshot;
+        var normalized = path.Trim('/').ToLowerInvariant();
+        if (snapshot.Pages.ContainsKey(normalized))
+            return true;
+
+        var code = LocaleRouting.LocaleOf(normalized, snapshot.LocaleCodes, snapshot.RootLocale);
+        return code != snapshot.RootLocale
+            && snapshot.Pages.ContainsKey(LocaleRouting.Delocalize(code, normalized));
+    }
+
     public Task<IReadOnlyList<DocumentationPage>> GetAllPagesAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<DocumentationPage> pages = _snapshot.Pages.Values.ToImmutableList();
         return Task.FromResult(pages);
     }
 
-    public IReadOnlyList<SearchResult> Search(string query)
+    public IReadOnlyList<SearchResult> Search(string query, string? localeCode = null) =>
+        IndexFor(localeCode).Search(query);
+
+    public SearchIndexExport GetSearchIndexExport(string? localeCode = null) =>
+        IndexFor(localeCode).ExportSnapshot();
+
+    private SearchIndex IndexFor(string? localeCode)
     {
-        return _snapshot.SearchIndex.Search(query);
+        var snapshot = _snapshot;
+        var code = localeCode is { Length: > 0 } ? localeCode : snapshot.RootLocale;
+        return snapshot.SearchByLocale.TryGetValue(code, out var index) ? index : new SearchIndex();
     }
 
-    public SearchIndexExport GetSearchIndexExport()
-    {
-        return _snapshot.SearchIndex.ExportSnapshot();
-    }
-
-    public Task<IReadOnlyList<BreadcrumbItem>> GetBreadcrumbsAsync(string path, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<BreadcrumbItem>> GetBreadcrumbsAsync(string path, Localization? localization = null, CancellationToken cancellationToken = default)
     {
         path = path.Trim('/').ToLowerInvariant();
-        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries)
+        var snapshotForHome = _snapshot;
+        var localeCode = LocaleRouting.LocaleOf(path, snapshotForHome.LocaleCodes, snapshotForHome.RootLocale);
+        var homeHref = localeCode == snapshotForHome.RootLocale ? "/" : $"/{localeCode}/";
+        var allSegments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var localePrefix = localeCode == snapshotForHome.RootLocale ? string.Empty : localeCode;
+        var segments = allSegments
+            .Skip(localePrefix.Length == 0 ? 0 : 1)
             .Where(s => !s.Equals("index", StringComparison.OrdinalIgnoreCase))
             .ToArray();
-        var crumbs = new List<BreadcrumbItem> { new("Home", "/") };
+        var crumbs = new List<BreadcrumbItem> { new((localization ?? snapshotForHome.Locales.Root).BreadcrumbHome, homeHref) };
 
         var snapshot = _snapshot;
-        var accumulated = "";
+        var accumulated = localePrefix;
         foreach (var segment in segments)
         {
             accumulated = string.IsNullOrEmpty(accumulated) ? segment : $"{accumulated}/{segment}";
@@ -485,7 +564,7 @@ public sealed partial class DocumentationService : IHostedService, IDisposable, 
             if (snapshot.Pages.TryGetValue(accumulated, out var page))
                 crumbs.Add(new BreadcrumbItem(page.Title, $"/{accumulated}"));
             else if (snapshot.NavTitles.TryGetValue(accumulated, out var navTitle))
-                crumbs.Add(new BreadcrumbItem(navTitle, null));
+                crumbs.Add(new BreadcrumbItem((localization ?? snapshotForHome.Locales.Root).Label(navTitle), null));
             else
             {
                 var title = segment.Replace('-', ' ').Replace('_', ' ');
