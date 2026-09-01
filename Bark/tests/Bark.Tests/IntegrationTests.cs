@@ -257,9 +257,12 @@ public sealed class ThemeIntegrationTests
 
             var html = await response.Content.ReadAsStringAsync();
             Assert.Contains($"class=\"theme-{themeName}\"", html);
-            Assert.Contains("@media (prefers-color-scheme: dark)", html);
-            Assert.Contains(":root[data-theme=\"dark\"]", html);
         }
+
+        // Theme tokens live in the linked stylesheet, not in the page.
+        var css = await client.GetStringAsync("/bark.css");
+        Assert.Contains("@media (prefers-color-scheme: dark)", css);
+        Assert.Contains(":root[data-theme=\"dark\"]", css);
 
         var missing = await client.GetAsync("/no-such-page");
         Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);

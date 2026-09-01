@@ -105,11 +105,11 @@ public sealed class LayoutProviderTests
             "<a href='/'>Home</a>", "<nav>pagination</nav>",
             themeCss);
 
-        var baseTokens = html.IndexOf("--accent: #", StringComparison.Ordinal);
+        var baseStylesheet = html.IndexOf("/bark.css?v=", StringComparison.Ordinal);
         var userOverride = html.IndexOf("--accent: red;", StringComparison.Ordinal);
 
-        Assert.True(baseTokens >= 0, "base stylesheet emitted no --accent token");
-        Assert.True(userOverride > baseTokens, "user theme CSS must come after the base stylesheet");
+        Assert.True(baseStylesheet >= 0, "layout emitted no base stylesheet link");
+        Assert.True(userOverride > baseStylesheet, "user theme CSS must come after the base stylesheet");
     }
 
     [Fact]

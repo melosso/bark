@@ -165,7 +165,7 @@ public sealed partial class ThemeCssIntegrityTests
     [MemberData(nameof(ThemeNames))]
     public void EveryReferencedVariableIsDefined(string name)
     {
-        var css = RenderStyleBlock(ThemeRegistry.Resolve(name));
+        var css = RenderThemeCss(ThemeRegistry.Resolve(name));
 
         var defined = DefinitionPattern().Matches(css).Select(m => m.Groups[1].Value).ToHashSet(StringComparer.Ordinal);
         var referenced = ReferencePattern().Matches(css).Select(m => m.Groups[1].Value).ToHashSet(StringComparer.Ordinal);
@@ -177,11 +177,11 @@ public sealed partial class ThemeCssIntegrityTests
 
     [Theory]
     [MemberData(nameof(ThemeNames))]
-    public void ThemeCssStaysInsideTheSingleNoncedStyleElement(string name)
+    public void ThemeCssIsServedFromTheExternalStylesheet(string name)
     {
         var html = Render(ThemeRegistry.Resolve(name), nonce: "test-nonce");
-        Assert.Equal(1, StylePattern().Count(html));
-        Assert.Contains("<style nonce=\"test-nonce\">", html, StringComparison.Ordinal);
+        Assert.Equal(0, StylePattern().Count(html));
+        Assert.Contains("<link rel=\"stylesheet\" href=\"/bark.css?v=", html, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -219,13 +219,12 @@ public sealed partial class ThemeCssIntegrityTests
             nonce: nonce,
             theme: theme);
 
-    private static string RenderStyleBlock(IBarkTheme theme)
-    {
-        var html = Render(theme);
-        var match = StyleBlockPattern().Match(html);
-        Assert.True(match.Success, "layout emitted no <style> block");
-        return match.Groups[1].Value;
-    }
+    /// <summary>The stylesheet the layout links to, built exactly as the /bark.css endpoint builds it.</summary>
+    private static string RenderThemeCss(IBarkTheme theme) =>
+        LayoutProvider.GetStylesAsset(
+            ThemeCssBuilder.BuildTokenCss(theme, enableDarkMode: true),
+            theme.ComponentCss,
+            basePath: "").Body;
 
     [GeneratedRegex(@"(--[a-z0-9-]+)\s*:")]
     private static partial Regex DefinitionPattern();
@@ -236,8 +235,6 @@ public sealed partial class ThemeCssIntegrityTests
     [GeneratedRegex(@"<style[^>]*>")]
     private static partial Regex StylePattern();
 
-    [GeneratedRegex(@"<style[^>]*>(.*?)</style>", RegexOptions.Singleline)]
-    private static partial Regex StyleBlockPattern();
 }
 
 public sealed class ThemeSelectionTests
