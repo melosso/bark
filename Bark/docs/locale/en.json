@@ -44,13 +44,13 @@
   "notFoundMessage": "The page you're looking for doesn't exist.",
   "notFoundHome": "Return home",
   "setupHeading": "Let's set up your homepage",
-  "setupBody": "You are up and running. Whenever you would like to choose what appears on this page, you can create an <code>index.md</code> file inside your docs folder, and it will be rendered here as your homepage automatically.",
+  "setupBody": "Bark is running. To choose what appears on this page, create an <code>index.md</code> file in your docs folder. It will be shown here as your homepage.",
   "setupExistingPages": "In the meantime, here are the pages you have already written:",
-  "setupNoFiles": "It looks like there are not any Markdown files just yet. Whenever you are ready, you can simply drop a <code>.md</code> file into your docs folder, and it will appear here instantly, with no build step to wait on.",
+  "setupNoFiles": "There are no Markdown files yet. Add a <code>.md</code> file to your docs folder and it appears here at once. There is no build step to wait for.",
   "localeSwitcher": "Change language",
   "translationMissing": "This page has not been translated yet, so you are reading the original.",
   "translationMissingLink": "Open the original page",
   "translationStale": "The original of this page changed after this translation was written, so parts of it may be out of date.",
   "translationStaleLink": "Compare with the original",
-  "translationMachine": "This page was translated automatically, so the wording may be rough. Corrections are welcome."
+  "translationMachine": "This page was translated by a machine, so some sentences may read badly. Corrections are welcome."
 }

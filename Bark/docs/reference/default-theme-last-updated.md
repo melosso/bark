@@ -29,7 +29,7 @@ lastUpdated: false
 
 ## Pinning a date
 
-File system timestamps are not always meaningful. When a deployment tool downloads or copies your files fresh, it tends to stamp every file with today's date rather than the date the content was written. Moving or renaming a file has the same effect. The `date` and `updated` frontmatter fields let you record the actual date directly alongside the content, so the stamp reflects when the page was written rather than when the file last landed on disk.
+File system timestamps are not always meaningful. When a deployment tool downloads or copies your files fresh, it tends to stamp every file with today's date rather than the date the content was written. Moving or renaming a file has the same effect. The `date` and `updated` frontmatter fields let you record the actual date directly alongside the content, so the stamp reflects when the page was written rather than when the file was last saved to disk.
 
 ```yaml
 ---

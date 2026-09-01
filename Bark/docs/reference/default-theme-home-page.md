@@ -5,7 +5,7 @@ description: layout:home frontmatter, hero and features
 
 # Homepage
 
-Set `layout: home` in a page's front matter to swap the normal docs chrome (sidebar, table of contents, breadcrumbs) for a hero section and a features grid. That's exactly what `index.md` on this site uses.
+Set `layout: home` in a page's front matter to swap the normal docs interface (sidebar, table of contents, breadcrumbs) for a hero section and a features grid. That's exactly what `index.md` on this site uses.
 
 ```yaml
 ---

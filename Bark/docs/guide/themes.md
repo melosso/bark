@@ -1,11 +1,11 @@
 ---
 title: Themes
-description: Override colors, ship your own CSS and JS, or hand the whole theme folder to a designer
+description: Override colors, add your own CSS and JS, or hand the whole theme folder to a designer
 ---
 
 # Themes
 
-Bark ships nine built-in themes and four escalating levels of control, from "pick a different look" to "replace every line of CSS":
+Bark comes with nine built-in themes and four escalating levels of control, from "pick a different look" to "replace every line of CSS":
 
 1. **A built-in theme**, one word in `config.json`.
 2. **CSS variables**, for palette and font tweaks on top of it.
@@ -40,7 +40,7 @@ Add ` dark` or ` light` to pin the color scheme, e.g. `"theme": "forest-ledger d
 | `laserwave` | Synthwave violet with a hot magenta accent and a 2px accent rule above each feature. |
 | `limelight` | Pale off-white with a sage-lime accent and a cyan counterpart. Square corners and a gradient rule under the hero. |
 
-Every theme carries a full light **and** dark palette, so the light/dark toggle behaves the same whichever you pick. The dark-sounding names are not dark-only: `signal-dark` has a paper-toned light mode that swaps its amber for bronze, and `laserwave` and `deep-space` have daylight palettes too.
+Every theme has a full light **and** dark palette, so the light/dark toggle behaves the same whichever you pick. The dark-sounding names are not dark-only: `signal-dark` has a paper-toned light mode that swaps its amber for bronze, and `laserwave` and `deep-space` have daylight palettes too.
 
 An unrecognised name logs a warning and falls back to `default`. A typo will never take your site down.
 
@@ -92,7 +92,7 @@ Defaults below are the `default` theme's light values:
 | `--border` | `#e2e7e2` | Hairline borders throughout the layout. |
 | `--code-bg` | `#f4f6f4` | Inline code and fenced code blocks. |
 | `--search-bg` | `#f4f6f4` | The boxed search field in the header. Falls back to `--sidebar-bg` when a theme leaves it unset. |
-| `--accent-light` | `#eef1ee` | Accent-tinted surface: active nav rows, hover fills. Carries no text-contrast duty, so a theme can put a saturated color here. |
+| `--accent-light` | `#eef1ee` | Accent-tinted surface: active nav rows, hover fills. Has no text-contrast duty, so a theme can put a saturated color here. |
 | `--promo-bg` / `--promo-text` | `--accent-light` / `--accent` | The announcement bar above the header. Aliases by default, so they follow your accent unless you set them. |
 | `--font-sans` | system stack | Body font. |
 | `--font-mono` | system stack | Code font. |
@@ -238,4 +238,4 @@ Three rules the test suite enforces for you:
 
 Themes change how Bark looks, not how it is built. You cannot restructure the header, add interactive features to the sidebar, or give individual pages their own layout.
 
-Custom CSS and JavaScript stretch this a fair way, but a genuinely different structure means changing Bark's own code. That is deliberate: one well-maintained layout beats a plugin system that the maintainers cannot easily debug.
+Custom CSS and JavaScript stretch this a fair way, but a genuinely different structure means changing Bark's own code. That is on purpose: one well-maintained layout beats a plugin system that the maintainers cannot easily debug.

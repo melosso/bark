@@ -45,4 +45,4 @@ A `topNav` link gets the `active` class when its `link` matches the current page
 
 The header nav bar hides below 768px width. Its items reappear at the top of the mobile sidebar drawer instead, dropdowns rendered as native `<details>` disclosures so they work without any JavaScript.
 
-There's no separate mobile-specific config. Whatever you put in `topNav` drives both.
+There's no separate mobile-specific config. Whatever you put in `topNav` controls both.

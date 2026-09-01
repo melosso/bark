@@ -9,7 +9,7 @@ The server automatically renders an "On this page" outline in the right-hand col
 
 ## Content
 
-Every `##` and deeper heading becomes an entry. The pages title (`#`) is left out in the TOC. Nesting stops at three levels, so a `#####` heading sits at the same indent as a `###` one rather than growing a fourth step.
+Every `##` and deeper heading becomes an entry. The pages title (`#`) is left out in the TOC. Nesting stops at three levels, so a `#####` heading is at the same indent as a `###` one rather than growing a fourth step.
 
 A page with no subheadings at all still gets a single entry linking to its `#` heading, rather than an empty box. Anchors come from the same slug generation as the heading IDs, so an outline link always resolves to the heading it names.
 
@@ -27,7 +27,7 @@ There is no site-wide equivalent. The outline is derived from content that alrea
 
 ## Rendering
 
-On screens wider than 1024px the outline is a sticky column beside your content. Between 769px and 1024px it collapses into an "On this page" disclosure above the content, using a native `<details>` element so it opens without JavaScript. Screens narrower than that, it is not rendered at all.
+On screens wider than 1024px the outline is a sticky column next to your content. Between 769px and 1024px it collapses into an "On this page" disclosure above the content, using a native `<details>` element so it opens without JavaScript. Screens narrower than that, it is not rendered at all.
 
 
 ## Home pages

@@ -20,7 +20,7 @@ Most documentation tools are static site generators: write Markdown, run a build
 Pages are held in memory, so lookups are immediate. Nothing touches disk per request.
 
 - Edits are debounced, so a burst of saves triggers one rebuild.
-- Responses carry an ETag, so a returning reader gets a 304 instead of the page again.
+- Responses have an ETag, so a returning reader gets a 304 instead of the page again.
 
 ## Ready to try it out?
 

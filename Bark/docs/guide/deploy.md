@@ -83,11 +83,11 @@ volumes:
 3. In IIS, create a site pointing at that folder with the **No Managed Code** .NET CLR version. Bark hosts itself through the ASP.NET Core Module and needs nothing from the CLR.
 4. Start the site and browse to it.
 
-The zip ships a `web.config` wired for in-process hosting, so no manual edits are needed.
+The zip comes with a `web.config` set up for in-process hosting, so no manual edits are needed.
 
 ## Option C: Linux release zip
 
-A self-contained Linux x64 build ships alongside every release.
+A self-contained Linux x64 build comes with every release.
 
 1. Download the latest `*-Linux_x64.zip` from [Releases](https://github.com/melosso/bark/releases){target="_blank" rel="noopener"} and extract it:
 
@@ -150,7 +150,7 @@ No flags required for any of this:
 * **Compression.** Brotli or Gzip on all traffic, including HTTPS.
 * **DoS limits.** Caps on request body size, header size, simultaneous connections, and keep-alive timeouts.
 * **Console logging.** Verbosity is adjustable per environment.
-* **[ETags](https://en.wikipedia.org/wiki/HTTP_ETag){target="_blank" rel="noopener"}.** Every page carries a SHA-256 fingerprint, so an unchanged page returns `304 Not Modified`.
+* **[ETags](https://en.wikipedia.org/wiki/HTTP_ETag){target="_blank" rel="noopener"}.** Every page has a SHA-256 fingerprint, so an unchanged page returns `304 Not Modified`.
 
 What's left to you is external: domain, firewall, and SSL certificates.
 
@@ -215,4 +215,4 @@ See [Environment variables](/guide/environment-variables/) for the full list.
 
 ## Sizing expectations
 
-Bark holds the entire rendered page set and the search index in memory. For a site in the hundreds of pages, that's a non-issue anywhere. At tens of thousands of pages, you've outgrown the assumptions this tool was built around.
+Bark keeps the entire rendered page set and the search index in memory. For a site in the hundreds of pages, that's a non-issue anywhere. At tens of thousands of pages, you've outgrown the assumptions this tool was built around.

@@ -35,7 +35,7 @@ Sitemap: https://your-host/sitemap.xml
 Because this is generated dynamically for every request rather than being served as a static file, the `Sitemap:` line always points to the specific host that handled the request. Whether you are working locally at `http://localhost:5000` or browsing your live site in production, it points to the correct location automatically, so you never have to manage multiple versions of the file.
 
 ::: note
-Behind a reverse proxy, this only resolves correctly if forwarded headers are wired up so the server sees the original scheme and host;  instead of the proxy's internal address. See [Deploy](/guide/deploy).
+Behind a reverse proxy, this only resolves correctly if forwarded headers are set up so the server sees the original scheme and host;  instead of the proxy's internal address. See [Deploy](/guide/deploy).
 :::
 
 ## `llms.txt`

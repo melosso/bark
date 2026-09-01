@@ -37,7 +37,7 @@ These settings belong to the `Docs` section:
 ```
 
 ::: tip
-`BasePath` matters most for [static export](/guide/deploy#option-e-static-export-github-pages-etc), where the `--base-path` CLI flag usually replaces it entirely. Set it here instead when the live server sits behind a reverse proxy that mounts Bark under a subpath.
+`BasePath` matters most for [static export](/guide/deploy#option-e-static-export-github-pages-etc), where the `--base-path` CLI flag usually replaces it entirely. Set it here instead when the live server is behind a reverse proxy that mounts Bark under a subpath.
 :::
 
 Colors, fonts, and your own CSS or JS are a separate concern, covered in [Themes](/guide/themes).
@@ -131,13 +131,13 @@ To start a translation, copy `docs/locale/en.json`, which lists every key Bark k
 A few rules make this safe to do halfway:
 
 - Any key you leave out keeps its English text. A partial file is fine and renders as a mix.
-- Placeholders like `{0}` carry a value from the page. Keep them exactly as they appear in the English source.
+- Placeholders like `{0}` hold a value from the page. Keep them exactly as they appear in the English source.
 - Keys Bark does not know are ignored, and it logs a warning naming them, which is usually a typo.
-- A file that is not valid JSON is skipped whole, with a warning, and the interface stays English.
+- A file that is not valid JSON is skipped completely, with a warning, and the interface is shown in English.
 
 Locale files hot reload like any other content. Save one and the running site picks it up, no restart. They are never served to a browser or listed by the API; the only thing that reads them is the string table.
 
-Bark ships `en.json` and `nl.json`. One language is active at a time, for the whole site.
+Bark comes with `en.json` and `nl.json`. One language is active at a time, for the whole site.
 
 ## Translated pages
 
@@ -163,13 +163,13 @@ docs/
     guide/install.md        → /nl/guide/install/
 ```
 
-Each tree gets its own navigation, its own search index, and its own `<html lang>`. A language switcher appears in the header as soon as a second language is configured. Because `sidebar` keys are path prefixes, a `/nl/` key gives that tree its own sidebar with no extra machinery.
+Each tree gets its own navigation, its own search index, and its own `<html lang>`. A language switcher appears in the header as soon as a second language is configured. Because `sidebar` keys are path prefixes, a `/nl/` key gives that tree its own sidebar with no extra setup.
 
-A page with `layout: home` never shows a translation notice. A landing page is a shop window, not a document, and a banner across the top of it reads as a fault rather than a courtesy.
+A page with `layout: home` never shows a translation notice. A landing page is there to invite people in, not to explain itself, and a banner across the top of it looks like an error rather than help.
 
 You do not have to translate everything before you ship. A page that exists in English but not yet in Dutch is served at its Dutch URL, in the Dutch interface, with a notice above the content linking to the English original. Its `canonical` points at the original, and it stays out of the Dutch search index, so an untranslated page never competes with the page it came from.
 
-Translations also go stale. When the original changes after the translation was written, Bark compares the two timestamps and shows a quieter notice inviting a comparison. Nothing is hidden and nothing is silently wrong.
+Translations also go stale. When the original changes after the translation was written, Bark compares the two timestamps and shows a smaller notice that invites a comparison. Nothing is hidden, and nothing is wrong without saying so.
 
 ::: tip
 One language is active per request, decided by the URL. Bark never redirects readers based on their browser language: that would fight shared caches, static export, and the reader's own choice of link.
@@ -195,7 +195,7 @@ Flags:
 
 What it leaves alone: fenced and indented code, inline code spans, link and image targets, HTML blocks, container markers, and every front matter field except `title` and `description`. Headings keep an explicit `{#anchor}` matching the original slug, so links into a translated page still land in the right place.
 
-Every generated file carries `machineTranslated: true` in its front matter, which renders a notice inviting corrections. Remove the flag once a person has read the page.
+Every generated file has `machineTranslated: true` in its front matter, which renders a notice inviting corrections. Remove the flag once a person has read the page.
 
 ::: warning
 Machine translation is a starting point, not a finished page. Review before you announce a language, and treat the flag as a to-do list rather than a badge.
@@ -203,7 +203,7 @@ Machine translation is a starting point, not a finished page. Review before you 
 
 ### Translating the menus
 
-`config.json` holds text too: menu labels, sidebar titles, the brand, the footer, the promo bar, the edit-link label. That text stays in `config.json`, written once, in one language. The translations live in the locale file, as a dictionary keyed by the original text:
+`config.json` contains text too: menu labels, sidebar titles, the brand, the footer, the promo bar, the edit-link label. That text remains in `config.json`, written once, in one language. The translations live in the locale file, as a dictionary keyed by the original text:
 
 ```json
 {
@@ -217,7 +217,7 @@ Machine translation is a starting point, not a finished page. Review before you 
 }
 ```
 
-The structure of your navigation is never duplicated. Add a page to the sidebar and every language picks it up; only its label needs a line in each `config` block. Anything absent from the dictionary renders in the original language, so a half-translated menu is a mix, not a gap.
+The structure of your navigation is never duplicated. Add a page to the sidebar and every language picks it up; only its label needs a line in each `config` block. Anything absent from the dictionary renders in the original language, so a partly translated menu shows some English, but nothing disappears.
 
 Markdown values work the same way. Use the exact source string as the key, links and all, and the translation is rendered as Markdown just like the original:
 
@@ -228,64 +228,3 @@ Markdown values work the same way. Use the exact source string as the key, links
 ```
 
 `config` is a reserved key inside a locale file. Every other key is an interface string, and Bark warns about names it does not recognise.
-
-### Drafting a translation with LibreTranslate
-
-Bark can draft a translated tree for you from a self-hosted [LibreTranslate](https://libretranslate.com/) instance. It is a one-off generator, not a runtime service: it writes real Markdown files that you then own, review, and edit.
-
-```bash
-dotnet run --project src/Bark -- --translate nl --translate-endpoint http://localhost:5000
-```
-
-Flags:
-
-| Flag | Meaning |
-|---|---|
-| `--translate <code>` | Target locale, and the directory it writes into (`docs/nl/`) |
-| `--translate-endpoint <url>` | LibreTranslate base URL, default `http://localhost:5000` |
-| `--translate-from <code>` | Source language, defaults to the site's own `locale` |
-| `--translate-api-key <key>` | Sent as `api_key` when your instance requires one |
-| `--translate-overwrite` | Retranslate files that already exist, which is off by default so your edits survive |
-
-What it leaves alone: fenced and indented code, inline code spans, link and image targets, HTML blocks, container markers, and every front matter field except `title` and `description`. Headings keep an explicit `{#anchor}` matching the original slug, so links into a translated page still land in the right place.
-
-Every generated file carries `machineTranslated: true` in its front matter, which renders a notice inviting corrections. Remove the flag once a person has read the page.
-
-::: warning
-Machine translation is a starting point, not a finished page. Review before you announce a language, and treat the flag as a to-do list rather than a badge.
-:::
-
-### Translating the menus
-
-`config.json` holds text too: menu labels, sidebar titles, the brand, the footer. A locale entry can override `topNav`, `nav`, `sidebar`, `brand`, `footer` and `promo`, and anything it leaves out falls back to the top-level value.
-
-```json
-{
-  "brand": "Docs",
-  "topNav": [{ "text": "Guide", "link": "/guide/install" }],
-  "sidebar": {
-    "/guide/": [
-      { "title": "Guide", "items": [{ "title": "Install", "path": "guide/install" }] }
-    ]
-  },
-  "locales": {
-    "root": { "label": "English", "lang": "en" },
-    "nl": {
-      "label": "Nederlands",
-      "lang": "nl",
-      "brand": "Documentatie",
-      "footer": "Geschreven in het Nederlands.",
-      "topNav": [{ "text": "Handleiding", "link": "/guide/install" }],
-      "sidebar": {
-        "/guide/": [
-          { "title": "Handleiding", "items": [{ "title": "Installeren", "path": "guide/install" }] }
-        ]
-      }
-    }
-  }
-}
-```
-
-Write the paths exactly as you write them in the root config, without the locale prefix. Bark adds it, so `guide/install` becomes `/nl/guide/install/` for a reader in the Dutch tree, and sidebar keys like `/guide/` keep matching. External links are never rewritten.
-
-A locale that overrides nothing inherits every menu from the top level, in the original language. That is the right default for a site whose navigation is mostly product names.

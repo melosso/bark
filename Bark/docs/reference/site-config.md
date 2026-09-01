@@ -12,7 +12,7 @@ Bark draws from two separate configuration files, and understanding why helps yo
 
 That distinction means you can check `config.json` into the same repository as your docs and deploy the server without touching it.
 
-If you are looking for a narrative walkthrough of these settings rather than a field-by-field reference, [Configuration](/guide/configuration) walks through the most common setups step by step.
+If you are looking for a narrative walkthrough of these settings rather than a field-by-field reference, [Configuration](/guide/configuration) goes through the most common setups step by step.
 
 ## `appsettings.json`: `Docs`
 
@@ -24,7 +24,7 @@ These settings apply at the host level and take effect at startup, so a restart 
 | `DefaultPage` | `string` | `index` | Page served at `/`. |
 | `EnableHotReload` | `bool` | `true` | Watch `*.md` and `config.json` for changes and rebuild in the background. It is recommended to disable this in production if you publish content as part of your deploy rather than editing files on the running server. |
 | `BasePath` | `string?` | `null` | Prefix every internal link, theme asset URL, and API call with this path segment. This is the setting to reach for when Bark is not served from the domain root, for example a GitHub Pages project page at `you.github.io/your-repo/` or a reverse proxy mounting Bark under `/docs`. A CLI `--base-path` flag overrides this value at runtime, which is how [static export](/guide/deploy#option-e-static-export-github-pages-etc) adjusts it without requiring a config edit. |
-| `ContentSecurityPolicy` | `string?` | `null` | A custom `Content-Security-Policy` header value. When provided, this replaces Bark's built-in default entirely rather than extending it. It is recommended to leave this unset unless you have a specific reason to override the default policy, such as allowing an external font host. Bark's default policy disallows inline scripts and styles that do not carry its per-request nonce, restricts every fetch directive to `'self'`, and disables framing. |
+| `ContentSecurityPolicy` | `string?` | `null` | A custom `Content-Security-Policy` header value. When provided, this replaces Bark's built-in default entirely rather than extending it. It is recommended to leave this unset unless you have a specific reason to override the default policy, such as allowing an external font host. Bark's default policy disallows inline scripts and styles that do not have its per-request nonce, restricts every fetch directive to `'self'`, and disables framing. |
 
 ## `appsettings.json`: `Docs:Themes`
 

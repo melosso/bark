@@ -5,7 +5,7 @@ description: Enabling privacy-friendly analytics like Matomo, Plausible, Medama,
 
 # Extensions
 
-Extensions are small, built-in integrations that Bark wires up for you. You describe the one you want, and Bark injects its script, keeps your Content Security Policy in step, and reloads on save. The current family covers privacy-friendly analytics, so you can measure your traffic while respecting your readers.
+Extensions are small, built-in integrations that Bark sets up for you. You describe the one you want, and Bark injects its script, keeps your Content Security Policy in step, and reloads on save. The current family covers privacy-friendly analytics, so you can measure your traffic while respecting your readers.
 
 ## What's Supported
 
@@ -39,7 +39,7 @@ Every extension stays off until you set `enabled` to `true`. An empty or absent 
 Bark also verifies each enabled extension before it goes live. If a setting looks off, that extension is left inactive and a warning is written to your startup log. This way a small typo cannot push a broken tracker to your visitors.
 
 ::: info
-Analytics scripts talk to an outside server, so Bark widens your Content Security Policy to allow the origin you configure. Each injected script also carries the page's security nonce. You are welcome to keep a strict CSP: the extension you enable is added to it for you.
+Analytics scripts talk to an outside server, so Bark widens your Content Security Policy to allow the origin you configure. Each injected script also has the page's security nonce. You are welcome to keep a strict CSP: the extension you enable is added to it for you.
 :::
 
 ## Available Extensions
@@ -192,4 +192,4 @@ Here is an `extensions.json` listing all four providers, each switched off. Keep
 }
 ```
 
-Save the file with an extension enabled, then reload a page and view its source. The analytics script sits in the `<head>`, carrying the page nonce. From here, the [Site Config](/reference/site-config) reference shows how `extensions.json` sits alongside the rest of your setup.
+Save the file with an extension enabled, then reload a page and view its source. The analytics script is in the `<head>`, with the page nonce. From here, the [Site Config](/reference/site-config) reference shows how `extensions.json` sits alongside the rest of your setup.

@@ -1,6 +1,6 @@
 ---
 title: Global Meta Tags
-description: Configuring page titles, meta descriptions, the HTML lang attribute, and arbitrary head tags in docs/config.json
+description: Configuring page titles, meta descriptions, the HTML lang attribute, and any head tags in docs/config.json
 ---
 
 # Global Meta Tags
@@ -51,7 +51,7 @@ The `description` field sets a site-wide `<meta name="description">` fallback. A
 }
 ```
 
-This is a practical way to ensure every page carries at least some meta description, without having to add frontmatter to every single file in your docs.
+This is a practical way to ensure every page has at least some meta description, without having to add frontmatter to every single file in your docs.
 
 ## Language
 
@@ -94,7 +94,7 @@ Open Graph and Twitter Card tags are generated from the same canonical URL, the 
 A few notes on how these are filled in:
 
 - `og:site_name` comes from your `brand` or `title`, and `og:locale` from `lang`.
-- The home page (`/`) uses `og:type` of `website`; all other pages use `article`, and article pages also carry an `article:modified_time`.
+- The home page (`/`) uses `og:type` of `website`; all other pages use `article`, and article pages also have an `article:modified_time`.
 - Description tags are omitted when the page has no description.
 
 ### Social Preview Image
@@ -107,13 +107,13 @@ The preview image is resolved for each page in order: the page's own frontmatter
 }
 ```
 
-When an image is found, Bark also upgrades the Twitter card to `summary_large_image`. Without one, it stays at `summary` and the image tags are simply omitted. To set a preview per page, add `image` to that page's frontmatter (see [Frontmatter Config](/reference/frontmatter-config)).
+When an image is found, Bark also upgrades the Twitter card to `summary_large_image`. Without one, it remains at `summary` and the image tags are simply omitted. To set a preview per page, add `image` to that page's frontmatter (see [Frontmatter Config](/reference/frontmatter-config)).
 
 ### Structured Data (JSON-LD)
 
 Bark also emits a `application/ld+json` block so search engines can read your pages as structured data. The home page is described as a `WebSite`, and every other page as an `Article` with its title, description, image, and modified date. When a page has breadcrumbs, a `BreadcrumbList` is included as well.
 
-There is nothing to configure. The block reflects the live request, and it carries the page nonce so it passes a strict Content Security Policy.
+There is nothing to configure. The block reflects the live request, and it has the page nonce so it passes a strict Content Security Policy.
 
 ::: info
 Canonical, Open Graph, Twitter Card, and JSON-LD are all generated from the live request, so they stay correct on their own. If you add matching tags through the `head` array below, yours appear alongside the automatic ones rather than replacing them.
@@ -121,7 +121,7 @@ Canonical, Open Graph, Twitter Card, and JSON-LD are all generated from the live
 
 ## Extra Head Tags
 
-For anything that falls outside the fields above, the `head` array lets you inject arbitrary tags into `<head>` on every page. This is particularly useful for structured data, site-name Open Graph metadata, or any third-party initialization snippets.
+For anything that falls outside the fields above, the `head` array lets you inject any tags into `<head>` on every page. This is particularly useful for structured data, site-name Open Graph metadata, or any third-party initialization snippets.
 
 Each entry in the array is an object with three fields:
 

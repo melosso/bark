@@ -143,7 +143,7 @@ Use `[label]` for the tab title. If the label matches a name on [Simple Icons](h
 
 ## Alerts
 
-Use these for quick highlights within your prose. These can be spawned with the syntax `> [!TYPE]`:
+Use these for quick highlights within your text. These can be spawned with the syntax `> [!TYPE]`:
 
 > [!NOTE]
 > Important context.
@@ -271,7 +271,7 @@ The spec is written by the WHATWG and served here over HTTP.
 *[WHATWG]: Web Hypertext Application Technology Working Group
 *[HTTP]: HyperText Transfer Protocol
 
-A definition covers the whole page, so every later mention picks it up: you can use HTML anywhere in your text and it stays explained. Terms carry a dotted underline. On a desktop the explanation appears on hover; on a phone, tap the term and it appears just above it.
+A definition covers the whole page, so every later mention picks it up: you can use HTML anywhere in your text and it stays explained. Terms have a dotted underline. On a desktop the explanation appears on hover; on a phone, tap the term and it appears just above it.
 
 ## Citations
 

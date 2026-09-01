@@ -59,4 +59,4 @@ Your folder layout becomes the site's navigation and URLs. No index to maintain.
 - [Routing](/guide/routing): the exact rules for turning a file path into a URL.
 - [Using Markdown](/guide/markdown): every Markdown extension Bark supports, with live examples.
 - [Frontmatter](/reference/frontmatter-config): every field a page can set.
-- [Deploy](/guide/deploy): Docker, IIS, Linux, or source, plus the production defaults Bark ships with.
+- [Deploy](/guide/deploy): Docker, IIS, Linux, or source, plus the production defaults Bark comes with.
