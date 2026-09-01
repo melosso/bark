@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Bark.Configuration;
 using Bark.Serialization;
+using Bark.Services.Rendering;
 
 namespace Bark.Services;
 
@@ -29,21 +30,21 @@ public static class StaticSiteExporter
         var publicPrefix = string.IsNullOrEmpty(baseUrl) ? null : baseUrl.TrimEnd('/');
         var basePath = app.Services.GetRequiredService<PageRequestSettings>().BasePath;
 
-        foreach (var page in pages)
+        foreach (var path in ExportPaths(pages.Select(p => p.Path), docs.LocaleCodes, docs.RootLocale))
         {
-            var requestPath = page.Path == "index" ? "/" : $"/{page.Path}";
+            var requestPath = path == "index" ? "/" : $"/{path}";
             using var response = await client.GetAsync(requestPath, cancellationToken);
             var html = WithCspMeta(
                 await response.Content.ReadAsStringAsync(cancellationToken), response);
             if (publicPrefix is not null)
                 html = html.Replace(originPrefix, publicPrefix);
-            var depth = page.Path == "index" ? 0 : page.Path.Split('/').Length;
+            var depth = path == "index" ? 0 : path.Split('/').Length;
             var relativePrefix = string.Concat(Enumerable.Repeat("../", depth));
             html = html.Replace($"{basePath}/bark.css", $"{relativePrefix}bark.css")
                        .Replace($"{basePath}/bark.js", $"{relativePrefix}bark.js");
-            var targetFile = page.Path == "index"
+            var targetFile = path == "index"
                 ? Path.Combine(outputDir, "index.html")
-                : Path.Combine(outputDir, page.Path, "index.html");
+                : Path.Combine(outputDir, path, "index.html");
             Directory.CreateDirectory(Path.GetDirectoryName(targetFile)!);
             await File.WriteAllTextAsync(targetFile, html, cancellationToken);
         }
@@ -91,6 +92,23 @@ public static class StaticSiteExporter
         CopyStaticAssets(assetsDir, Path.Combine(outputDir, "assets"), AssetContentTypes.IsAllowed);
 
         await app.StopAsync(cancellationToken);
+    }
+
+    // A locale tree only holds the pages actually translated; the server falls back to the root locale for the rest.
+    // A static host has no fallback, so every root page is also written under each locale prefix.
+    internal static IReadOnlyList<string> ExportPaths(
+        IEnumerable<string> pagePaths, IReadOnlyList<string> localeCodes, string rootLocale)
+    {
+        var paths = pagePaths.ToList();
+        var seen = new HashSet<string>(paths, StringComparer.Ordinal);
+        var rootPages = paths.Where(p => LocaleRouting.LocaleOf(p, localeCodes, rootLocale) == rootLocale).ToList();
+
+        foreach (var code in localeCodes)
+            foreach (var localized in rootPages.Select(p => LocaleRouting.Localize(code, p)))
+                if (seen.Add(localized))
+                    paths.Add(localized);
+
+        return paths;
     }
 
     // CSP only ever existed as a response header, so a published export had no policy at all.
